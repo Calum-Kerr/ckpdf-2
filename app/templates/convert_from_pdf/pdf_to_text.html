@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Extract Text from PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Extract Text from PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Extract all text content from a PDF document into a plain text file.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.pages.label(class="form-label") }}
+                                {{ form.pages(class="form-control") }}
+                                <div class="form-text">
+                                    Pages to extract text from (e.g., 1,3,5-7 or "all").
+                                </div>
+                                {% if form.pages.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.pages.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.include_page_numbers(class="form-check-input") }}
+                                    {{ form.include_page_numbers.label(class="form-check-label") }}
+                                    <div class="form-text">
+                                        Add page number markers in the output text.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Extraction Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                            <p>Pages Processed: {{ result.extracted_pages|length }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Extracted Text</h4>
+                            <p>Character Count: {{ result.text_length }}</p>
+                            <p>Word Count: {{ result.word_count }}</p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-3">Text Preview:</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <pre class="text-preview">{{ text_preview }}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('convert_from_pdf.download_text', filename=output_filename) }}" class="btn btn-success">Download Text File</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About Text Extraction</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Extracting text from PDF documents allows you to:
+                    </p>
+                    
+                    <ul>
+                        <li>Copy and paste content into other documents</li>
+                        <li>Edit the text in a word processor</li>
+                        <li>Search for specific content</li>
+                        <li>Process the text with other tools or scripts</li>
+                        <li>Make the content accessible to screen readers</li>
+                    </ul>
+                    
+                    <h4>How It Works</h4>
+                    <p>
+                        Our text extraction tool:
+                    </p>
+                    <ol>
+                        <li>Analyzes the PDF document structure</li>
+                        <li>Extracts all text content from the specified pages</li>
+                        <li>Preserves the basic text layout</li>
+                        <li>Saves the text to a plain text file (.txt)</li>
+                    </ol>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Text extraction works best with PDFs that contain actual text rather than scanned images. 
+                        For scanned documents, use our OCR tool first to make the text recognizable.
+                    </div>
+                    
+                    <h4>Limitations</h4>
+                    <p>
+                        While our tool extracts text effectively, there are some limitations:
+                    </p>
+                    <ul>
+                        <li>Complex formatting (columns, tables) may not be preserved exactly</li>
+                        <li>Special characters might not render correctly in some cases</li>
+                        <li>Text embedded in images cannot be extracted without OCR</li>
+                        <li>Some PDFs with security restrictions may prevent text extraction</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validate page format
+        const pagesInput = document.getElementById('pages');
+        if (pagesInput) {
+            pagesInput.addEventListener('input', function() {
+                // Allow only numbers, commas, hyphens, spaces, and "all"
+                if (this.value.toLowerCase() === 'all') {
+                    return;
+                }
+                this.value = this.value.replace(/[^0-9,\-\s]/g, '');
+            });
+        }
+    });
+</script>
+
+<style>
+    .text-preview {
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-size: 0.9rem;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}

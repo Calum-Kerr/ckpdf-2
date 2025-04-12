@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Flatten PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Flatten PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Convert form fields and annotations to static content in your PDF document.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Flattening Options</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-2">
+                                    {{ form.flatten_form_fields(class="form-check-input") }}
+                                    {{ form.flatten_form_fields.label(class="form-check-label") }}
+                                    <div class="form-text">
+                                        Convert interactive form fields to static text and graphics.
+                                    </div>
+                                </div>
+                                <div class="form-check mb-2">
+                                    {{ form.flatten_annotations(class="form-check-input") }}
+                                    {{ form.flatten_annotations.label(class="form-check-label") }}
+                                    <div class="form-text">
+                                        Convert comments, highlights, and other annotations to static content.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Flattening Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Elements Flattened</h4>
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Form Fields
+                                    <span class="badge bg-primary rounded-pill">{{ result.form_fields_count }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Annotations
+                                    <span class="badge bg-primary rounded-pill">{{ result.annotations_count }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Success!</strong> The PDF has been successfully flattened. All interactive elements have been converted to static content.
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('security.download_flattened', filename=output_filename) }}" class="btn btn-success">Download Flattened PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Flattening</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        PDF flattening converts interactive elements to static content, which helps:
+                    </p>
+                    
+                    <ul>
+                        <li>Ensure the document appears the same for all viewers</li>
+                        <li>Prevent further editing of form fields</li>
+                        <li>Make annotations permanent part of the document</li>
+                        <li>Reduce file size by removing interactive elements</li>
+                        <li>Improve compatibility with older PDF viewers</li>
+                    </ul>
+                    
+                    <h4>What Gets Flattened</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Form Fields</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Interactive elements such as:</p>
+                                    <ul>
+                                        <li>Text input fields</li>
+                                        <li>Checkboxes and radio buttons</li>
+                                        <li>Dropdown menus</li>
+                                        <li>Buttons</li>
+                                        <li>Digital signature fields</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Annotations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Comments and markup such as:</p>
+                                    <ul>
+                                        <li>Text notes and comments</li>
+                                        <li>Highlights and underlines</li>
+                                        <li>Stamps and watermarks</li>
+                                        <li>Drawing markups</li>
+                                        <li>File attachments</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Once a PDF is flattened, the interactive elements cannot be restored. Make sure to keep a copy of the original PDF if you need to edit the form fields or annotations later.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Security - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">PDF Security Tools</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Secure and Protect Your PDF Documents</h2>
+                    <p class="card-text">
+                        Our security tools help you protect sensitive information, control access to your documents,
+                        and ensure your PDFs meet your privacy and security requirements.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+                            <h3 class="card-title">Protect PDF</h3>
+                            <p class="card-text">
+                                Add password protection and set permissions for your PDF document.
+                            </p>
+                            <a href="{{ url_for('security.protect') }}" class="btn btn-primary">Protect PDF</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-unlock fa-3x text-success mb-3"></i>
+                            <h3 class="card-title">Unlock PDF</h3>
+                            <p class="card-text">
+                                Remove password protection from your PDF document.
+                            </p>
+                            <a href="{{ url_for('security.unlock') }}" class="btn btn-success">Unlock PDF</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-marker fa-3x text-danger mb-3"></i>
+                            <h3 class="card-title">Redact PDF</h3>
+                            <p class="card-text">
+                                Permanently remove sensitive information from your PDF document.
+                            </p>
+                            <a href="{{ url_for('security.redact') }}" class="btn btn-danger">Redact PDF</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-compress-alt fa-3x text-warning mb-3"></i>
+                            <h3 class="card-title">Flatten PDF</h3>
+                            <p class="card-text">
+                                Convert form fields and annotations to static content.
+                            </p>
+                            <a href="{{ url_for('security.flatten') }}" class="btn btn-warning">Flatten PDF</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Why Secure Your PDFs?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-user-shield text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Privacy Protection</h5>
+                                    <p class="mb-0">Keep sensitive information confidential.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-copyright text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Copyright Protection</h5>
+                                    <p class="mb-0">Control how your content is used and distributed.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-clipboard-check text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Compliance</h5>
+                                    <p class="mb-0">Meet legal and regulatory requirements.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-contract text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Document Integrity</h5>
+                                    <p class="mb-0">Prevent unauthorized modifications.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

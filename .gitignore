@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# Flask
+instance/
+!instance/.gitkeep
+instance/uploads/
+instance/temp/
+.webassets-cache
+
+# Heroku
+.env
+
+# Ghostscript
+# Ignore Ghostscript archives and source directories
+ghostscript.tar.gz
+ghostscript.zip
+ghostscript/ghostscript-*/
+
+# Explicitly ignore these large directories
+ghostscript/ghostscript-10.02.0/base/
+ghostscript/ghostscript-10.02.0/arch/
+ghostscript/ghostscript-10.02.0/
+
+# Keep Ghostscript package files
+!ghostscript/
+!ghostscript/__init__.py
+!ghostscript/README.md
+
+# Temporary files
+tmp/
+temp/
+uploads/
+*.tmp
+*.temp
+*.log
+
+# PDF files (except documentation)
+*.pdf
+!docs/*.pdf
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

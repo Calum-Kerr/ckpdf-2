@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Create Panoramic Image from PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Create Panoramic Image from PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Create a panoramic image by stitching PDF pages together horizontally or vertically.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.format.label(class="form-label") }}
+                                {{ form.format(class="form-select") }}
+                                <div class="form-text">
+                                    Select the output image format.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.dpi.label(class="form-label") }}
+                                {{ form.dpi(class="form-control") }}
+                                <div class="form-text">
+                                    Resolution in dots per inch (72-600).
+                                </div>
+                                {% if form.dpi.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.dpi.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.direction.label(class="form-label") }}
+                                {{ form.direction(class="form-select") }}
+                                <div class="form-text">
+                                    Direction to stitch pages together.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.spacing.label(class="form-label") }}
+                                {{ form.spacing(class="form-control") }}
+                                <div class="form-text">
+                                    Space between pages in pixels (0-100).
+                                </div>
+                                {% if form.spacing.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.spacing.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.pages.label(class="form-label") }}
+                            {{ form.pages(class="form-control") }}
+                            <div class="form-text">
+                                Pages to include (e.g., 1,3,5-7 or "all").
+                            </div>
+                            {% if form.pages.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pages.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Panoramic Image Created</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                            <p>Pages Used: {{ result.pages_used|join(', ') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Output Image</h4>
+                            <p>Format: {{ result.image_format }}</p>
+                            <p>Resolution: {{ result.dpi }} DPI</p>
+                            <p>Dimensions: {{ result.image_width }} × {{ result.image_height }} pixels</p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-3">Preview:</h5>
+                    <div class="text-center mb-3">
+                        <img src="{{ url_for('convert_from_pdf.get_panoramic', filename=output_filename) }}" 
+                             class="img-fluid border" alt="Panoramic Image Preview"
+                             style="max-height: 300px;">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('convert_from_pdf.download_panoramic', filename=output_filename) }}" class="btn btn-success">Download Panoramic Image</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About Panoramic Images</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Panoramic images created from PDF pages are useful for:
+                    </p>
+                    
+                    <ul>
+                        <li>Creating wide visualizations of multi-page content</li>
+                        <li>Displaying timelines, flowcharts, or diagrams that span multiple pages</li>
+                        <li>Combining pages for easier viewing without scrolling between pages</li>
+                        <li>Creating visual summaries of documents</li>
+                    </ul>
+                    
+                    <h4>Panorama Types</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Horizontal Panorama</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Pages are stitched side by side:</p>
+                                    <ul>
+                                        <li>Best for content that flows horizontally</li>
+                                        <li>Good for timelines and wide diagrams</li>
+                                        <li>Creates a wide, short image</li>
+                                    </ul>
+                                    <div class="text-center">
+                                        <img src="{{ url_for('static', filename='img/horizontal-panorama.png') }}" 
+                                             class="img-fluid" alt="Horizontal Panorama Example"
+                                             style="max-height: 100px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Vertical Panorama</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Pages are stacked on top of each other:</p>
+                                    <ul>
+                                        <li>Best for content that flows vertically</li>
+                                        <li>Good for long documents and reports</li>
+                                        <li>Creates a tall, narrow image</li>
+                                    </ul>
+                                    <div class="text-center">
+                                        <img src="{{ url_for('static', filename='img/vertical-panorama.png') }}" 
+                                             class="img-fluid" alt="Vertical Panorama Example"
+                                             style="max-height: 150px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Large PDFs with many pages may create very large panoramic images. 
+                        Consider using a lower DPI or selecting specific pages if you encounter memory issues.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validate page format
+        const pagesInput = document.getElementById('pages');
+        if (pagesInput) {
+            pagesInput.addEventListener('input', function() {
+                // Allow only numbers, commas, hyphens, spaces, and "all"
+                if (this.value.toLowerCase() === 'all') {
+                    return;
+                }
+                this.value = this.value.replace(/[^0-9,\-\s]/g, '');
+            });
+        }
+        
+        // Validate numeric inputs
+        const numericInputs = ['dpi', 'spacing'];
+        numericInputs.forEach(function(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', function() {
+                    // Allow only numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

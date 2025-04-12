@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}400 Bad Request - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h1>400 Bad Request</h1>
+    <p>The server could not understand the request due to invalid syntax.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Go to Homepage</a>
+</div>
+{% endblock %}

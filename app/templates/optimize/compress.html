@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Compress PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Compress PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.compression_level.label(class="form-label") }}
+                            {{ form.compression_level(class="form-select") }}
+                            <div class="form-text">
+                                <strong>Screen:</strong> Low quality, smallest file size (70-90% reduction)<br>
+                                <strong>eBook:</strong> Medium quality, good file size (50-70% reduction)<br>
+                                <strong>Printer:</strong> High quality, larger file size (30-50% reduction)<br>
+                                <strong>Prepress:</strong> High quality with color preservation (20-40% reduction)<br>
+                                <strong>Default:</strong> Default Ghostscript settings (40-60% reduction)
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Compression Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Original File</h4>
+                            <p>Size: {{ (result.input_size / 1024 / 1024)|round(2) }} MB</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Compressed File</h4>
+                            <p>Size: {{ (result.output_size / 1024 / 1024)|round(2) }} MB</p>
+                            <p>Reduction: {{ result.reduction_percent|round(2) }}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ result.reduction_percent }}%;" aria-valuenow="{{ result.reduction_percent }}" aria-valuemin="0" aria-valuemax="100">{{ result.reduction_percent|round(2) }}%</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('optimize.download_compressed', filename=output_filename) }}" class="btn btn-success">Download Compressed PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Compression</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        PDF compression reduces the file size of your PDF documents while maintaining acceptable quality. 
+                        This is useful for sharing documents via email, uploading to websites, or saving storage space.
+                    </p>
+                    
+                    <h4>How It Works</h4>
+                    <p>
+                        Our compression tool uses Ghostscript, a high-quality PDF processing engine, to optimize your PDF files. 
+                        It works by:
+                    </p>
+                    <ul>
+                        <li>Downsampling images to reduce their resolution</li>
+                        <li>Applying compression algorithms to images and text</li>
+                        <li>Removing unnecessary metadata and embedded fonts</li>
+                        <li>Optimizing the internal structure of the PDF</li>
+                    </ul>
+                    
+                    <h4>Choosing the Right Compression Level</h4>
+                    <p>
+                        Different compression levels are suitable for different purposes:
+                    </p>
+                    <ul>
+                        <li><strong>Screen:</strong> Best for documents that will only be viewed on screen</li>
+                        <li><strong>eBook:</strong> Good balance between quality and file size, suitable for most purposes</li>
+                        <li><strong>Printer:</strong> Better quality for documents that will be printed</li>
+                        <li><strong>Prepress:</strong> High quality with color preservation for professional printing</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        The actual compression ratio depends on the content of your PDF. Documents with many images will see greater reduction than text-only documents.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

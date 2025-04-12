@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Convert from PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Convert from PDF Tools</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Transform Your PDFs into Other Formats</h2>
+                    <p class="card-text">
+                        Our conversion tools help you transform PDF documents into other formats
+                        for different uses and applications.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-images fa-3x text-primary mb-3"></i>
+                            <h3 class="card-title">PDF to Images</h3>
+                            <p class="card-text">
+                                Convert PDF pages to high-quality images in various formats.
+                            </p>
+                            <a href="{{ url_for('convert_from_pdf.pdf_to_image') }}" class="btn btn-primary">Convert to Images</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-panorama fa-3x text-success mb-3"></i>
+                            <h3 class="card-title">PDF to Panoramic</h3>
+                            <p class="card-text">
+                                Create panoramic images from PDF pages by stitching them together.
+                            </p>
+                            <a href="{{ url_for('convert_from_pdf.pdf_to_panoramic') }}" class="btn btn-success">Create Panoramic</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-archive fa-3x text-info mb-3"></i>
+                            <h3 class="card-title">PDF to PDF/A</h3>
+                            <p class="card-text">
+                                Convert standard PDFs to PDF/A format for long-term archiving.
+                            </p>
+                            <a href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}" class="btn btn-info">Convert to PDF/A</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                            <h3 class="card-title">PDF to Text</h3>
+                            <p class="card-text">
+                                Extract all text content from a PDF document.
+                            </p>
+                            <a href="{{ url_for('convert_from_pdf.pdf_to_text') }}" class="btn btn-warning">Extract Text</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Why Convert from PDF?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-edit text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Easier Editing</h5>
+                                    <p class="mb-0">Edit content in more accessible formats.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-share-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Broader Compatibility</h5>
+                                    <p class="mb-0">Use PDF content in applications that don't support PDFs.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-archive text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Long-term Preservation</h5>
+                                    <p class="mb-0">Archive documents in standardized formats.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-search text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Content Extraction</h5>
+                                    <p class="mb-0">Extract text and images for other uses.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

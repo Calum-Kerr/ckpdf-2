@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Add Watermark - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Add Watermark</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Add a text watermark to your PDF document.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.text.label(class="form-label") }}
+                            {{ form.text(class="form-control") }}
+                            <div class="form-text">
+                                Text to use as watermark (e.g., "CONFIDENTIAL", "DRAFT", etc.).
+                            </div>
+                            {% if form.text.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.text.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.position.label(class="form-label") }}
+                                {{ form.position(class="form-select") }}
+                                <div class="form-text">
+                                    Where to place the watermark on each page.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.rotation.label(class="form-label") }}
+                                {{ form.rotation(class="form-control") }}
+                                <div class="form-text">
+                                    Rotation angle in degrees (0-360).
+                                </div>
+                                {% if form.rotation.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.rotation.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.font.label(class="form-label") }}
+                                {{ form.font(class="form-select") }}
+                                <div class="form-text">
+                                    Font to use for the watermark.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.font_size.label(class="form-label") }}
+                                {{ form.font_size(class="form-control") }}
+                                <div class="form-text">
+                                    Size of the watermark text (6-144 points).
+                                </div>
+                                {% if form.font_size.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.font_size.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.opacity.label(class="form-label") }}
+                                <div class="input-group">
+                                    {{ form.opacity(class="form-control") }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">
+                                    Transparency level (10-100%).
+                                </div>
+                                {% if form.opacity.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.opacity.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.pages.label(class="form-label") }}
+                                {{ form.pages(class="form-control") }}
+                                <div class="form-text">
+                                    Pages to watermark (e.g., 1,3,5-7 or "all").
+                                </div>
+                                {% if form.pages.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.pages.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Watermark Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                            <p>Pages Watermarked: {{ result.watermarked_pages|length }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Watermark Style</h4>
+                            <p>Text: "{{ result.watermark_text }}"</p>
+                            <p>Position: {{ position_name }}</p>
+                            <p>Opacity: {{ (result.opacity * 100)|int }}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('edit.download_watermarked', filename=output_filename) }}" class="btn btn-success">Download Watermarked PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About Watermarking</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Adding watermarks to your PDF documents helps with:
+                    </p>
+                    
+                    <ul>
+                        <li>Indicating document status (e.g., "DRAFT", "CONFIDENTIAL")</li>
+                        <li>Protecting intellectual property</li>
+                        <li>Branding documents with company names or logos</li>
+                        <li>Preventing unauthorized copying or distribution</li>
+                    </ul>
+                    
+                    <h4>Watermark Types</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Status Watermarks</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Indicate the document's status:</p>
+                                    <ul>
+                                        <li>DRAFT</li>
+                                        <li>CONFIDENTIAL</li>
+                                        <li>FOR REVIEW</li>
+                                        <li>DO NOT COPY</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Branding Watermarks</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Add ownership information:</p>
+                                    <ul>
+                                        <li>Company name</li>
+                                        <li>Copyright notices</li>
+                                        <li>Website URLs</li>
+                                        <li>Contact information</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Watermarks are added as semi-transparent text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validate page format
+        const pagesInput = document.getElementById('pages');
+        if (pagesInput) {
+            pagesInput.addEventListener('input', function() {
+                // Allow only numbers, commas, hyphens, spaces, and "all"
+                if (this.value.toLowerCase() === 'all') {
+                    return;
+                }
+                this.value = this.value.replace(/[^0-9,\-\s]/g, '');
+            });
+        }
+        
+        // Validate numeric inputs
+        const numericInputs = ['font_size', 'rotation'];
+        numericInputs.forEach(function(id) {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', function() {
+                    // Allow only numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+        
+        // Validate opacity (percentage)
+        const opacityInput = document.getElementById('opacity');
+        if (opacityInput) {
+            opacityInput.addEventListener('input', function() {
+                // Allow only numbers
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Enforce min/max values
+                const value = parseInt(this.value);
+                if (!isNaN(value)) {
+                    if (value < 10) this.value = '10';
+                    if (value > 100) this.value = '100';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

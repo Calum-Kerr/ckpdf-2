@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Edit PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Edit PDF Tools</h1>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Enhance and Modify Your PDF Documents</h2>
+                    <p class="card-text">
+                        Our editing tools help you add professional touches and make changes to your PDF documents
+                        without needing specialized software.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-list-ol fa-3x text-primary mb-3"></i>
+                            <h3 class="card-title">Add Page Numbers</h3>
+                            <p class="card-text">
+                                Add customizable page numbers to your PDF document.
+                            </p>
+                            <a href="{{ url_for('edit.page_numbers') }}" class="btn btn-primary">Add Page Numbers</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-stamp fa-3x text-success mb-3"></i>
+                            <h3 class="card-title">Add Watermark</h3>
+                            <p class="card-text">
+                                Add text watermarks to your PDF document.
+                            </p>
+                            <a href="{{ url_for('edit.watermark') }}" class="btn btn-success">Add Watermark</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-edit fa-3x text-info mb-3"></i>
+                            <h3 class="card-title">Edit Text</h3>
+                            <p class="card-text">
+                                Edit text directly on your PDF in editable text boxes while preserving formatting and layout.
+                            </p>
+                            <a href="{{ url_for('edit.text_editor') }}" class="btn btn-info">Edit Text</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-signature fa-3x text-warning mb-3"></i>
+                            <h3 class="card-title">Add Signature</h3>
+                            <p class="card-text">
+                                Add a signature to your PDF document.
+                            </p>
+                            <a href="{{ url_for('edit.signature') }}" class="btn btn-warning">Add Signature</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Why Edit Your PDFs?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tasks text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Professional Appearance</h5>
+                                    <p class="mb-0">Add finishing touches for a polished look.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shield-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Document Protection</h5>
+                                    <p class="mb-0">Add watermarks to indicate ownership or status.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-search text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Better Navigation</h5>
+                                    <p class="mb-0">Page numbers make it easier to reference specific content.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Quick Fixes</h5>
+                                    <p class="mb-0">Make minor edits without recreating the entire document.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

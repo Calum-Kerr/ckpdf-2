@@ -1,0 +1,23 @@
+# Web Framework
+Flask==2.3.3
+Flask-WTF==1.1.1
+Werkzeug==2.3.7
+Jinja2==3.1.2
+itsdangerous==2.1.2
+gunicorn==21.2.0
+
+# PDF Processing
+PyMuPDF==1.22.5  # For PDF manipulation
+pytesseract==0.3.10  # For OCR
+Pillow==10.0.0  # For image processing
+WeasyPrint==59.0  # For HTML to PDF conversion
+python-magic==0.4.27  # For file type detection
+
+# Security
+Flask-Talisman==1.0.0  # For security headers
+Flask-Limiter==3.3.1  # For rate limiting
+
+# Utilities
+python-dotenv==1.0.0  # For environment variables
+requests==2.31.0  # For HTTP requests
+pytest==7.4.0  # For testing

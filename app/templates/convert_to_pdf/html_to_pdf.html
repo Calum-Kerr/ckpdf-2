@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Convert HTML to PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Convert HTML to PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Convert HTML files or web pages to PDF format.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Coming Soon!</strong> This feature is currently under development and will be available soon.
+                    </div>
+                    
+                    <ul class="nav nav-tabs" id="htmlSourceTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-panel" type="button" role="tab" aria-controls="file-panel" aria-selected="true">HTML File</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-panel" type="button" role="tab" aria-controls="url-panel" aria-selected="false">Web URL</button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content p-3 border border-top-0 rounded-bottom mb-4" id="htmlSourceTabContent">
+                        <!-- HTML File Tab -->
+                        <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
+                            <form method="POST" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label for="html-file" class="form-label">Select HTML File</label>
+                                    <input type="file" id="html-file" name="file" class="form-control" accept=".html,.htm" disabled>
+                                    <div class="form-text">
+                                        Upload an HTML file to convert to PDF.
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Web URL Tab -->
+                        <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="web-url" class="form-label">Enter Web URL</label>
+                                    <input type="url" id="web-url" name="url" class="form-control" placeholder="https://example.com" disabled>
+                                    <div class="form-text">
+                                        Enter the URL of a web page to convert to PDF.
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About HTML to PDF Conversion</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Converting HTML to PDF allows you to:
+                    </p>
+                    
+                    <ul>
+                        <li>Create permanent copies of web pages</li>
+                        <li>Save web content for offline viewing</li>
+                        <li>Archive online articles, reports, or documentation</li>
+                        <li>Generate professional-looking documents from HTML templates</li>
+                        <li>Share web content in a format that preserves layout and formatting</li>
+                    </ul>
+                    
+                    <h4>Conversion Features</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">HTML File Conversion</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Upload local HTML files:</p>
+                                    <ul>
+                                        <li>Convert single HTML pages</li>
+                                        <li>Include CSS styling</li>
+                                        <li>Preserve images and formatting</li>
+                                        <li>Support for HTML5 elements</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Web URL Conversion</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Convert online web pages:</p>
+                                    <ul>
+                                        <li>Capture complete web pages</li>
+                                        <li>Preserve layout and styling</li>
+                                        <li>Include images and media</li>
+                                        <li>Support for responsive designs</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> Some complex web pages with advanced JavaScript functionality may not convert perfectly. For best results, use simple HTML pages with standard CSS styling.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

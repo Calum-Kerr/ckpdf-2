@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Protect PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Protect PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Add password protection and set permissions for your PDF document.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Password Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.user_password.label(class="form-label") }}
+                                        {{ form.user_password(class="form-control") }}
+                                        <div class="form-text">
+                                            Required to open the document.
+                                        </div>
+                                        {% if form.user_password.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.user_password.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        {{ form.owner_password.label(class="form-label") }}
+                                        {{ form.owner_password(class="form-control") }}
+                                        <div class="form-text">
+                                            Required for full access (optional).
+                                        </div>
+                                        {% if form.owner_password.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.owner_password.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.confirm_password.label(class="form-label") }}
+                                    {{ form.confirm_password(class="form-control") }}
+                                    <div class="form-text">
+                                        Re-enter the user password to confirm.
+                                    </div>
+                                    {% if form.confirm_password.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.confirm_password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Permission Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_print(class="form-check-input") }}
+                                            {{ form.allow_print.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_copy(class="form-check-input") }}
+                                            {{ form.allow_copy.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_modify(class="form-check-input") }}
+                                            {{ form.allow_modify.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_annotate(class="form-check-input") }}
+                                            {{ form.allow_annotate.label(class="form-check-label") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_forms(class="form-check-input") }}
+                                            {{ form.allow_forms.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_accessibility(class="form-check-input") }}
+                                            {{ form.allow_accessibility.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_assemble(class="form-check-input") }}
+                                            {{ form.allow_assemble.label(class="form-check-label") }}
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            {{ form.allow_print_hq(class="form-check-input") }}
+                                            {{ form.allow_print_hq.label(class="form-check-label") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Protection Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Password Protection</h4>
+                            <ul class="list-group mb-3">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    User Password
+                                    <span class="badge {% if result.has_user_password %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                        {% if result.has_user_password %}Set{% else %}Not Set{% endif %}
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Owner Password
+                                    <span class="badge {% if result.has_owner_password %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                                        {% if result.has_owner_password %}Set{% else %}Not Set{% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Permissions</h4>
+                            <ul class="list-group mb-3">
+                                {% for perm_name, perm_value in result.permissions.items() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ perm_name|capitalize }}
+                                        <span class="badge {% if perm_value %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
+                                            {% if perm_value %}Allowed{% else %}Denied{% endif %}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Please remember your password! If you lose it, you may not be able to access your document.
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('security.download_protected', filename=output_filename) }}" class="btn btn-success">Download Protected PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Protection</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Password protection helps you:
+                    </p>
+                    
+                    <ul>
+                        <li>Control who can open your document</li>
+                        <li>Restrict what users can do with your document</li>
+                        <li>Protect sensitive information</li>
+                        <li>Comply with data protection regulations</li>
+                    </ul>
+                    
+                    <h4>Password Types</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">User Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Also known as the "Document Open Password":</p>
+                                    <ul>
+                                        <li>Required to open the document</li>
+                                        <li>Prevents unauthorized access</li>
+                                        <li>Cannot be removed without the password</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Owner Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Also known as the "Permissions Password":</p>
+                                    <ul>
+                                        <li>Controls what users can do with the document</li>
+                                        <li>Allows bypassing permission restrictions</li>
+                                        <li>Optional (if not set, user password is used)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> PDF security is not unbreakable. It provides a reasonable level of protection but may not stop determined attackers with specialized tools.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userPasswordInput = document.getElementById('user_password');
+        const ownerPasswordInput = document.getElementById('owner_password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        
+        // Check password match
+        function checkPasswordMatch() {
+            if (userPasswordInput.value && confirmPasswordInput.value) {
+                if (userPasswordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordInput.setCustomValidity('Passwords do not match');
+                } else {
+                    confirmPasswordInput.setCustomValidity('');
+                }
+            } else {
+                confirmPasswordInput.setCustomValidity('');
+            }
+        }
+        
+        // Add event listeners
+        if (userPasswordInput && confirmPasswordInput) {
+            userPasswordInput.addEventListener('input', checkPasswordMatch);
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        }
+        
+        // Form validation
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                // Check if at least one password is provided
+                if (!userPasswordInput.value && !ownerPasswordInput.value) {
+                    event.preventDefault();
+                    alert('Please provide at least one password (user or owner).');
+                    return;
+                }
+                
+                // Check if passwords match
+                if (userPasswordInput.value !== confirmPasswordInput.value) {
+                    event.preventDefault();
+                    alert('Passwords do not match.');
+                    return;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

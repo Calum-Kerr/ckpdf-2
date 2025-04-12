@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Image to PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Convert Image to PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Convert JPG, PNG, and other image formats to PDF with customizable page settings.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.page_size.label(class="form-label") }}
+                                {{ form.page_size(class="form-select") }}
+                                <div class="form-text">
+                                    Select "Original Image Size" to keep the exact dimensions of your image.
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.orientation.label(class="form-label") }}
+                                {{ form.orientation(class="form-select") }}
+                                <div class="form-text">
+                                    Orientation only applies to standard page sizes, not original size.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Conversion Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Original Image</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Width
+                                    <span class="badge bg-primary rounded-pill">{{ result.image_width }} px</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Height
+                                    <span class="badge bg-primary rounded-pill">{{ result.image_height }} px</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>PDF Document</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Page Size
+                                    <span class="badge bg-primary rounded-pill">{{ result.page_size|upper }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Orientation
+                                    <span class="badge bg-primary rounded-pill">{{ result.orientation|title }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Width
+                                    <span class="badge bg-primary rounded-pill">{{ result.pdf_width|round|int }} pt</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Height
+                                    <span class="badge bg-primary rounded-pill">{{ result.pdf_height|round|int }} pt</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('convert_to_pdf.download_pdf', filename=output_filename) }}" class="btn btn-success">Download PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About Image to PDF Conversion</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Converting images to PDF format offers several advantages:
+                    </p>
+                    
+                    <ul>
+                        <li>Create professional-looking documents from images</li>
+                        <li>Combine multiple images into a single document (with our Merge tool)</li>
+                        <li>Make images easier to share and print</li>
+                        <li>Preserve image quality in a document format</li>
+                    </ul>
+                    
+                    <h4>Supported Image Formats</h4>
+                    <p>
+                        Our tool supports the following image formats:
+                    </p>
+                    <ul>
+                        <li>JPEG/JPG</li>
+                        <li>PNG</li>
+                        <li>GIF</li>
+                        <li>BMP</li>
+                        <li>TIFF/TIF</li>
+                    </ul>
+                    
+                    <h4>Page Size Options</h4>
+                    <p>
+                        You can choose from standard page sizes or keep the original dimensions of your image:
+                    </p>
+                    <ul>
+                        <li><strong>A4:</strong> 210mm × 297mm (8.27in × 11.69in) - Standard in most countries</li>
+                        <li><strong>Letter:</strong> 8.5in × 11in (215.9mm × 279.4mm) - Standard in US and Canada</li>
+                        <li><strong>Legal:</strong> 8.5in × 14in (215.9mm × 355.6mm) - For legal documents</li>
+                        <li><strong>A3:</strong> 297mm × 420mm (11.69in × 16.54in) - Larger format</li>
+                        <li><strong>A5:</strong> 148mm × 210mm (5.83in × 8.27in) - Smaller format</li>
+                        <li><strong>Original Image Size:</strong> Maintains the exact dimensions of your image</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        When using standard page sizes, your image will be scaled to fit the page while maintaining its aspect ratio.
+                        For the highest quality, use "Original Image Size" if you want to preserve the exact dimensions of your image.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Organize PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Organize PDF Tools</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Manage and Organize Your PDF Documents</h2>
+                    <p class="card-text">
+                        Our organization tools help you arrange, combine, and manipulate PDF documents
+                        to create exactly what you need for your workflow.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-object-group fa-3x text-primary mb-3"></i>
+                            <h3 class="card-title">Merge PDFs</h3>
+                            <p class="card-text">
+                                Combine multiple PDF files into a single document.
+                            </p>
+                            <a href="{{ url_for('organize.merge') }}" class="btn btn-primary">Merge PDFs</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cut fa-3x text-success mb-3"></i>
+                            <h3 class="card-title">Split PDF</h3>
+                            <p class="card-text">
+                                Divide a PDF document into multiple smaller PDFs.
+                            </p>
+                            <a href="{{ url_for('organize.split') }}" class="btn btn-success">Split PDF</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-copy fa-3x text-info mb-3"></i>
+                            <h3 class="card-title">Extract Pages</h3>
+                            <p class="card-text">
+                                Extract specific pages from a PDF document.
+                            </p>
+                            <a href="{{ url_for('organize.extract') }}" class="btn btn-info">Extract Pages</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-sync-alt fa-3x text-warning mb-3"></i>
+                            <h3 class="card-title">Rotate Pages</h3>
+                            <p class="card-text">
+                                Rotate pages in a PDF document to the correct orientation.
+                            </p>
+                            <a href="{{ url_for('organize.rotate') }}" class="btn btn-warning">Rotate Pages</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Why Organize Your PDFs?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tasks text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Streamline Workflows</h5>
+                                    <p class="mb-0">Organize documents to match your specific needs.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-share-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Easier Sharing</h5>
+                                    <p class="mb-0">Share only the relevant parts of your documents.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-search text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Better Organization</h5>
+                                    <p class="mb-0">Keep related content together and separate unrelated content.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Professional Documents</h5>
+                                    <p class="mb-0">Create polished, properly oriented documents.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

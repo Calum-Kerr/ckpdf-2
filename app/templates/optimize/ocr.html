@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}OCR PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">OCR PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Extract text from scanned PDFs using Optical Character Recognition (OCR).
+                        This makes your PDF searchable and allows you to select and copy text.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.language.label(class="form-label") }}
+                            {{ form.language(class="form-select") }}
+                            <div class="form-text">
+                                Select the language of the text in your PDF for better OCR results.
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">OCR Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Pages Processed</h4>
+                            <p>{{ result.page_count }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Languages Used</h4>
+                            <ul>
+                                {% for lang_code in result.languages %}
+                                    <li>{{ get_language_name(lang_code) }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert {% if result.text_found %}alert-success{% else %}alert-warning{% endif %}">
+                        {% if result.text_found %}
+                            <i class="fas fa-check-circle me-2"></i> Text was successfully extracted and added to the PDF.
+                        {% else %}
+                            <i class="fas fa-info-circle me-2"></i> No text was extracted. The PDF may already contain text or no recognizable text was found in the images.
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('optimize.download_ocr', filename=output_filename) }}" class="btn btn-success">Download OCR'd PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF OCR</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Optical Character Recognition (OCR) is the process of converting images of text into machine-readable text.
+                        When applied to PDFs, OCR makes scanned documents searchable and allows you to select and copy text.
+                    </p>
+                    
+                    <h4>How It Works</h4>
+                    <p>
+                        Our OCR tool uses a multi-step process:
+                    </p>
+                    <ol>
+                        <li>
+                            <strong>Image Extraction:</strong> We extract images from each page of your PDF.
+                        </li>
+                        <li>
+                            <strong>Text Recognition:</strong> We use Tesseract OCR to recognize text in the extracted images.
+                        </li>
+                        <li>
+                            <strong>Text Overlay:</strong> We add the recognized text as an invisible layer on top of the original PDF.
+                        </li>
+                    </ol>
+                    
+                    <h4>Benefits of OCR</h4>
+                    <ul>
+                        <li>Make scanned documents searchable</li>
+                        <li>Enable text selection and copying</li>
+                        <li>Improve accessibility for screen readers</li>
+                        <li>Prepare documents for text analysis</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        OCR accuracy depends on the quality of the original document. Clear, high-resolution scans will yield better results.
+                        For best results, choose the correct language that matches the text in your document.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

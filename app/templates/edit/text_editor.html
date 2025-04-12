@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+
+{% block title %}Edit PDF Text - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Edit PDF Text</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Edit text directly in your PDF document. Changes are applied while preserving the original layout.
+                    </p>
+
+                    {% if not pdf_uploaded %}
+                    <form id="upload-form" method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Upload PDF</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if pdf_uploaded %}
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">PDF Text Editor</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>How to edit:</strong> Click on any text box to edit its content. When you're done, click "Save Changes" to apply all edits to the PDF.
+                            </div>
+
+                            <div class="pdf-editor-container position-relative border mb-3">
+                                <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid w-100" alt="PDF Preview">
+                                <div id="text-blocks-overlay" class="text-blocks-overlay"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <button id="prev-page" class="btn btn-outline-secondary" {% if current_page <= 1 %}disabled{% endif %}>
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </button>
+                                    <button id="next-page" class="btn btn-outline-secondary" {% if current_page >= total_pages %}disabled{% endif %}>
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button id="save-changes" class="btn btn-success mb-3">Save Changes</button>
+                                {% if output_filename %}
+                                <a href="{{ url_for('edit.download_edited', filename=output_filename) }}" class="btn btn-primary mb-3">Download Edited PDF</a>
+                                {% endif %}
+                                <a href="{{ url_for('edit.text_editor') }}" class="btn btn-outline-secondary">Start Over</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Text Editing</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Our PDF Text Editor allows you to:
+                    </p>
+
+                    <ul>
+                        <li>Edit text directly on the PDF page</li>
+                        <li>Preserve the original formatting and layout</li>
+                        <li>Make quick corrections to text content</li>
+                        <li>Update information in existing PDF documents</li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> While our editor preserves most formatting, some complex layouts or special fonts might not be perfectly preserved. For extensive document redesign, consider using a dedicated PDF editor.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Text Editor Modal -->
+<div class="modal fade" id="textEditorModal" tabindex="-1" aria-labelledby="textEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="textEditorModalLabel">Edit Text</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="edit-text-content" class="form-label">Text Content</label>
+                    <textarea id="edit-text-content" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="apply-text-edit">Apply Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables
+        const pdfPreview = document.getElementById('pdf-preview');
+        const textBlocksOverlay = document.getElementById('text-blocks-overlay');
+        const saveChangesBtn = document.getElementById('save-changes');
+        const prevButton = document.getElementById('prev-page');
+        const nextButton = document.getElementById('next-page');
+        const textEditorModal = new bootstrap.Modal(document.getElementById('textEditorModal'));
+        const editTextContent = document.getElementById('edit-text-content');
+        const applyTextEditBtn = document.getElementById('apply-text-edit');
+
+        // Store text blocks data
+        let textBlocks = {{ text_blocks|tojson }};
+        let currentEditingBlock = null;
+
+        // Create editable text blocks
+        function createTextBlocks() {
+            if (!textBlocksOverlay) return;
+
+            // Clear existing blocks
+            textBlocksOverlay.innerHTML = '';
+
+            // Calculate scale factor between PDF coordinates and display size
+            const scaleX = pdfPreview.offsetWidth / {{ pdf_width }};
+            const scaleY = pdfPreview.offsetHeight / {{ pdf_height }};
+
+            // Create a text block for each block in the data
+            textBlocks.forEach((block, index) => {
+                const bbox = block.bbox;
+
+                // Create the text block element
+                const textBlockEl = document.createElement('div');
+                textBlockEl.className = 'editable-text-block';
+                textBlockEl.dataset.blockIndex = index;
+
+                // Position and size the block
+                textBlockEl.style.left = (bbox[0] * scaleX) + 'px';
+                textBlockEl.style.top = (bbox[1] * scaleY) + 'px';
+                textBlockEl.style.width = ((bbox[2] - bbox[0]) * scaleX) + 'px';
+                textBlockEl.style.height = ((bbox[3] - bbox[1]) * scaleY) + 'px';
+
+                // Set font size based on the original size and scale
+                const fontSize = Math.max(10, Math.min(24, block.size * Math.min(scaleX, scaleY)));
+                textBlockEl.style.fontSize = fontSize + 'px';
+
+                // Determine if this is a heading based on font size or block type
+                const isHeading = block.block_type === 'heading' || block.size > 14;
+                if (isHeading) {
+                    textBlockEl.style.fontWeight = 'bold';
+                }
+
+                // Set text content
+                textBlockEl.textContent = block.text;
+
+                // Add a data attribute for the original text (for debugging)
+                textBlockEl.dataset.originalText = block.text;
+
+                // Add click event to edit
+                textBlockEl.addEventListener('click', function() {
+                    openTextEditor(index);
+                });
+
+                // Add to overlay
+                textBlocksOverlay.appendChild(textBlockEl);
+            });
+
+            // Log for debugging
+            console.log(`Created ${textBlocks.length} editable text blocks`);
+        }
+
+        // Open text editor modal for a block
+        function openTextEditor(blockIndex) {
+            currentEditingBlock = blockIndex;
+            const block = textBlocks[blockIndex];
+
+            // Set the text content in the editor
+            editTextContent.value = block.text;
+
+            // Show the modal
+            textEditorModal.show();
+        }
+
+        // Apply text edit
+        if (applyTextEditBtn) {
+            applyTextEditBtn.addEventListener('click', function() {
+                if (currentEditingBlock === null) return;
+
+                // Update the text block data
+                textBlocks[currentEditingBlock].text = editTextContent.value;
+
+                // Update the visual representation
+                const textBlockEl = textBlocksOverlay.querySelector(`[data-block-index="${currentEditingBlock}"]`);
+                if (textBlockEl) {
+                    textBlockEl.textContent = editTextContent.value;
+                }
+
+                // Close the modal
+                textEditorModal.hide();
+            });
+        }
+
+        // Save all changes
+        if (saveChangesBtn) {
+            saveChangesBtn.addEventListener('click', function() {
+                // Prepare data for submission
+                const updatedBlocks = textBlocks.map(block => {
+                    return {
+                        ...block,
+                        page_number: {{ current_page }}
+                    };
+                });
+
+                // Log what we're about to send
+                console.log('Saving text blocks:', updatedBlocks);
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('filename', '{{ filename }}');
+
+                // Stringify the text blocks and log it for debugging
+                const textBlocksJson = JSON.stringify(updatedBlocks);
+                console.log('Stringified text blocks length:', textBlocksJson.length);
+
+                // Make sure we're not sending empty data
+                if (!textBlocksJson || textBlocksJson === '[]' || textBlocksJson === 'null') {
+                    alert('No text blocks to save. Please try again.');
+                    saveChangesBtn.disabled = false;
+                    saveChangesBtn.innerHTML = 'Save Changes';
+                    return;
+                }
+
+                formData.append('text_blocks', textBlocksJson);
+
+                // Disable the button and show loading state
+                saveChangesBtn.disabled = true;
+                saveChangesBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+                // Send the request
+                fetch('{{ url_for("edit.update_text_blocks") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    // Check if the response is ok
+                    if (!response.ok) {
+                        // Try to parse as JSON, but handle HTML error pages
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json().then(data => {
+                                throw new Error(data.error || 'Server error: ' + response.status);
+                            });
+                        } else {
+                            // If not JSON, it's probably an HTML error page
+                            throw new Error('Server error: ' + response.status);
+                        }
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    console.log('Save successful:', data);
+
+                    // Show success message
+                    alert('Changes saved successfully!');
+
+                    // Redirect to the same page with the output filename
+                    const redirectUrl = new URL("{{ url_for('edit.text_editor', _external=True) }}");
+                    redirectUrl.searchParams.append('filename', '{{ filename }}');
+                    redirectUrl.searchParams.append('page', '{{ current_page }}');
+                    redirectUrl.searchParams.append('output', data.output_filename);
+                    console.log('Redirecting to:', redirectUrl.toString());
+                    window.location.href = redirectUrl.toString();
+                })
+                .catch(error => {
+                    console.error('Error saving changes:', error);
+                    alert('Error saving changes: ' + error.message);
+                })
+                .finally(() => {
+                    // Re-enable the button
+                    saveChangesBtn.disabled = false;
+                    saveChangesBtn.innerHTML = 'Save Changes';
+                });
+            });
+        }
+
+        // Navigation buttons
+        if (prevButton) {
+            prevButton.addEventListener('click', function() {
+                const currentPage = parseInt({{ current_page }});
+                if (currentPage > 1) {
+                    // Preserve output filename if it exists
+                    const outputParam = '{{ output_filename }}' ? '&output={{ output_filename }}' : '';
+                    window.location.href = "{{ url_for('edit.text_editor') }}?filename={{ filename }}&page=" + (currentPage - 1) + outputParam;
+                }
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', function() {
+                const currentPage = parseInt({{ current_page }});
+                const totalPages = parseInt({{ total_pages }});
+                if (currentPage < totalPages) {
+                    // Preserve output filename if it exists
+                    const outputParam = '{{ output_filename }}' ? '&output={{ output_filename }}' : '';
+                    window.location.href = "{{ url_for('edit.text_editor') }}?filename={{ filename }}&page=" + (currentPage + 1) + outputParam;
+                }
+            });
+        }
+
+        // Initialize text blocks when the page loads
+        if (textBlocksOverlay && textBlocks.length > 0) {
+            // Wait for the PDF preview to load
+            if (pdfPreview) {
+                pdfPreview.onload = function() {
+                    createTextBlocks();
+                };
+
+                // If the image is already loaded, create the blocks immediately
+                if (pdfPreview.complete) {
+                    createTextBlocks();
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .pdf-editor-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .text-blocks-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .editable-text-block {
+        position: absolute;
+        border: 1px dashed transparent;
+        background-color: rgba(255, 255, 255, 0.7); /* More opaque background to hide original text */
+        cursor: text;
+        pointer-events: auto;
+        overflow: hidden;
+        transition: background-color 0.2s, border-color 0.2s;
+        padding: 2px;
+        line-height: 1.2;
+        /* Make text more visible */
+        color: #000;
+        font-family: Arial, sans-serif;
+    }
+
+    .editable-text-block:hover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.2);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+</style>
+{% endblock %}

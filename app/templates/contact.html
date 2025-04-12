@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Contact Us</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Get in Touch</h2>
+                    <p class="card-text">
+                        We'd love to hear from you! Whether you have a question about our tools, need help with a specific feature, 
+                        or just want to share your feedback, please don't hesitate to reach out.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Contact Form</h2>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Your name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="Your email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" placeholder="Subject">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Your message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Email</h3>
+                            <p class="card-text">
+                                For general inquiries:
+                                <a href="mailto:info@revisepdf.com">info@revisepdf.com</a>
+                            </p>
+                            <p class="card-text">
+                                For technical support:
+                                <a href="mailto:support@revisepdf.com">support@revisepdf.com</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h3 class="card-title">Social Media</h3>
+                            <p class="card-text">
+                                Follow us on social media for updates, tips, and more:
+                            </p>
+                            <div class="d-flex justify-content-start">
+                                <a href="#" class="me-3 text-decoration-none">
+                                    <i class="fab fa-twitter fa-2x"></i>
+                                </a>
+                                <a href="#" class="me-3 text-decoration-none">
+                                    <i class="fab fa-facebook fa-2x"></i>
+                                </a>
+                                <a href="#" class="me-3 text-decoration-none">
+                                    <i class="fab fa-linkedin fa-2x"></i>
+                                </a>
+                                <a href="#" class="text-decoration-none">
+                                    <i class="fab fa-github fa-2x"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">FAQ</h3>
+                    <p class="card-text">
+                        Before contacting us, you might want to check our <a href="#">Frequently Asked Questions</a> page. 
+                        You might find the answer to your question there!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

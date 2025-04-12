@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Convert to PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Convert to PDF Tools</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Convert Various Formats to PDF</h2>
+                    <p class="card-text">
+                        Our conversion tools allow you to transform different file formats into PDF documents,
+                        making them easier to share, view, and print across different devices and platforms.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-image fa-3x text-primary mb-3"></i>
+                            <h3 class="card-title">Image to PDF</h3>
+                            <p class="card-text">
+                                Convert JPG, PNG, and other image formats to PDF with customizable page settings.
+                            </p>
+                            <a href="{{ url_for('convert_to_pdf.image_to_pdf') }}" class="btn btn-primary">Convert Images</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-word fa-3x text-success mb-3"></i>
+                            <h3 class="card-title">Office to PDF</h3>
+                            <p class="card-text">
+                                Convert Word, Excel, and PowerPoint documents to PDF format.
+                            </p>
+                            <a href="{{ url_for('convert_to_pdf.office_to_pdf') }}" class="btn btn-success">Convert Office Files</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-code fa-3x text-info mb-3"></i>
+                            <h3 class="card-title">HTML to PDF</h3>
+                            <p class="card-text">
+                                Convert HTML files to PDF with support for CSS styling.
+                            </p>
+                            <a href="{{ url_for('convert_to_pdf.html_to_pdf') }}" class="btn btn-info">Convert HTML</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-file-archive fa-3x text-warning mb-3"></i>
+                            <h3 class="card-title">ZIP to PDF</h3>
+                            <p class="card-text">
+                                Convert a ZIP file containing images to a multi-page PDF document.
+                            </p>
+                            <a href="{{ url_for('convert_to_pdf.zip_to_pdf') }}" class="btn btn-warning">Convert ZIP</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">Why Convert to PDF?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-universal-access text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Universal Compatibility</h5>
+                                    <p class="mb-0">PDFs can be viewed on virtually any device or platform.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-lock text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Document Security</h5>
+                                    <p class="mb-0">PDFs can be password-protected and encrypted.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-signature text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Consistent Formatting</h5>
+                                    <p class="mb-0">PDFs maintain their appearance across different systems.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-compress-arrows-alt text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="mb-1">Compact File Size</h5>
+                                    <p class="mb-0">PDFs can be optimized for smaller file sizes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

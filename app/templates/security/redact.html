@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Redact PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Redact PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Permanently remove sensitive information from your PDF document.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Redaction Options</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    {{ form.redaction_type.label(class="form-label") }}
+                                    {{ form.redaction_type(class="form-select") }}
+                                    <div class="form-text">
+                                        Choose how to specify the text to redact.
+                                    </div>
+                                </div>
+                                
+                                <div id="text-search-options">
+                                    <div class="mb-3">
+                                        {{ form.search_text.label(class="form-label") }}
+                                        {{ form.search_text(class="form-control") }}
+                                        <div class="form-text">
+                                            Enter the exact text you want to redact.
+                                        </div>
+                                        {% if form.search_text.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.search_text.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div id="pattern-options" style="display: none;">
+                                    <div class="mb-3">
+                                        {{ form.pattern.label(class="form-label") }}
+                                        {{ form.pattern(class="form-control") }}
+                                        <div class="form-text">
+                                            Enter a regular expression pattern to match text for redaction.
+                                        </div>
+                                        {% if form.pattern.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.pattern.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div id="common-pattern-options" style="display: none;">
+                                    <div class="mb-3">
+                                        {{ form.common_pattern.label(class="form-label") }}
+                                        {{ form.common_pattern(class="form-select") }}
+                                        <div class="form-text">
+                                            Select a pre-defined pattern to redact common types of sensitive information.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            {{ form.case_sensitive(class="form-check-input") }}
+                                            {{ form.case_sensitive.label(class="form-check-label") }}
+                                            <div class="form-text">
+                                                Match exact case (e.g., "Name" won't match "name").
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            {{ form.whole_words(class="form-check-input") }}
+                                            {{ form.whole_words.label(class="form-check-label") }}
+                                            <div class="form-text">
+                                                Match only complete words (e.g., "son" won't match "person").
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Redaction Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Redaction Summary</h4>
+                            <p>Instances Redacted: {{ result.redacted_count }}</p>
+                            <p>Pages Affected: {{ result.pages_affected|join(', ') if result.pages_affected else 'None' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Redaction permanently removes the selected text from the document. This action cannot be undone.
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('security.download_redacted', filename=output_filename) }}" class="btn btn-success">Download Redacted PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Redaction</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        PDF redaction permanently removes sensitive information from documents:
+                    </p>
+                    
+                    <ul>
+                        <li>Completely removes text, not just visually covers it</li>
+                        <li>Prevents recovery of redacted content</li>
+                        <li>Helps comply with privacy regulations</li>
+                        <li>Allows sharing documents while protecting sensitive data</li>
+                    </ul>
+                    
+                    <h4>Redaction Methods</h4>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Text Search</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Find and redact specific text:</p>
+                                    <ul>
+                                        <li>Names</li>
+                                        <li>Addresses</li>
+                                        <li>Account numbers</li>
+                                        <li>Any exact text match</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Pattern Matching</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Use regular expressions to match:</p>
+                                    <ul>
+                                        <li>Custom formats</li>
+                                        <li>Variable text patterns</li>
+                                        <li>Complex data structures</li>
+                                        <li>Advanced search criteria</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Common Patterns</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p>Pre-defined patterns for:</p>
+                                    <ul>
+                                        <li>Email addresses</li>
+                                        <li>Phone numbers</li>
+                                        <li>Social Security Numbers</li>
+                                        <li>Credit card numbers</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Always review your document after redaction to ensure all sensitive information has been properly removed. Some complex formatting or embedded images may require additional processing.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const redactionTypeSelect = document.getElementById('redaction_type');
+        const textSearchOptions = document.getElementById('text-search-options');
+        const patternOptions = document.getElementById('pattern-options');
+        const commonPatternOptions = document.getElementById('common-pattern-options');
+        const wholeWordsCheck = document.getElementById('whole_words');
+        
+        // Function to update visible options based on redaction type
+        function updateOptions() {
+            const selectedType = redactionTypeSelect.value;
+            
+            // Hide all option sections
+            textSearchOptions.style.display = 'none';
+            patternOptions.style.display = 'none';
+            commonPatternOptions.style.display = 'none';
+            
+            // Show the selected option section
+            if (selectedType === 'text') {
+                textSearchOptions.style.display = 'block';
+                wholeWordsCheck.disabled = false;
+            } else if (selectedType === 'pattern') {
+                patternOptions.style.display = 'block';
+                wholeWordsCheck.disabled = true;
+            } else if (selectedType === 'common_pattern') {
+                commonPatternOptions.style.display = 'block';
+                wholeWordsCheck.disabled = true;
+            }
+        }
+        
+        // Add event listener
+        if (redactionTypeSelect) {
+            redactionTypeSelect.addEventListener('change', updateOptions);
+            
+            // Initial update
+            updateOptions();
+        }
+        
+        // Form validation
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const selectedType = redactionTypeSelect.value;
+                let valid = true;
+                
+                if (selectedType === 'text') {
+                    const searchText = document.getElementById('search_text').value;
+                    if (!searchText.trim()) {
+                        alert('Please enter text to search for.');
+                        valid = false;
+                    }
+                } else if (selectedType === 'pattern') {
+                    const pattern = document.getElementById('pattern').value;
+                    if (!pattern.trim()) {
+                        alert('Please enter a regular expression pattern.');
+                        valid = false;
+                    }
+                }
+                
+                if (!valid) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

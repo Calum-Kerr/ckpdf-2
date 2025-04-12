@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Unlock PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Unlock PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Remove password protection from your PDF document.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control") }}
+                            <div class="form-text">
+                                Enter the password required to open or edit the PDF.
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Unlock Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Input PDF</h4>
+                            <p>Total Pages: {{ result.input_page_count }}</p>
+                            <p>Encryption: {{ result.encryption_method }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Permissions Removed</h4>
+                            <ul class="list-group mb-3">
+                                {% for perm_name, perm_value in result.permissions.items() %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ perm_name|capitalize }}
+                                        <span class="badge {% if perm_value %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
+                                            {% if perm_value %}Was Allowed{% else %}Was Denied{% endif %}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Success!</strong> The PDF has been successfully unlocked. All restrictions have been removed.
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('security.download_unlocked', filename=output_filename) }}" class="btn btn-success">Download Unlocked PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Unlocking</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        PDF unlocking allows you to:
+                    </p>
+                    
+                    <ul>
+                        <li>Remove password protection from PDF files</li>
+                        <li>Enable editing, printing, and copying of protected content</li>
+                        <li>Access documents when you have the password but don't want to enter it repeatedly</li>
+                        <li>Create copies of your own protected documents without restrictions</li>
+                    </ul>
+                    
+                    <h4>How It Works</h4>
+                    <p>
+                        Our unlock tool:
+                    </p>
+                    <ol>
+                        <li>Verifies that the PDF is password-protected</li>
+                        <li>Uses the password you provide to authenticate and access the document</li>
+                        <li>Creates a new copy of the PDF without any encryption or restrictions</li>
+                        <li>Preserves all content, formatting, and quality of the original document</li>
+                    </ol>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> You must have the correct password to unlock a PDF. This tool cannot bypass or crack passwords. It is intended for legitimate use on documents you have permission to access.
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Some PDFs may have additional security features beyond password protection. This tool removes standard PDF encryption but may not affect all types of document restrictions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

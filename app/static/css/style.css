@@ -1,0 +1,234 @@
+/**
+ * RevisePDF Custom Styles
+ * 
+ * This file contains custom styles for the RevisePDF application.
+ */
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+/* Header Styles */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Card Styles */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-0.25rem);
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0a58ca;
+    border-color: #0a53be;
+}
+
+/* File Upload Styles */
+.file-upload-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #ccc;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.file-upload-wrapper:hover {
+    border-color: #0d6efd;
+    background-color: #f1f8ff;
+}
+
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-upload-message {
+    text-align: center;
+}
+
+.file-upload-message i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* Tool Section Styles */
+.tool-section {
+    padding: 2rem 0;
+}
+
+.tool-section-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.tool-section-header h2 {
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+footer h5 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+footer a {
+    color: #6c757d;
+}
+
+footer a:hover {
+    color: #0d6efd;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+    
+    .tool-section {
+        padding: 1rem 0;
+    }
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Tool Result Styles */
+.tool-result {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.tool-result-header {
+    margin-bottom: 1rem;
+}
+
+.tool-result-header h4 {
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.tool-result-content {
+    margin-bottom: 1rem;
+}
+
+.tool-result-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Error Page Styles */
+.error-page {
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.error-page i {
+    font-size: 5rem;
+    color: #dc3545;
+    margin-bottom: 2rem;
+}
+
+.error-page h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.error-page p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* Custom Utility Classes */
+.text-primary-dark {
+    color: #0a58ca;
+}
+
+.bg-primary-light {
+    background-color: #f1f8ff;
+}
+
+.border-primary {
+    border-color: #0d6efd !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.shadow-md {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem !important;
+}

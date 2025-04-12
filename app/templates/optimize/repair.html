@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Repair PDF - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Repair PDF</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Fix corrupted or damaged PDF files to make them readable again.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if result %}
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Repair Results</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Repair Method: {{ result.method|title }}</h4>
+                    
+                    <h5 class="mt-3">Issues Fixed:</h5>
+                    <ul class="list-group mb-3">
+                        {% for error in result.errors_fixed %}
+                            <li class="list-group-item">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('optimize.download_repaired', filename=output_filename) }}" class="btn btn-success">Download Repaired PDF</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if structure %}
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">PDF Structure Analysis</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h5>Status:</h5>
+                            {% if structure.is_valid %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2"></i> PDF is valid
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i> PDF has issues
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Basic Information:</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Page Count
+                                    <span class="badge bg-primary rounded-pill">{{ structure.page_count }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Encrypted
+                                    <span class="badge {% if structure.is_encrypted %}bg-warning{% else %}bg-success{% endif %} rounded-pill">
+                                        {{ 'Yes' if structure.is_encrypted else 'No' }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    {% if structure.issues %}
+                        <h5>Issues Found:</h5>
+                        <ul class="list-group mb-3">
+                            {% for issue in structure.issues %}
+                                <li class="list-group-item list-group-item-warning">{{ issue }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    {% if structure.metadata %}
+                        <h5>Metadata:</h5>
+                        <table class="table table-striped">
+                            <tbody>
+                                {% for key, value in structure.metadata.items() %}
+                                    {% if value %}
+                                        <tr>
+                                            <th>{{ key|title|replace('_', ' ') }}</th>
+                                            <td>{{ value }}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="mb-0">About PDF Repair</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        PDF repair is the process of fixing corrupted or damaged PDF files to make them readable again.
+                        Common issues that can be fixed include:
+                    </p>
+                    
+                    <ul>
+                        <li>Corrupted file structure</li>
+                        <li>Missing or damaged cross-reference tables</li>
+                        <li>Truncated files</li>
+                        <li>Improperly formatted content streams</li>
+                        <li>Invalid object references</li>
+                    </ul>
+                    
+                    <h4>How It Works</h4>
+                    <p>
+                        Our repair tool uses a two-step approach:
+                    </p>
+                    <ol>
+                        <li>
+                            <strong>PyMuPDF Analysis:</strong> First, we analyze the PDF using PyMuPDF to identify specific issues
+                            and attempt targeted repairs.
+                        </li>
+                        <li>
+                            <strong>Ghostscript Reconstruction:</strong> If PyMuPDF cannot fully repair the file, we fall back to
+                            Ghostscript, which rebuilds the PDF from scratch by reinterpreting its content.
+                        </li>
+                    </ol>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        While our repair tool can fix many common issues, some severely damaged PDFs may not be recoverable.
+                        In such cases, only partial content might be recovered.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
