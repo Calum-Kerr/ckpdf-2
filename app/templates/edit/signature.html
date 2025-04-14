@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Add your signature to PDF documents by drawing, uploading an image, or typing.
                     </p>
-                    
+
                     <form id="upload-form" method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,14 +29,14 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">Upload PDF</button>
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if pdf_uploaded %}
             <div class="card mt-4">
                 <div class="card-header bg-primary text-white">
@@ -49,7 +49,7 @@
                                 <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid" alt="PDF Preview">
                                 <div id="signature-overlay"></div>
                             </div>
-                            
+
                             <div class="d-flex justify-content-between mb-3">
                                 <div>
                                     <button id="prev-page" class="btn btn-outline-secondary" {% if current_page <= 1 %}disabled{% endif %}>
@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="col-md-4">
                             <div class="card mb-3">
                                 <div class="card-header bg-light">
@@ -82,7 +82,7 @@
                                             <button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#type-panel" type="button" role="tab" aria-controls="type-panel" aria-selected="false">Type</button>
                                         </li>
                                     </ul>
-                                    
+
                                     <div class="tab-content p-3 border border-top-0 rounded-bottom" id="signatureTabContent">
                                         <!-- Draw Tab -->
                                         <div class="tab-pane fade show active" id="draw-panel" role="tabpanel" aria-labelledby="draw-tab">
@@ -100,7 +100,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Upload Tab -->
                                         <div class="tab-pane fade" id="upload-panel" role="tabpanel" aria-labelledby="upload-tab">
                                             <div class="mb-3">
@@ -120,7 +120,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Type Tab -->
                                         <div class="tab-pane fade" id="type-panel" role="tabpanel" aria-labelledby="type-tab">
                                             <div class="mb-3">
@@ -145,15 +145,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <hr>
-                                    
+
                                     <form id="add-signature-form" method="POST" action="{{ url_for('edit.add_signature') }}" class="mt-3">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="page_number" value="{{ current_page }}">
                                         <input type="hidden" name="filename" value="{{ filename }}">
                                         <input type="hidden" id="signature-data" name="signature_data" value="">
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="signature-x" class="form-label">X Position</label>
@@ -164,7 +164,7 @@
                                                 <input type="number" id="signature-y" name="y" class="form-control" value="100" min="0" max="{{ pdf_height }}">
                                             </div>
                                         </div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="signature-width" class="form-label">Width</label>
@@ -175,14 +175,14 @@
                                                 <input type="number" id="signature-height" name="height" class="form-control" value="100" min="10" max="{{ pdf_height }}">
                                             </div>
                                         </div>
-                                        
+
                                         <div class="d-grid">
                                             <button type="submit" id="add-signature-button" class="btn btn-success" disabled>Add Signature to PDF</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                            
+
                             <div class="d-grid">
                                 <a href="{{ url_for('edit.download_signed', filename=output_filename) }}" class="btn btn-success mb-3 {% if not output_filename %}d-none{% endif %}">Download Signed PDF</a>
                                 <a href="{{ url_for('edit.signature') }}" class="btn btn-outline-secondary">Start Over</a>
@@ -192,28 +192,28 @@
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About PDF Signatures</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Adding signatures to PDF documents allows you to:
                     </p>
-                    
+
                     <ul>
                         <li>Sign documents electronically without printing and scanning</li>
                         <li>Quickly approve forms, contracts, and agreements</li>
                         <li>Personalize documents with your handwritten signature</li>
                         <li>Create a professional appearance for business documents</li>
                     </ul>
-                    
+
                     <h4>Signature Methods</h4>
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Draw</h5>
                                 </div>
                                 <div class="card-body">
@@ -228,7 +228,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Upload</h5>
                                 </div>
                                 <div class="card-body">
@@ -243,7 +243,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Type</h5>
                                 </div>
                                 <div class="card-body">
@@ -257,7 +257,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> This tool adds a visual signature to your PDF. For legally binding electronic signatures with cryptographic verification, you may need to use specialized e-signature services.
@@ -278,7 +278,7 @@
         position: relative;
         background-color: #fff;
     }
-    
+
     .signature-pad {
         width: 100%;
         height: 100%;
@@ -286,12 +286,12 @@
         top: 0;
         left: 0;
     }
-    
+
     .pdf-preview-container {
         position: relative;
         overflow: hidden;
     }
-    
+
     #signature-overlay {
         position: absolute;
         top: 0;
@@ -300,11 +300,11 @@
         height: 100%;
         pointer-events: none;
     }
-    
+
     .signature-preview {
         position: absolute;
-        border: 1px dashed #007bff;
-        background-color: rgba(0, 123, 255, 0.1);
+        border: 1px dashed #238287;
+        background-color: rgba(35, 130, 135, 0.1);
         pointer-events: none;
     }
 </style>
@@ -317,13 +317,13 @@
         // Initialize signature pad
         const canvas = document.getElementById('signature-pad');
         let signaturePad = null;
-        
+
         if (canvas) {
             signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgb(255, 255, 255)',
                 penColor: 'rgb(0, 0, 0)'
             });
-            
+
             // Resize canvas to fit container
             function resizeCanvas() {
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -333,32 +333,32 @@
                 canvas.getContext("2d").scale(ratio, ratio);
                 signaturePad.clear(); // Clear the canvas
             }
-            
+
             // Call resizeCanvas initially and on window resize
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
-            
+
             // Clear signature button
             document.getElementById('clear-signature').addEventListener('click', function() {
                 signaturePad.clear();
                 document.getElementById('add-signature-button').disabled = true;
                 document.getElementById('signature-data').value = '';
             });
-            
+
             // Undo last stroke
             document.getElementById('undo-signature').addEventListener('click', function() {
                 const data = signaturePad.toData();
                 if (data.length > 0) {
                     data.pop(); // Remove the last stroke
                     signaturePad.fromData(data);
-                    
+
                     if (data.length === 0) {
                         document.getElementById('add-signature-button').disabled = true;
                         document.getElementById('signature-data').value = '';
                     }
                 }
             });
-            
+
             // Save signature button
             document.getElementById('save-signature').addEventListener('click', function() {
                 if (!signaturePad.isEmpty()) {
@@ -371,7 +371,7 @@
                 }
             });
         }
-        
+
         // Upload signature
         const signatureFile = document.getElementById('signature-file');
         if (signatureFile) {
@@ -387,7 +387,7 @@
                     reader.readAsDataURL(this.files[0]);
                 }
             });
-            
+
             // Use uploaded signature
             document.getElementById('use-uploaded-signature').addEventListener('click', function() {
                 const preview = document.getElementById('signature-preview');
@@ -398,25 +398,25 @@
                 }
             });
         }
-        
+
         // Typed signature
         const typedSignature = document.getElementById('typed-signature');
         const signatureFont = document.getElementById('signature-font');
         const typedSignatureText = document.getElementById('typed-signature-text');
         const useTypedSignature = document.getElementById('use-typed-signature');
-        
+
         if (typedSignature && signatureFont && typedSignatureText) {
             // Update preview when typing
             typedSignature.addEventListener('input', function() {
                 typedSignatureText.textContent = this.value;
                 useTypedSignature.disabled = !this.value;
             });
-            
+
             // Update font when changed
             signatureFont.addEventListener('change', function() {
                 typedSignatureText.style.fontFamily = this.value;
             });
-            
+
             // Use typed signature
             useTypedSignature.addEventListener('click', function() {
                 if (typedSignature.value) {
@@ -431,7 +431,7 @@
                 }
             });
         }
-        
+
         // PDF Preview click handler to set coordinates
         const pdfPreview = document.getElementById('pdf-preview');
         if (pdfPreview) {
@@ -440,22 +440,22 @@
                 const rect = pdfPreview.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
+
                 // Calculate the scale factor between the preview and actual PDF
                 const scaleX = {{ pdf_width }} / pdfPreview.width;
                 const scaleY = {{ pdf_height }} / pdfPreview.height;
-                
+
                 // Convert to PDF coordinates
                 const pdfX = Math.round(x * scaleX);
                 const pdfY = Math.round(y * scaleY);
-                
+
                 // Set the coordinates in the form
                 document.getElementById('signature-x').value = pdfX;
                 document.getElementById('signature-y').value = pdfY;
-                
+
                 // Show a marker at the clicked position
                 showPositionMarker(x, y);
-                
+
                 // If we have a signature, show the preview at the new position
                 const signatureData = document.getElementById('signature-data').value;
                 if (signatureData) {
@@ -463,12 +463,12 @@
                 }
             });
         }
-        
+
         // Function to show a marker at the clicked position
         function showPositionMarker(x, y) {
             const overlay = document.getElementById('signature-overlay');
             if (!overlay) return;
-            
+
             // Create a marker element
             const marker = document.createElement('div');
             marker.className = 'position-marker';
@@ -481,36 +481,36 @@
             marker.style.borderRadius = '50%';
             marker.style.transform = 'translate(-50%, -50%)';
             marker.style.pointerEvents = 'none';
-            
+
             // Clear existing markers
             overlay.innerHTML = '';
-            
+
             // Add the marker
             overlay.appendChild(marker);
-            
+
             // Remove after 2 seconds
             setTimeout(() => {
                 marker.remove();
             }, 2000);
         }
-        
+
         // Function to show signature preview
         function showSignaturePreview(dataURL, x, y) {
             const overlay = document.getElementById('signature-overlay');
             if (!overlay) return;
-            
+
             // Get position from form if not provided
             if (x === undefined || y === undefined) {
                 const signatureX = document.getElementById('signature-x');
                 const signatureY = document.getElementById('signature-y');
                 const signatureWidth = document.getElementById('signature-width');
                 const signatureHeight = document.getElementById('signature-height');
-                
+
                 // Calculate the scale factor between the preview and actual PDF
                 const pdfPreview = document.getElementById('pdf-preview');
                 const scaleX = pdfPreview.width / {{ pdf_width }};
                 const scaleY = pdfPreview.height / {{ pdf_height }};
-                
+
                 // Convert PDF coordinates to preview coordinates
                 x = parseFloat(signatureX.value) * scaleX;
                 y = parseFloat(signatureY.value) * scaleY;
@@ -520,17 +520,17 @@
                 // Use default size
                 width = 200 * (pdfPreview.width / {{ pdf_width }});
                 height = 100 * (pdfPreview.height / {{ pdf_height }});
-                
+
                 // Update form values
                 const signatureWidth = document.getElementById('signature-width');
                 const signatureHeight = document.getElementById('signature-height');
                 signatureWidth.value = Math.round(width / (pdfPreview.width / {{ pdf_width }}));
                 signatureHeight.value = Math.round(height / (pdfPreview.height / {{ pdf_height }}));
             }
-            
+
             // Clear existing preview
             overlay.querySelectorAll('.signature-preview').forEach(el => el.remove());
-            
+
             // Create a preview element
             const preview = document.createElement('div');
             preview.className = 'signature-preview';
@@ -539,7 +539,7 @@
             preview.style.top = y + 'px';
             preview.style.width = width + 'px';
             preview.style.height = height + 'px';
-            
+
             // Add the signature image
             const img = document.createElement('img');
             img.src = dataURL;
@@ -547,15 +547,15 @@
             img.style.height = '100%';
             img.style.objectFit = 'contain';
             preview.appendChild(img);
-            
+
             // Add the preview
             overlay.appendChild(preview);
         }
-        
+
         // Navigation buttons
         const prevButton = document.getElementById('prev-page');
         const nextButton = document.getElementById('next-page');
-        
+
         if (prevButton) {
             prevButton.addEventListener('click', function() {
                 const currentPage = parseInt({{ current_page }});
@@ -564,7 +564,7 @@
                 }
             });
         }
-        
+
         if (nextButton) {
             nextButton.addEventListener('click', function() {
                 const currentPage = parseInt({{ current_page }});

@@ -23,52 +23,60 @@
             <div class="row">
                 <div class="col-md-6 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-object-group fa-3x text-primary mb-3"></i>
                             <h3 class="card-title">Merge PDFs</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Combine multiple PDF files into a single document.
                             </p>
-                            <a href="{{ url_for('organize.merge') }}" class="btn btn-primary">Merge PDFs</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('organize.merge') }}" class="btn btn-primary">Merge PDFs</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-cut fa-3x text-success mb-3"></i>
                             <h3 class="card-title">Split PDF</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Divide a PDF document into multiple smaller PDFs.
                             </p>
-                            <a href="{{ url_for('organize.split') }}" class="btn btn-success">Split PDF</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('organize.split') }}" class="btn btn-success">Split PDF</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-copy fa-3x text-info mb-3"></i>
                             <h3 class="card-title">Extract Pages</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Extract specific pages from a PDF document.
                             </p>
-                            <a href="{{ url_for('organize.extract') }}" class="btn btn-info">Extract Pages</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('organize.extract') }}" class="btn btn-info">Extract Pages</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-sync-alt fa-3x text-warning mb-3"></i>
                             <h3 class="card-title">Rotate Pages</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Rotate pages in a PDF document to the correct orientation.
                             </p>
-                            <a href="{{ url_for('organize.rotate') }}" class="btn btn-warning">Rotate Pages</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('organize.rotate') }}" class="btn btn-warning">Rotate Pages</a>
+                            </div>
                         </div>
                     </div>
                 </div>

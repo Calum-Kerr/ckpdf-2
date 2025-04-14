@@ -47,10 +47,10 @@ logger = logging.getLogger(__name__)
 
 # Create blueprints for different sections of the application
 main_bp = Blueprint('main', __name__)
-optimize_bp = Blueprint('optimize', __name__, url_prefix='/optimize')
+optimize_bp = Blueprint('optimize', __name__, url_prefix='/optimise')
 convert_to_pdf_bp = Blueprint('convert_to_pdf', __name__, url_prefix='/convert-to-pdf')
 edit_bp = Blueprint('edit', __name__, url_prefix='/edit')
-organize_bp = Blueprint('organize', __name__, url_prefix='/organize')
+organize_bp = Blueprint('organize', __name__, url_prefix='/organise')
 convert_from_pdf_bp = Blueprint('convert_from_pdf', __name__, url_prefix='/convert-from-pdf')
 security_bp = Blueprint('security', __name__, url_prefix='/security')
 
@@ -121,21 +121,46 @@ def index():
     """Render the home page."""
     return render_template('index.html')
 
-@main_bp.route('/about')
-def about():
-    """Render the about page."""
-    return render_template('about.html')
+@main_bp.route('/privacy-policy')
+def privacy_policy():
+    """Render the privacy policy page."""
+    return render_template('legal/privacy_policy.html')
 
-@main_bp.route('/contact')
-def contact():
-    """Render the contact page."""
-    return render_template('contact.html')
+@main_bp.route('/terms-of-service')
+def terms_of_service():
+    """Render the terms of service page."""
+    return render_template('legal/terms_of_service.html')
+
+@main_bp.route('/cookie-policy')
+def cookie_policy():
+    """Render the cookie policy page."""
+    return render_template('legal/cookie_policy.html')
+
+@main_bp.route('/gdpr-compliance')
+def gdpr_compliance():
+    """Render the GDPR compliance page."""
+    return render_template('legal/gdpr_compliance.html')
+
+@main_bp.route('/accessibility-statement')
+def accessibility_statement():
+    """Render the accessibility statement page."""
+    return render_template('legal/accessibility_statement.html')
+
+@main_bp.route('/data-protection')
+def data_protection():
+    """Render the data protection page."""
+    return render_template('legal/data_protection.html')
+
+@main_bp.route('/security-information')
+def security_information():
+    """Render the security information page."""
+    return render_template('legal/security_information.html')
 
 # Optimize routes
 @optimize_bp.route('/')
 def index():
     """Render the optimize index page."""
-    return render_template('optimize/index.html')
+    return render_template('optimise/index.html')
 
 @optimize_bp.route('/compress', methods=['GET', 'POST'])
 def compress():
@@ -167,7 +192,7 @@ def compress():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in compress route: {str(e)}')
 
-    return render_template('optimize/compress.html', form=form, result=result, output_filename=output_filename)
+    return render_template('optimise/compress.html', form=form, result=result, output_filename=output_filename)
 
 @optimize_bp.route('/download/<filename>')
 def download_compressed(filename):
@@ -207,7 +232,7 @@ def repair():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in repair route: {str(e)}')
 
-    return render_template('optimize/repair.html', form=form, result=result, structure=structure, output_filename=output_filename)
+    return render_template('optimise/repair.html', form=form, result=result, structure=structure, output_filename=output_filename)
 
 @optimize_bp.route('/download_repaired/<filename>')
 def download_repaired(filename):
@@ -244,7 +269,7 @@ def ocr():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in OCR route: {str(e)}')
 
-    return render_template('optimize/ocr.html', form=form, result=result, output_filename=output_filename, get_language_name=get_language_name)
+    return render_template('optimise/ocr.html', form=form, result=result, output_filename=output_filename, get_language_name=get_language_name)
 
 @optimize_bp.route('/download_ocr/<filename>')
 def download_ocr(filename):
@@ -1031,7 +1056,7 @@ def download_signed(filename):
 @organize_bp.route('/')
 def index():
     """Render the organize index page."""
-    return render_template('organize/index.html')
+    return render_template('organise/index.html')
 
 @organize_bp.route('/merge', methods=['GET', 'POST'])
 def merge():
@@ -1047,7 +1072,8 @@ def merge():
             # Check if files were provided
             if not files or all(not f.filename for f in files):
                 flash('Please select at least one PDF file.', 'danger')
-                return render_template('organize/merge.html')
+                form = MergeForm()
+                return render_template('organise/merge.html', form=form)
 
             # Save uploaded files
             input_paths = []
@@ -1065,7 +1091,7 @@ def merge():
             # Check if any valid files were uploaded
             if not input_paths:
                 flash('No valid PDF files were uploaded.', 'danger')
-                return render_template('organize/merge.html')
+                return render_template('organise/merge.html')
 
             # Generate output filename
             output_filename = get_unique_filename('merged.pdf')
@@ -1086,7 +1112,8 @@ def merge():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in merge route: {str(e)}')
 
-    return render_template('organize/merge.html', result=result, output_filename=output_filename)
+    form = MergeForm()
+    return render_template('organise/merge.html', form=form, result=result, output_filename=output_filename)
 
 @organize_bp.route('/download_merged/<filename>')
 def download_merged(filename):
@@ -1130,7 +1157,7 @@ def split():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in split route: {str(e)}')
 
-    return render_template('organize/split.html', form=form, result=result, job_id=job_id)
+    return render_template('organise/split.html', form=form, result=result, job_id=job_id)
 
 @organize_bp.route('/download_split/<filename>')
 def download_split(filename):
@@ -1208,7 +1235,7 @@ def extract():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in extract route: {str(e)}')
 
-    return render_template('organize/extract.html', form=form, result=result, output_filename=output_filename, formatted_pages=formatted_pages)
+    return render_template('organise/extract.html', form=form, result=result, output_filename=output_filename, formatted_pages=formatted_pages)
 
 @organize_bp.route('/download_extracted/<filename>')
 def download_extracted(filename):
@@ -1254,7 +1281,7 @@ def rotate():
             flash('An unexpected error occurred. Please try again.', 'danger')
             logger.error(f'Unexpected error in rotate route: {str(e)}')
 
-    return render_template('organize/rotate.html', form=form, result=result, output_filename=output_filename,
+    return render_template('organise/rotate.html', form=form, result=result, output_filename=output_filename,
                            rotation_description=rotation_description, formatted_pages=formatted_pages)
 
 @organize_bp.route('/download_rotated/<filename>')

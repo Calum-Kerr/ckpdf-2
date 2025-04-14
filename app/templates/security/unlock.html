@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Remove password protection from your PDF document.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.password.label(class="form-label") }}
                             {{ form.password(class="form-control") }}
@@ -44,14 +44,14 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -78,35 +78,35 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle me-2"></i>
                         <strong>Success!</strong> The PDF has been successfully unlocked. All restrictions have been removed.
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('security.download_unlocked', filename=output_filename) }}" class="btn btn-success">Download Unlocked PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About PDF Unlocking</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         PDF unlocking allows you to:
                     </p>
-                    
+
                     <ul>
                         <li>Remove password protection from PDF files</li>
                         <li>Enable editing, printing, and copying of protected content</li>
                         <li>Access documents when you have the password but don't want to enter it repeatedly</li>
                         <li>Create copies of your own protected documents without restrictions</li>
                     </ul>
-                    
+
                     <h4>How It Works</h4>
                     <p>
                         Our unlock tool:
@@ -117,12 +117,12 @@
                         <li>Creates a new copy of the PDF without any encryption or restrictions</li>
                         <li>Preserves all content, formatting, and quality of the original document</li>
                     </ol>
-                    
+
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Important:</strong> You must have the correct password to unlock a PDF. This tool cannot bypass or crack passwords. It is intended for legitimate use on documents you have permission to access.
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> Some PDFs may have additional security features beyond password protection. This tool removes standard PDF encryption but may not affect all types of document restrictions.

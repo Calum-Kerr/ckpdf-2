@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Add password protection and set permissions for your PDF document.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="card mb-4">
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">Password Settings</h5>
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="card mb-4">
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">Permission Settings</h5>
@@ -127,14 +127,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -173,35 +173,35 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Important:</strong> Please remember your password! If you lose it, you may not be able to access your document.
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('security.download_protected', filename=output_filename) }}" class="btn btn-success">Download Protected PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About PDF Protection</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Password protection helps you:
                     </p>
-                    
+
                     <ul>
                         <li>Control who can open your document</li>
                         <li>Restrict what users can do with your document</li>
                         <li>Protect sensitive information</li>
                         <li>Comply with data protection regulations</li>
                     </ul>
-                    
+
                     <h4>Password Types</h4>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -235,7 +235,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> PDF security is not unbreakable. It provides a reasonable level of protection but may not stop determined attackers with specialized tools.
@@ -253,7 +253,7 @@
         const userPasswordInput = document.getElementById('user_password');
         const ownerPasswordInput = document.getElementById('owner_password');
         const confirmPasswordInput = document.getElementById('confirm_password');
-        
+
         // Check password match
         function checkPasswordMatch() {
             if (userPasswordInput.value && confirmPasswordInput.value) {
@@ -266,13 +266,13 @@
                 confirmPasswordInput.setCustomValidity('');
             }
         }
-        
+
         // Add event listeners
         if (userPasswordInput && confirmPasswordInput) {
             userPasswordInput.addEventListener('input', checkPasswordMatch);
             confirmPasswordInput.addEventListener('input', checkPasswordMatch);
         }
-        
+
         // Form validation
         const form = document.querySelector('form');
         if (form) {
@@ -283,7 +283,7 @@
                     alert('Please provide at least one password (user or owner).');
                     return;
                 }
-                
+
                 // Check if passwords match
                 if (userPasswordInput.value !== confirmPasswordInput.value) {
                     event.preventDefault();

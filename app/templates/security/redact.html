@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Permanently remove sensitive information from your PDF document.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="card mb-3">
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">Redaction Options</h5>
@@ -42,7 +42,7 @@
                                         Choose how to specify the text to redact.
                                     </div>
                                 </div>
-                                
+
                                 <div id="text-search-options">
                                     <div class="mb-3">
                                         {{ form.search_text.label(class="form-label") }}
@@ -59,7 +59,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <div id="pattern-options" style="display: none;">
                                     <div class="mb-3">
                                         {{ form.pattern.label(class="form-label") }}
@@ -76,7 +76,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                
+
                                 <div id="common-pattern-options" style="display: none;">
                                     <div class="mb-3">
                                         {{ form.common_pattern.label(class="form-label") }}
@@ -86,7 +86,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-check mb-2">
@@ -109,14 +109,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -134,40 +134,40 @@
                             <p>Pages Affected: {{ result.pages_affected|join(', ') if result.pages_affected else 'None' }}</p>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Important:</strong> Redaction permanently removes the selected text from the document. This action cannot be undone.
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('security.download_redacted', filename=output_filename) }}" class="btn btn-success">Download Redacted PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About PDF Redaction</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         PDF redaction permanently removes sensitive information from documents:
                     </p>
-                    
+
                     <ul>
                         <li>Completely removes text, not just visually covers it</li>
                         <li>Prevents recovery of redacted content</li>
                         <li>Helps comply with privacy regulations</li>
                         <li>Allows sharing documents while protecting sensitive data</li>
                     </ul>
-                    
+
                     <h4>Redaction Methods</h4>
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Text Search</h5>
                                 </div>
                                 <div class="card-body">
@@ -183,7 +183,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Pattern Matching</h5>
                                 </div>
                                 <div class="card-body">
@@ -199,7 +199,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Common Patterns</h5>
                                 </div>
                                 <div class="card-body">
@@ -214,7 +214,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> Always review your document after redaction to ensure all sensitive information has been properly removed. Some complex formatting or embedded images may require additional processing.
@@ -234,16 +234,16 @@
         const patternOptions = document.getElementById('pattern-options');
         const commonPatternOptions = document.getElementById('common-pattern-options');
         const wholeWordsCheck = document.getElementById('whole_words');
-        
+
         // Function to update visible options based on redaction type
         function updateOptions() {
             const selectedType = redactionTypeSelect.value;
-            
+
             // Hide all option sections
             textSearchOptions.style.display = 'none';
             patternOptions.style.display = 'none';
             commonPatternOptions.style.display = 'none';
-            
+
             // Show the selected option section
             if (selectedType === 'text') {
                 textSearchOptions.style.display = 'block';
@@ -256,22 +256,22 @@
                 wholeWordsCheck.disabled = true;
             }
         }
-        
+
         // Add event listener
         if (redactionTypeSelect) {
             redactionTypeSelect.addEventListener('change', updateOptions);
-            
+
             // Initial update
             updateOptions();
         }
-        
+
         // Form validation
         const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(event) {
                 const selectedType = redactionTypeSelect.value;
                 let valid = true;
-                
+
                 if (selectedType === 'text') {
                     const searchText = document.getElementById('search_text').value;
                     if (!searchText.trim()) {
@@ -285,7 +285,7 @@
                         valid = false;
                     }
                 }
-                
+
                 if (!valid) {
                     event.preventDefault();
                 }

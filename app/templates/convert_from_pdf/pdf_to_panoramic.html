@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Create a panoramic image by stitching PDF pages together horizontally or vertically.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.format.label(class="form-label") }}
@@ -53,7 +53,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.direction.label(class="form-label") }}
@@ -77,7 +77,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.pages.label(class="form-label") }}
                             {{ form.pages(class="form-control") }}
@@ -92,14 +92,14 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -119,37 +119,37 @@
                             <p>Dimensions: {{ result.image_width }} × {{ result.image_height }} pixels</p>
                         </div>
                     </div>
-                    
+
                     <h5 class="mt-3">Preview:</h5>
                     <div class="text-center mb-3">
-                        <img src="{{ url_for('convert_from_pdf.get_panoramic', filename=output_filename) }}" 
+                        <img src="{{ url_for('convert_from_pdf.get_panoramic', filename=output_filename) }}"
                              class="img-fluid border" alt="Panoramic Image Preview"
                              style="max-height: 300px;">
                     </div>
-                    
+
                     <div class="d-grid">
                         <a href="{{ url_for('convert_from_pdf.download_panoramic', filename=output_filename) }}" class="btn btn-success">Download Panoramic Image</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About Panoramic Images</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Panoramic images created from PDF pages are useful for:
                     </p>
-                    
+
                     <ul>
                         <li>Creating wide visualizations of multi-page content</li>
                         <li>Displaying timelines, flowcharts, or diagrams that span multiple pages</li>
                         <li>Combining pages for easier viewing without scrolling between pages</li>
                         <li>Creating visual summaries of documents</li>
                     </ul>
-                    
+
                     <h4>Panorama Types</h4>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -165,7 +165,7 @@
                                         <li>Creates a wide, short image</li>
                                     </ul>
                                     <div class="text-center">
-                                        <img src="{{ url_for('static', filename='img/horizontal-panorama.png') }}" 
+                                        <img src="{{ url_for('static', filename='img/horizontal-panorama.png') }}"
                                              class="img-fluid" alt="Horizontal Panorama Example"
                                              style="max-height: 100px;">
                                     </div>
@@ -185,7 +185,7 @@
                                         <li>Creates a tall, narrow image</li>
                                     </ul>
                                     <div class="text-center">
-                                        <img src="{{ url_for('static', filename='img/vertical-panorama.png') }}" 
+                                        <img src="{{ url_for('static', filename='img/vertical-panorama.png') }}"
                                              class="img-fluid" alt="Vertical Panorama Example"
                                              style="max-height: 150px;">
                                     </div>
@@ -193,10 +193,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Large PDFs with many pages may create very large panoramic images. 
+                        <strong>Note:</strong> Large PDFs with many pages may create very large panoramic images.
                         Consider using a lower DPI or selecting specific pages if you encounter memory issues.
                     </div>
                 </div>
@@ -220,7 +220,7 @@
                 this.value = this.value.replace(/[^0-9,\-\s]/g, '');
             });
         }
-        
+
         // Validate numeric inputs
         const numericInputs = ['dpi', 'spacing'];
         numericInputs.forEach(function(id) {

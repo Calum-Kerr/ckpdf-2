@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Add a text watermark to your PDF document.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.text.label(class="form-label") }}
                             {{ form.text(class="form-control") }}
@@ -44,7 +44,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.position.label(class="form-label") }}
@@ -68,7 +68,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.font.label(class="form-label") }}
@@ -92,7 +92,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.opacity.label(class="form-label") }}
@@ -126,14 +126,14 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -153,35 +153,35 @@
                             <p>Opacity: {{ (result.opacity * 100)|int }}%</p>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('edit.download_watermarked', filename=output_filename) }}" class="btn btn-success">Download Watermarked PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About Watermarking</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Adding watermarks to your PDF documents helps with:
                     </p>
-                    
+
                     <ul>
                         <li>Indicating document status (e.g., "DRAFT", "CONFIDENTIAL")</li>
                         <li>Protecting intellectual property</li>
                         <li>Branding documents with company names or logos</li>
                         <li>Preventing unauthorized copying or distribution</li>
                     </ul>
-                    
+
                     <h4>Watermark Types</h4>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Status Watermarks</h5>
                                 </div>
                                 <div class="card-body">
@@ -197,7 +197,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Branding Watermarks</h5>
                                 </div>
                                 <div class="card-body">
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> Watermarks are added as semi-transparent text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
@@ -238,7 +238,7 @@
                 this.value = this.value.replace(/[^0-9,\-\s]/g, '');
             });
         }
-        
+
         // Validate numeric inputs
         const numericInputs = ['font_size', 'rotation'];
         numericInputs.forEach(function(id) {
@@ -250,14 +250,14 @@
                 });
             }
         });
-        
+
         // Validate opacity (percentage)
         const opacityInput = document.getElementById('opacity');
         if (opacityInput) {
             opacityInput.addEventListener('input', function() {
                 // Allow only numbers
                 this.value = this.value.replace(/[^0-9]/g, '');
-                
+
                 // Enforce min/max values
                 const value = parseInt(this.value);
                 if (!isNaN(value)) {

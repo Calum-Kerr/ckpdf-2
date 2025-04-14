@@ -23,39 +23,45 @@
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-compress-alt fa-3x text-primary mb-3"></i>
                             <h3 class="card-title">Compress PDF</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.
                             </p>
-                            <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary">Compress PDF</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary">Compress PDF</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-tools fa-3x text-success mb-3"></i>
                             <h3 class="card-title">Repair PDF</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Fix corrupted or damaged PDF files to make them readable again.
                             </p>
-                            <a href="{{ url_for('optimize.repair') }}" class="btn btn-success">Repair PDF</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('optimize.repair') }}" class="btn btn-success">Repair PDF</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <i class="fas fa-font fa-3x text-info mb-3"></i>
                             <h3 class="card-title">OCR PDF</h3>
-                            <p class="card-text">
+                            <p class="card-text flex-grow-1">
                                 Extract text from scanned PDFs using Optical Character Recognition.
                             </p>
-                            <a href="{{ url_for('optimize.ocr') }}" class="btn btn-info">OCR PDF</a>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('optimize.ocr') }}" class="btn btn-info">OCR PDF</a>
+                            </div>
                         </div>
                     </div>
                 </div>

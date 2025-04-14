@@ -3,11 +3,11 @@
 {% block title %}RevisePDF - The Ultimate PDF Toolkit{% endblock %}
 
 {% block content %}
-<div class="jumbotron bg-light p-5 rounded-3 mb-5">
+<div class="jumbotron bg-primary p-5 rounded-3 mb-5 text-white">
     <div class="container">
         <h1 class="display-4">The Ultimate PDF Toolkit for Every Need</h1>
-        <p class="lead">Optimize, Convert, Edit, Organize, and More.</p>
-        <hr class="my-4">
+        <p class="lead">Optimise, Convert, Edit, Organise, and More.</p>
+        <hr class="my-4 border-white">
         <p>RevisePDF provides a comprehensive suite of tools to handle all your PDF needs in one place.</p>
     </div>
 </div>
@@ -15,41 +15,49 @@
 <div class="row mb-5">
     <div class="col-md-3 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-compress-alt fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Optimize</h5>
-                <p class="card-text">Compress, repair, and OCR your PDFs for better performance and accessibility.</p>
-                <a href="{{ url_for('optimize.index') }}" class="btn btn-outline-primary">Optimize Tools</a>
+                <h5 class="card-title">Optimise</h5>
+                <p class="card-text flex-grow-1">Compress, repair, and OCR your PDFs for better performance and accessibility.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('optimize.index') }}" class="btn btn-outline-primary">Optimise Tools</a>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-md-3 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-file-import fa-3x text-success mb-3"></i>
                 <h5 class="card-title">Convert to PDF</h5>
-                <p class="card-text">Convert images, Office documents, HTML, and more to PDF format.</p>
-                <a href="{{ url_for('convert_to_pdf.index') }}" class="btn btn-outline-success">Convert Tools</a>
+                <p class="card-text flex-grow-1">Convert images, Office documents, HTML, and more to PDF format.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('convert_to_pdf.index') }}" class="btn btn-outline-success">Convert Tools</a>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-md-3 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-edit fa-3x text-info mb-3"></i>
                 <h5 class="card-title">Edit</h5>
-                <p class="card-text">Add page numbers, watermarks, and edit content in your PDF documents.</p>
-                <a href="{{ url_for('edit.index') }}" class="btn btn-outline-info">Edit Tools</a>
+                <p class="card-text flex-grow-1">Add page numbers, watermarks, and edit content in your PDF documents.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('edit.index') }}" class="btn btn-outline-info">Edit Tools</a>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-md-3 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-object-group fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Organize</h5>
-                <p class="card-text">Merge, split, extract, and rotate pages in your PDF documents.</p>
-                <a href="{{ url_for('organize.index') }}" class="btn btn-outline-warning">Organize Tools</a>
+                <h5 class="card-title">Organise</h5>
+                <p class="card-text flex-grow-1">Merge, split, extract, and rotate pages in your PDF documents.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('organize.index') }}" class="btn btn-outline-warning">Organise Tools</a>
+                </div>
             </div>
         </div>
     </div>
@@ -58,21 +66,25 @@
 <div class="row mb-5">
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-file-export fa-3x text-danger mb-3"></i>
                 <h5 class="card-title">Convert from PDF</h5>
-                <p class="card-text">Convert PDFs to images, panoramic views, and PDF/A format.</p>
-                <a href="{{ url_for('convert_from_pdf.index') }}" class="btn btn-outline-danger">Convert Tools</a>
+                <p class="card-text flex-grow-1">Convert PDFs to images, panoramic views, and PDF/A format.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('convert_from_pdf.index') }}" class="btn btn-outline-danger">Convert Tools</a>
+                </div>
             </div>
         </div>
     </div>
     <div class="col-md-6 mb-4">
         <div class="card h-100">
-            <div class="card-body text-center">
+            <div class="card-body text-center d-flex flex-column">
                 <i class="fas fa-shield-alt fa-3x text-secondary mb-3"></i>
                 <h5 class="card-title">Security</h5>
-                <p class="card-text">Unlock, protect, redact, and flatten your PDF documents.</p>
-                <a href="{{ url_for('security.index') }}" class="btn btn-outline-secondary">Security Tools</a>
+                <p class="card-text flex-grow-1">Unlock, protect, redact, and flatten your PDF documents.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('security.index') }}" class="btn btn-outline-secondary">Security Tools</a>
+                </div>
             </div>
         </div>
     </div>

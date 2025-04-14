@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Add customizable page numbers to your PDF document.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.position.label(class="form-label") }}
@@ -53,7 +53,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.font.label(class="form-label") }}
@@ -77,7 +77,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 {{ form.prefix.label(class="form-label") }}
@@ -108,7 +108,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.pages.label(class="form-label") }}
                             {{ form.pages(class="form-control") }}
@@ -123,14 +123,14 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -150,35 +150,35 @@
                             <p>Starting Number: {{ result.start_number }}</p>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('edit.download_numbered', filename=output_filename) }}" class="btn btn-success">Download Numbered PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About Page Numbering</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Adding page numbers to your PDF documents helps with:
                     </p>
-                    
+
                     <ul>
                         <li>Organizing multi-page documents</li>
                         <li>Making it easier to reference specific pages</li>
                         <li>Creating professional-looking documents</li>
                         <li>Helping readers navigate through the document</li>
                     </ul>
-                    
+
                     <h4>Customization Options</h4>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Position</h5>
                                 </div>
                                 <div class="card-body">
@@ -195,7 +195,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="card h-100">
-                                <div class="card-header bg-light">
+                                <div class="card-header bg-primary text-white">
                                     <h5 class="mb-0">Format</h5>
                                 </div>
                                 <div class="card-body">
@@ -212,7 +212,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note:</strong> Page numbers are added as text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
@@ -238,7 +238,7 @@
                 this.value = this.value.replace(/[^0-9,\-\s]/g, '');
             });
         }
-        
+
         // Validate numeric inputs
         const numericInputs = ['start_number', 'font_size', 'margin'];
         numericInputs.forEach(function(id) {

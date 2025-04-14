@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Convert JPG, PNG, and other image formats to PDF with customizable page settings.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.page_size.label(class="form-label") }}
@@ -46,14 +46,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -96,30 +96,30 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('convert_to_pdf.download_pdf', filename=output_filename) }}" class="btn btn-success">Download PDF</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About Image to PDF Conversion</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Converting images to PDF format offers several advantages:
                     </p>
-                    
+
                     <ul>
                         <li>Create professional-looking documents from images</li>
                         <li>Combine multiple images into a single document (with our Merge tool)</li>
                         <li>Make images easier to share and print</li>
                         <li>Preserve image quality in a document format</li>
                     </ul>
-                    
+
                     <h4>Supported Image Formats</h4>
                     <p>
                         Our tool supports the following image formats:
@@ -131,7 +131,7 @@
                         <li>BMP</li>
                         <li>TIFF/TIF</li>
                     </ul>
-                    
+
                     <h4>Page Size Options</h4>
                     <p>
                         You can choose from standard page sizes or keep the original dimensions of your image:
@@ -144,7 +144,7 @@
                         <li><strong>A5:</strong> 148mm × 210mm (5.83in × 8.27in) - Smaller format</li>
                         <li><strong>Original Image Size:</strong> Maintains the exact dimensions of your image</li>
                     </ul>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         When using standard page sizes, your image will be scaled to fit the page while maintaining its aspect ratio.

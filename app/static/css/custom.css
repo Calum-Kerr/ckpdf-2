@@ -1,0 +1,380 @@
+/* Custom theme colors */
+
+/* Mega Menu Styles */
+.mega-menu {
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px;
+    border-radius: 0;
+    margin-top: 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+    z-index: 1030;
+}
+
+.mega-menu .dropdown-header {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--primary);
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+    letter-spacing: 0.5px;
+}
+
+.mega-menu .dropdown-item {
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    white-space: normal;
+    color: #333;
+}
+
+.mega-menu .dropdown-item:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.mega-menu .row {
+    width: 100%;
+}
+
+/* Tool icon placeholder */
+.tool-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+/* Make dropdown full width on mobile */
+@media (max-width: 992px) {
+    .mega-menu {
+        width: 100vw !important;
+        position: absolute;
+        left: 0 !important;
+        right: 0 !important;
+        margin: 0;
+        padding: 10px;
+        border-radius: 0;
+    }
+
+    .mega-menu .row {
+        flex-direction: column;
+    }
+
+    .mega-menu .col-md-2 {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .dropdown-menu-end {
+        right: auto;
+        left: 0;
+    }
+}
+
+/* Custom theme colors */
+:root {
+    --primary: #238287;
+    --primary-rgb: 35, 130, 135;
+    --primary-hover: #1c6a6e;
+    --primary-active: #165256;
+    --primary-light: #e6f3f3;
+    --primary-border: #238287;
+}
+
+/* Override Bootstrap primary color */
+.bg-primary {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+.bg-primary h1, .bg-primary h2, .bg-primary h3, .bg-primary h4, .bg-primary h5, .bg-primary h6 {
+    color: #fff !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary-border) !important;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+.btn-primary:active {
+    background-color: var(--primary-active) !important;
+    border-color: var(--primary-active) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+/* Links */
+a {
+    color: var(--primary);
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
+/* Navbar */
+.navbar-dark .navbar-brand {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+.navbar-dark .navbar-nav .active > .nav-link,
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Center logo on mobile */
+@media (max-width: 991.98px) {
+    .navbar-brand-container {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .navbar-toggler {
+        order: -1;
+    }
+}
+
+/* Dropdown button styling */
+.dropdown-toggle.nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.dropdown-toggle.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dropdown menus */
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--primary);
+}
+
+/* Form controls */
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+/* Progress bars */
+.progress-bar {
+    background-color: var(--primary);
+}
+
+/* List groups */
+.list-group-item.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.page-link {
+    color: var(--primary);
+}
+
+.page-link:hover {
+    color: var(--primary-hover);
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+    color: var(--primary);
+}
+
+/* Cards */
+.card-header {
+    background-color: var(--primary-light);
+}
+
+/* Ensure all card headers with bg-primary class have white text */
+.card-header.bg-primary {
+    color: #fff !important;
+}
+
+.card-header.bg-primary h1,
+.card-header.bg-primary h2,
+.card-header.bg-primary h3,
+.card-header.bg-primary h4,
+.card-header.bg-primary h5,
+.card-header.bg-primary h6 {
+    color: #fff !important;
+    margin-bottom: 0;
+}
+
+/* Card headers with green background */
+.card-header[style*="background-color: #238287"],
+.card-header[style*="background-color:#238287"],
+.card-header[style*="background:#238287"],
+.card-header[style*="background: #238287"] {
+    color: #fff !important;
+}
+
+.card-header[style*="background-color: #238287"] *,
+.card-header[style*="background-color:#238287"] *,
+.card-header[style*="background:#238287"] *,
+.card-header[style*="background: #238287"] * {
+    color: #fff !important;
+}
+
+/* Custom styles for the site */
+.navbar {
+    background-color: var(--primary) !important;
+}
+
+.footer {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+/* Custom background classes */
+.bg-primary-custom {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+.bg-primary-custom h1,
+.bg-primary-custom h2,
+.bg-primary-custom h3,
+.bg-primary-custom h4,
+.bg-primary-custom h5,
+.bg-primary-custom h6,
+.bg-primary-custom .card-title {
+    color: #fff !important;
+}
+
+/* Card headers with primary background */
+.card-header.bg-primary,
+.card-header[style*="background-color: #238287"],
+.card-header[style*="background:#238287"],
+.card-header[style*="background: #238287"],
+.card-header[style*="background-color:#238287"] {
+    color: #fff !important;
+}
+
+.card-header.bg-primary h1,
+.card-header.bg-primary h2,
+.card-header.bg-primary h3,
+.card-header.bg-primary h4,
+.card-header.bg-primary h5,
+.card-header.bg-primary h6,
+.card-header[style*="background-color: #238287"] h1,
+.card-header[style*="background-color: #238287"] h2,
+.card-header[style*="background-color: #238287"] h3,
+.card-header[style*="background-color: #238287"] h4,
+.card-header[style*="background-color: #238287"] h5,
+.card-header[style*="background-color: #238287"] h6,
+.card-header[style*="background:#238287"] h1,
+.card-header[style*="background:#238287"] h2,
+.card-header[style*="background:#238287"] h3,
+.card-header[style*="background:#238287"] h4,
+.card-header[style*="background:#238287"] h5,
+.card-header[style*="background:#238287"] h6 {
+    color: #fff !important;
+    margin-bottom: 0;
+}
+
+/* Elements with primary background color */
+[style*="background-color: #238287"],
+[style*="background:#238287"],
+[style*="background: #238287"],
+[style*="background-color:#238287"] {
+    color: #fff !important;
+}
+
+[style*="background-color: #238287"] h1,
+[style*="background-color: #238287"] h2,
+[style*="background-color: #238287"] h3,
+[style*="background-color: #238287"] h4,
+[style*="background-color: #238287"] h5,
+[style*="background-color: #238287"] h6,
+[style*="background:#238287"] h1,
+[style*="background:#238287"] h2,
+[style*="background:#238287"] h3,
+[style*="background:#238287"] h4,
+[style*="background:#238287"] h5,
+[style*="background:#238287"] h6,
+[style*="background: #238287"] h1,
+[style*="background: #238287"] h2,
+[style*="background: #238287"] h3,
+[style*="background: #238287"] h4,
+[style*="background: #238287"] h5,
+[style*="background: #238287"] h6 {
+    color: #fff !important;
+}
+
+/* Badges */
+.badge-primary {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+/* Borders */
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+/* Specific elements */
+.card-header:contains("About PDF") {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+.card-header:contains("About PDF") h1,
+.card-header:contains("About PDF") h2,
+.card-header:contains("About PDF") h3,
+.card-header:contains("About PDF") h4,
+.card-header:contains("About PDF") h5,
+.card-header:contains("About PDF") h6 {
+    color: #fff !important;
+}
+
+/* Card headers with light background but primary color */
+.card-header.bg-light[style*="background-color: #238287"],
+.card-header.bg-light[style*="background:#238287"],
+.card-header.bg-light[style*="background: #238287"] {
+    color: #fff !important;
+}
+
+.card-header.bg-light[style*="background-color: #238287"] *,
+.card-header.bg-light[style*="background:#238287"] *,
+.card-header.bg-light[style*="background: #238287"] * {
+    color: #fff !important;
+}

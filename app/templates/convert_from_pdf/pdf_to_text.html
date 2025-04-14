@@ -14,10 +14,10 @@
                     <p class="card-text">
                         Extract all text content from a PDF document into a plain text file.
                     </p>
-                    
+
                     <form method="POST" enctype="multipart/form-data">
                         {{ form.csrf_token }}
-                        
+
                         <div class="mb-3">
                             {{ form.file.label(class="form-label") }}
                             {{ form.file(class="form-control") }}
@@ -29,7 +29,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 {{ form.pages.label(class="form-label") }}
@@ -55,14 +55,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="d-grid">
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </form>
                 </div>
             </div>
-            
+
             {% if result %}
             <div class="card mt-4">
                 <div class="card-header bg-success text-white">
@@ -81,30 +81,30 @@
                             <p>Word Count: {{ result.word_count }}</p>
                         </div>
                     </div>
-                    
+
                     <h5 class="mt-3">Text Preview:</h5>
                     <div class="card">
                         <div class="card-body">
                             <pre class="text-preview">{{ text_preview }}</pre>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid mt-3">
                         <a href="{{ url_for('convert_from_pdf.download_text', filename=output_filename) }}" class="btn btn-success">Download Text File</a>
                     </div>
                 </div>
             </div>
             {% endif %}
-            
+
             <div class="card mt-4">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">About Text Extraction</h3>
                 </div>
                 <div class="card-body">
                     <p>
                         Extracting text from PDF documents allows you to:
                     </p>
-                    
+
                     <ul>
                         <li>Copy and paste content into other documents</li>
                         <li>Edit the text in a word processor</li>
@@ -112,7 +112,7 @@
                         <li>Process the text with other tools or scripts</li>
                         <li>Make the content accessible to screen readers</li>
                     </ul>
-                    
+
                     <h4>How It Works</h4>
                     <p>
                         Our text extraction tool:
@@ -123,13 +123,13 @@
                         <li>Preserves the basic text layout</li>
                         <li>Saves the text to a plain text file (.txt)</li>
                     </ol>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Text extraction works best with PDFs that contain actual text rather than scanned images. 
+                        <strong>Note:</strong> Text extraction works best with PDFs that contain actual text rather than scanned images.
                         For scanned documents, use our OCR tool first to make the text recognizable.
                     </div>
-                    
+
                     <h4>Limitations</h4>
                     <p>
                         While our tool extracts text effectively, there are some limitations:

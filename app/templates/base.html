@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}RevisePDF - PDF Processing Tools{% endblock %}</title>
     <meta name="description" content="RevisePDF - A comprehensive suite of PDF processing tools">
-    <meta name="keywords" content="PDF, compress, convert, edit, merge, split, OCR, watermark">
+    <meta name="keywords" content="PDF, compress, convert, edit, merge, split, OCR, watermark, optimise">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,98 +16,486 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    <style>
+        :root {
+            --primary-color: #238287;
+            --secondary-color: #FFFFFF;
+            --tertiary-color: #C8C8C8;
+            --primary-dark: #1a6569;
+            --primary-light: #2a9da3;
+            --text-dark: #333333;
+            --text-light: #555555;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--secondary-color);
+            color: var(--text-dark);
+        }
+        header {
+            position: relative;
+            z-index: 1030;
+            background-color: var(--secondary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            background-color: var(--secondary-color);
+            margin-top: 20px;
+        }
+
+        main {
+            flex: 1 0 auto;
+            padding: 2rem 0;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 0.75rem 0;
+            height: 70px;
+            background-color: var(--secondary-color) !important;
+            position: relative;
+            z-index: 1030;
+        }
+        .navbar-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+        }
+        .logo-placeholder {
+            display: flex;
+            justify-content: flex-start;
+            width: 35px;
+            height: 35px;
+        }
+        .title-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .title-brand:hover {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .tools-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Full-width mega menu styling */
+        .mega-menu-wrapper {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 100%;
+            top: 70px;
+            background-color: var(--secondary-color);
+            border-top: 1px solid var(--tertiary-color);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            z-index: 1025;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .mega-menu-wrapper.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .mega-menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .mega-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-gap: 25px;
+        }
+
+        .mega-menu-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mega-menu-category {
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--tertiary-color);
+            padding-bottom: 10px;
+        }
+
+        .mega-menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mega-menu-links a {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            color: var(--text-light, #333);
+            text-decoration: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+            line-height: 1.2;
+            height: 40px; /* Fixed height for all menu items */
+        }
+
+        .mega-menu-links a:hover {
+            background-color: rgba(35, 130, 135, 0.1);
+            color: var(--primary-color, #238287);
+        }
+
+        .mega-menu-links a img,
+        .mega-menu-links a svg,
+        .mega-menu-links a i {
+            width: 24px;
+            height: 24px;
+            min-width: 24px; /* Ensures consistent width */
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tools-dropdown-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .tools-dropdown-btn:hover {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .pdf-tools-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            width: 20px;
+            height: 20px;
+        }
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive styles for mega menu */
+        @media (max-width: 991.98px) {
+            .mega-menu-container {
+                padding: 20px 15px; /* Reduce padding */
+                max-height: 75vh; /* Limit height and allow scrolling */
+                overflow-y: auto;
+            }
+
+            .mega-menu-grid {
+                grid-template-columns: 1fr; /* Stack columns vertically */
+                grid-gap: 20px; /* Adjust gap for vertical layout */
+            }
+
+            .mega-menu-category {
+                margin-bottom: 10px; /* Slightly reduce space below category title */
+                padding-bottom: 8px;
+            }
+
+            .mega-menu-links {
+                gap: 10px; /* Reduce gap between links */
+            }
+
+            .mega-menu-links a {
+                padding: 8px 10px; /* Adjust padding */
+                font-size: 15px;
+                height: 44px; /* Slightly taller on mobile */
+            }
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        /* Card styling */
+        .card {
+            border: 1px solid var(--tertiary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            color: var(--primary-color);
+        }
+
+        /* Text on primary color backgrounds */
+        .bg-primary, .bg-primary-color, [class*="bg-primary"] {
+            color: var(--secondary-color) !important;
+        }
+
+        .bg-primary h1, .bg-primary h2, .bg-primary h3, .bg-primary h4, .bg-primary h5, .bg-primary h6,
+        .bg-primary-color h1, .bg-primary-color h2, .bg-primary-color h3, .bg-primary-color h4, .bg-primary-color h5, .bg-primary-color h6,
+        [class*="bg-primary"] h1, [class*="bg-primary"] h2, [class*="bg-primary"] h3, [class*="bg-primary"] h4, [class*="bg-primary"] h5, [class*="bg-primary"] h6 {
+            color: var(--secondary-color) !important;
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 1.5rem 0;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: opacity 0.3s ease;
+            font-size: 13px;
+        }
+
+        .footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer .social-icons a {
+            font-size: 20px;
+            margin: 0 5px;
+            display: inline-block;
+        }
+
+        .footer .footer-links {
+            margin-bottom: 1rem;
+        }
+
+        .footer .copyright {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+<header>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-light">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="fas fa-file-pdf me-2"></i>RevisePDF
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="optimizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-compress-alt me-1"></i>Optimize
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="optimizeDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('optimize.compress') }}">Compress PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('optimize.repair') }}">Repair PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('optimize.ocr') }}">OCR PDF</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="convertToPdfDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-file-import me-1"></i>Convert to PDF
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="convertToPdfDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('convert_to_pdf.image_to_pdf') }}">Image to PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('convert_to_pdf.office_to_pdf') }}">Office to PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('convert_to_pdf.html_to_pdf') }}">HTML to PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('convert_to_pdf.zip_to_pdf') }}">ZIP to PDF</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="editDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="editDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('edit.page_numbers') }}">Add Page Numbers</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('edit.watermark') }}">Add Watermark</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('edit.content') }}">Edit Content</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="organizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-object-group me-1"></i>Organize
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="organizeDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('organize.merge') }}">Merge PDFs</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('organize.split') }}">Split PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('organize.extract') }}">Extract Pages</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('organize.rotate') }}">Rotate Pages</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="convertFromPdfDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-file-export me-1"></i>Convert from PDF
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="convertFromPdfDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('convert_from_pdf.pdf_to_image') }}">PDF to Image</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('convert_from_pdf.pdf_to_panoramic') }}">PDF to Panoramic</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}">PDF to PDF/A</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="securityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-shield-alt me-1"></i>Security
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="securityDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('security.unlock') }}">Unlock PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('security.protect') }}">Protect PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('security.redact') }}">Redact PDF</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('security.flatten') }}">Flatten PDF</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a>
-                    </li>
-                </ul>
+            <div class="navbar-container">
+                <!-- Logo on the left -->
+                <div class="logo-placeholder">
+                    <a href="{{ url_for('main.index') }}">
+                        <i class="fas fa-file-pdf" style="color: #238287; font-size: 24px;"></i>
+                    </a>
+                </div>
+
+                <!-- Title in center - Now clickable -->
+                <a href="{{ url_for('main.index') }}" class="title-brand">RevisePDF</a>
+
+                <!-- All PDF Tools dropdown on the right -->
+                <div class="tools-container">
+                    <a class="tools-dropdown-btn" href="#" id="toolsDropdown" role="button">
+                        <span class="pdf-tools-icon">
+                            <i class="fas fa-tools"></i>
+                        </span>
+                        All PDF Tools
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Full Width Mega Menu -->
+    <div class="mega-menu-wrapper" id="megaMenuWrapper">
+        <div class="mega-menu-container">
+            <div class="mega-menu-grid">
+                <!-- CONVERT Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">CONVERT TO PDF</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('convert_to_pdf.image_to_pdf') }}">
+                            <i class="fas fa-image menu-icon"></i>
+                            Image to PDF
+                        </a>
+                        <a href="{{ url_for('convert_to_pdf.office_to_pdf') }}">
+                            <i class="fas fa-file-word menu-icon"></i>
+                            Office to PDF
+                        </a>
+                        <a href="{{ url_for('convert_to_pdf.html_to_pdf') }}">
+                            <i class="fas fa-code menu-icon"></i>
+                            HTML to PDF
+                        </a>
+                        <a href="{{ url_for('convert_to_pdf.zip_to_pdf') }}">
+                            <i class="fas fa-file-archive menu-icon"></i>
+                            ZIP to PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- CONVERT FROM Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">CONVERT FROM PDF</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('convert_from_pdf.pdf_to_image') }}">
+                            <i class="fas fa-file-image menu-icon"></i>
+                            PDF to Image
+                        </a>
+                        <a href="{{ url_for('convert_from_pdf.pdf_to_panoramic') }}">
+                            <i class="fas fa-panorama menu-icon"></i>
+                            PDF to Panoramic
+                        </a>
+                        <a href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}">
+                            <i class="fas fa-file-pdf menu-icon"></i>
+                            PDF to PDF/A
+                        </a>
+                    </div>
+                </div>
+
+                <!-- OPTIMIZE Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">OPTIMISE</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('optimize.compress') }}">
+                            <i class="fas fa-compress-alt menu-icon"></i>
+                            Compress PDF
+                        </a>
+                        <a href="{{ url_for('optimize.repair') }}">
+                            <i class="fas fa-tools menu-icon"></i>
+                            Repair PDF
+                        </a>
+                        <a href="{{ url_for('optimize.ocr') }}">
+                            <i class="fas fa-font menu-icon"></i>
+                            OCR PDF
+                        </a>
+                    </div>
+                </div>
+
+                <!-- EDIT Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">EDIT</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('edit.page_numbers') }}">
+                            <i class="fas fa-list-ol menu-icon"></i>
+                            Add Page Numbers
+                        </a>
+                        <a href="{{ url_for('edit.watermark') }}">
+                            <i class="fas fa-tint menu-icon"></i>
+                            Add Watermark
+                        </a>
+                        <a href="{{ url_for('edit.content') }}">
+                            <i class="fas fa-edit menu-icon"></i>
+                            Edit Content
+                        </a>
+                        <a href="{{ url_for('edit.text_editor') }}">
+                            <i class="fas fa-font menu-icon"></i>
+                            Edit Text
+                        </a>
+                        <a href="{{ url_for('edit.signature') }}">
+                            <i class="fas fa-signature menu-icon"></i>
+                            Add Signature
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ORGANIZE Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">ORGANISE</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('organize.merge') }}">
+                            <i class="fas fa-object-group menu-icon"></i>
+                            Merge PDFs
+                        </a>
+                        <a href="{{ url_for('organize.split') }}">
+                            <i class="fas fa-cut menu-icon"></i>
+                            Split PDF
+                        </a>
+                        <a href="{{ url_for('organize.extract') }}">
+                            <i class="fas fa-copy menu-icon"></i>
+                            Extract Pages
+                        </a>
+                        <a href="{{ url_for('organize.rotate') }}">
+                            <i class="fas fa-sync-alt menu-icon"></i>
+                            Rotate Pages
+                        </a>
+                    </div>
+                </div>
+
+                <!-- SECURITY Column -->
+                <div class="mega-menu-column">
+                    <div class="mega-menu-category">SECURITY</div>
+                    <div class="mega-menu-links">
+                        <a href="{{ url_for('security.unlock') }}">
+                            <i class="fas fa-unlock menu-icon"></i>
+                            Unlock PDF
+                        </a>
+                        <a href="{{ url_for('security.protect') }}">
+                            <i class="fas fa-lock menu-icon"></i>
+                            Protect PDF
+                        </a>
+                        <a href="{{ url_for('security.redact') }}">
+                            <i class="fas fa-eraser menu-icon"></i>
+                            Redact PDF
+                        </a>
+                        <a href="{{ url_for('security.flatten') }}">
+                            <i class="fas fa-layer-group menu-icon"></i>
+                            Flatten PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="content-wrapper">
     <main class="container py-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -122,44 +510,75 @@
 
         {% block content %}{% endblock %}
     </main>
+</div>
 
-    <!-- Footer -->
-    <footer class="bg-light py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>RevisePDF</h5>
-                    <p>A comprehensive suite of PDF processing tools.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                        <li><a href="{{ url_for('main.about') }}">About</a></li>
-                        <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Legal</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                    </ul>
-                </div>
+<!-- Footer -->
+<footer class="bg-primary py-4 mt-5 text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>RevisePDF</h5>
+                <p>A comprehensive suite of PDF processing tools.</p>
+                <p><small>Edinburgh, Scotland</small></p>
+                <p><small>Email: <a href="mailto:calum@revisepdf.com" class="text-white">calum@revisepdf.com</a></small></p>
             </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; {{ current_year }} RevisePDF. All rights reserved.</p>
+            <div class="col-md-4">
+                <h5>Legal</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('main.privacy_policy') }}" class="text-white">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('main.terms_of_service') }}" class="text-white">Terms of Service</a></li>
+                    <li><a href="{{ url_for('main.cookie_policy') }}" class="text-white">Cookie Policy</a></li>
+                    <li><a href="{{ url_for('main.gdpr_compliance') }}" class="text-white">GDPR Compliance</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Compliance</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('main.accessibility_statement') }}" class="text-white">Accessibility Statement</a></li>
+                    <li><a href="{{ url_for('main.data_protection') }}" class="text-white">Data Protection</a></li>
+                    <li><a href="{{ url_for('main.security_information') }}" class="text-white">Security Information</a></li>
+                </ul>
             </div>
         </div>
-    </footer>
+        <hr class="border-white opacity-25">
+        <div class="text-center">
+            <p>&copy; 2025 RevisePDF. Last updated: 14/04/2025. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-    {% block extra_js %}{% endblock %}
+<!-- Mega Menu JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toolsDropdown = document.getElementById('toolsDropdown');
+        const megaMenuWrapper = document.getElementById('megaMenuWrapper');
+
+        // Toggle menu on click
+        toolsDropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+            megaMenuWrapper.classList.toggle('show');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!toolsDropdown.contains(e.target) && !megaMenuWrapper.contains(e.target)) {
+                megaMenuWrapper.classList.remove('show');
+            }
+        });
+
+        // Prevent clicks inside the mega menu from closing it
+        megaMenuWrapper.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

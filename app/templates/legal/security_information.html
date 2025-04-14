@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Security Information - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Security Information</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Last updated: 14/04/2025</p>
+
+                    <h3>Introduction</h3>
+                    <p>
+                        At RevisePDF, we prioritize the security of your data and our systems. This page outlines our security practices and measures to protect your information when using our services.
+                    </p>
+
+                    <h3>Infrastructure Security</h3>
+                    <p>
+                        Our infrastructure is designed with security as a fundamental principle:
+                    </p>
+                    <ul>
+                        <li><strong>Secure hosting:</strong> We use reputable cloud service providers with robust security certifications and compliance programs.</li>
+                        <li><strong>Network security:</strong> We implement firewalls, network segmentation, and intrusion detection systems to protect our infrastructure.</li>
+                        <li><strong>Regular updates:</strong> We regularly update our systems and applications with security patches to address known vulnerabilities.</li>
+                        <li><strong>Monitoring:</strong> We continuously monitor our systems for suspicious activities and potential security threats.</li>
+                    </ul>
+
+                    <h3>Data Security</h3>
+                    <p>
+                        We implement multiple layers of protection for your data:
+                    </p>
+                    <ul>
+                        <li><strong>Encryption in transit:</strong> All data transmitted between your browser and our servers is encrypted using HTTPS/TLS.</li>
+                        <li><strong>Encryption at rest:</strong> We encrypt sensitive data stored in our databases and file storage systems.</li>
+                        <li><strong>Temporary storage:</strong> Files uploaded to our service are automatically deleted after processing or after a short period (typically 24 hours).</li>
+                        <li><strong>Access controls:</strong> We implement strict access controls to ensure that only authorised personnel can access sensitive data.</li>
+                    </ul>
+
+                    <h3>Application Security</h3>
+                    <p>
+                        Our application is developed with security best practices:
+                    </p>
+                    <ul>
+                        <li><strong>Secure development:</strong> We follow secure coding practices and conduct regular code reviews.</li>
+                        <li><strong>Input validation:</strong> We validate all user inputs to prevent common web vulnerabilities such as SQL injection and cross-site scripting (XSS).</li>
+                        <li><strong>Authentication and authorisation:</strong> We implement secure authentication mechanisms and proper authorisation checks.</li>
+                        <li><strong>Security testing:</strong> We regularly perform security testing, including vulnerability scanning and penetration testing.</li>
+                    </ul>
+
+                    <h3>Operational Security</h3>
+                    <p>
+                        Our operational practices are designed to maintain security:
+                    </p>
+                    <ul>
+                        <li><strong>Security policies:</strong> We have comprehensive security policies and procedures that are regularly reviewed and updated.</li>
+                        <li><strong>Staff training:</strong> Our team receives regular security awareness training.</li>
+                        <li><strong>Incident response:</strong> We have a defined incident response plan to quickly address security incidents.</li>
+                        <li><strong>Backup and recovery:</strong> We maintain regular backups of critical data and have procedures for disaster recovery.</li>
+                    </ul>
+
+                    <h3>Compliance</h3>
+                    <p>
+                        We are committed to complying with relevant security and privacy regulations:
+                    </p>
+                    <ul>
+                        <li><strong>GDPR compliance:</strong> We adhere to the requirements of the General Data Protection Regulation (GDPR).</li>
+                        <li><strong>UK Data Protection Act:</strong> We comply with the UK Data Protection Act 2018.</li>
+                        <li><strong>Regular assessments:</strong> We conduct regular assessments of our compliance with these regulations.</li>
+                    </ul>
+
+                    <h3>Security Recommendations for Users</h3>
+                    <p>
+                        To enhance the security of your data when using our services, we recommend:
+                    </p>
+                    <ul>
+                        <li>Use a secure and up-to-date web browser.</li>
+                        <li>Ensure your device has up-to-date antivirus and anti-malware protection.</li>
+                        <li>Be cautious about the files you upload, especially if they contain sensitive information.</li>
+                        <li>Download your processed files promptly, as they are automatically deleted after a short period.</li>
+                    </ul>
+
+                    <h3>Reporting Security Issues</h3>
+                    <p>
+                        If you discover a security vulnerability or have concerns about the security of our services, please contact us immediately at <a href="mailto:calum@revisepdf.com">calum@revisepdf.com</a>.
+                    </p>
+
+                    <h3>Contact Us</h3>
+                    <p>
+                        If you have any questions about our security practices, please contact us at:
+                    </p>
+                    <p>
+                        Email: <a href="mailto:calum@revisepdf.com">calum@revisepdf.com</a><br>
+                        Address: Edinburgh, Scotland
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
