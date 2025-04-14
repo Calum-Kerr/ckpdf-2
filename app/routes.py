@@ -260,7 +260,16 @@ def ocr():
             language = form.language.data
             result = perform_ocr(input_path, output_path, language)
 
-            flash('OCR completed successfully!', 'success')
+            if result.get('tesseract_missing'):
+                flash("OCR engine is not available. The PDF has been returned unchanged.", 'warning')
+                logger.warning("OCR engine is not available.")
+            elif result.get('error_occurred'):
+                flash(result.get('message'), 'warning')
+                logger.warning(f"OCR error: {result.get('message')}")
+            elif result.get('text_found'):
+                flash('OCR completed successfully! Text was extracted and added to the PDF.', 'success')
+            else:
+                flash('OCR completed, but no new text was extracted. The PDF may already contain text or no recognizable text was found.', 'info')
 
         except PDFProcessingError as e:
             flash(f'Error performing OCR: {str(e)}', 'danger')

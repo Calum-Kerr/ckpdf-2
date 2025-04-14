@@ -50,6 +50,26 @@ ghostscript/ghostscript-10.02.0/
 !ghostscript/__init__.py
 !ghostscript/README.md
 
+# Tesseract OCR
+# Ignore Tesseract binaries and language data
+tesseract/bin/*.exe
+tesseract/bin/*.dll
+tesseract/bin/*.bat
+tesseract/bin/*.py
+tesseract/tessdata/*.traineddata
+tesseract/tessdata/*.jar
+tesseract/tessdata/*.ttf
+tesseract/tessdata/configs/
+tesseract/tessdata/script/
+tesseract/tessdata/tessconfigs/
+tesseract-installer.exe
+
+# Keep Tesseract directory structure
+!tesseract/
+!tesseract/bin/
+!tesseract/tessdata/
+!tesseract/README.md
+
 # Temporary files
 tmp/
 temp/

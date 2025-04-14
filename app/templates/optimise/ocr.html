@@ -67,9 +67,11 @@
                         </div>
                     </div>
 
-                    <div class="alert {% if result.text_found %}alert-success{% else %}alert-warning{% endif %}">
+                    <div class="alert {% if result.text_found %}alert-success{% elif result.tesseract_missing or result.error_occurred %}alert-danger{% else %}alert-warning{% endif %}">
                         {% if result.text_found %}
                             <i class="fas fa-check-circle me-2"></i> Text was successfully extracted and added to the PDF.
+                        {% elif result.tesseract_missing or result.error_occurred %}
+                            <i class="fas fa-exclamation-triangle me-2"></i> {{ result.message }}
                         {% else %}
                             <i class="fas fa-info-circle me-2"></i> No text was extracted. The PDF may already contain text or no recognizable text was found in the images.
                         {% endif %}
@@ -101,7 +103,7 @@
                             <strong>Image Extraction:</strong> We extract images from each page of your PDF.
                         </li>
                         <li>
-                            <strong>Text Recognition:</strong> We use Tesseract OCR to recognize text in the extracted images.
+                            <strong>Text Recognition:</strong> We use advanced OCR technology to recognize text in the extracted images.
                         </li>
                         <li>
                             <strong>Text Overlay:</strong> We add the recognized text as an invisible layer on top of the original PDF.
@@ -118,8 +120,8 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        OCR accuracy depends on the quality of the original document. Clear, high-resolution scans will yield better results.
-                        For best results, choose the correct language that matches the text in your document.
+                        <strong>Important:</strong> OCR accuracy depends on the quality of the original document.<br><br>
+                        Clear, high-resolution scans will yield better results. For best results, choose the correct language that matches the text in your document.
                     </div>
                 </div>
             </div>

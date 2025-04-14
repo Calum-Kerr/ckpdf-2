@@ -65,6 +65,16 @@ def create_app(test_config=None):
     from app.errors import register_error_handlers
     register_error_handlers(app)
 
+    # Set up OCR engine
+    with app.app_context():
+        try:
+            from tools.setup_tesseract import setup_tesseract_environment
+            setup_tesseract_environment()
+        except ImportError:
+            app.logger.warning("OCR setup module not found. OCR functionality may be limited.")
+        except Exception as e:
+            app.logger.warning(f"Error setting up OCR engine: {str(e)}. OCR functionality may be limited.")
+
     # Register template filters
     @app.template_filter('basename')
     def basename_filter(path):
