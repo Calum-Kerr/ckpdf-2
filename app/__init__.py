@@ -98,16 +98,24 @@ def create_app(test_config=None):
     # Register blueprints
     from app.routes.main import main_bp
     from app.routes.security_api import security_api_bp
-    from app.routes import main_bp as _  # This is just to ensure routes.py is imported
-    import app.routes as routes_module
 
-    # Get blueprints from the original routes.py file
-    optimize_bp = routes_module.optimize_bp
-    convert_to_pdf_bp = routes_module.convert_to_pdf_bp
-    edit_bp = routes_module.edit_bp
-    organize_bp = routes_module.organize_bp
-    convert_from_pdf_bp = routes_module.convert_from_pdf_bp
-    security_bp = routes_module.security_bp
+    # Import blueprints directly from the original routes.py file
+    from app.routes import main_bp as _  # Dummy import to avoid circular imports
+    import sys
+    import importlib.util
+
+    # Load the routes.py module directly
+    spec = importlib.util.spec_from_file_location("routes", "app/routes.py")
+    routes = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(routes)
+
+    # Get blueprints from the routes module
+    optimize_bp = routes.optimize_bp
+    convert_to_pdf_bp = routes.convert_to_pdf_bp
+    edit_bp = routes.edit_bp
+    organize_bp = routes.organize_bp
+    convert_from_pdf_bp = routes.convert_from_pdf_bp
+    security_bp = routes.security_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(optimize_bp)
