@@ -37,6 +37,8 @@
                         <li><strong>Encryption in transit:</strong> All data transmitted between your browser and our servers is encrypted using HTTPS/TLS.</li>
                         <li><strong>Encryption at rest:</strong> We encrypt sensitive data stored in our databases and file storage systems.</li>
                         <li><strong>Temporary storage:</strong> Files uploaded to our service are automatically deleted after processing or after a short period (typically 24 hours).</li>
+                        <li><strong>Secure file handling:</strong> We use secure random filenames and strict path validation to prevent path traversal attacks.</li>
+                        <li><strong>Rate limiting:</strong> We implement rate limiting to prevent abuse of our services and protect against denial-of-service attacks.</li>
                         <li><strong>Access controls:</strong> We implement strict access controls to ensure that only authorised personnel can access sensitive data.</li>
                     </ul>
 
@@ -48,6 +50,9 @@
                         <li><strong>Secure development:</strong> We follow secure coding practices and conduct regular code reviews.</li>
                         <li><strong>Input validation:</strong> We validate all user inputs to prevent common web vulnerabilities such as SQL injection and cross-site scripting (XSS).</li>
                         <li><strong>Authentication and authorisation:</strong> We implement secure authentication mechanisms and proper authorisation checks.</li>
+                        <li><strong>Content Security Policy:</strong> We use a strict Content Security Policy to prevent cross-site scripting attacks and other code injection vulnerabilities.</li>
+                        <li><strong>File validation and sanitization:</strong> All uploaded files are validated for correct type and size, and PDFs are sanitized to remove potentially harmful elements.</li>
+                        <li><strong>Security headers:</strong> We implement various security headers to protect against common web vulnerabilities.</li>
                         <li><strong>Security testing:</strong> We regularly perform security testing, including vulnerability scanning and penetration testing.</li>
                     </ul>
 
@@ -60,6 +65,18 @@
                         <li><strong>Staff training:</strong> Our team receives regular security awareness training.</li>
                         <li><strong>Incident response:</strong> We have a defined incident response plan to quickly address security incidents.</li>
                         <li><strong>Backup and recovery:</strong> We maintain regular backups of critical data and have procedures for disaster recovery.</li>
+                    </ul>
+
+                    <h3>Security Monitoring</h3>
+                    <p>
+                        We continuously monitor our systems for security threats:
+                    </p>
+                    <ul>
+                        <li><strong>Request logging:</strong> We log all requests to our application for security analysis.</li>
+                        <li><strong>Suspicious activity detection:</strong> We monitor for suspicious patterns that may indicate security threats.</li>
+                        <li><strong>Attack detection:</strong> We have systems in place to detect common attack vectors such as SQL injection and XSS attempts.</li>
+                        <li><strong>Resource monitoring:</strong> We monitor system resources to detect and prevent denial-of-service attacks.</li>
+                        <li><strong>Automated alerts:</strong> Our monitoring systems generate alerts for potential security incidents.</li>
                     </ul>
 
                     <h3>Compliance</h3>

@@ -12,7 +12,7 @@ main_bp = Blueprint('main', __name__)
 def index():
     """
     Render the index page.
-    
+
     Returns:
         The rendered index page.
     """
@@ -22,7 +22,7 @@ def index():
 def privacy_policy():
     """
     Render the privacy policy page.
-    
+
     Returns:
         The rendered privacy policy page.
     """
@@ -32,7 +32,7 @@ def privacy_policy():
 def terms_of_service():
     """
     Render the terms of service page.
-    
+
     Returns:
         The rendered terms of service page.
     """
@@ -42,7 +42,7 @@ def terms_of_service():
 def cookie_policy():
     """
     Render the cookie policy page.
-    
+
     Returns:
         The rendered cookie policy page.
     """
@@ -52,7 +52,7 @@ def cookie_policy():
 def gdpr_compliance():
     """
     Render the GDPR compliance page.
-    
+
     Returns:
         The rendered GDPR compliance page.
     """
@@ -62,7 +62,7 @@ def gdpr_compliance():
 def accessibility_statement():
     """
     Render the accessibility statement page.
-    
+
     Returns:
         The rendered accessibility statement page.
     """
@@ -72,7 +72,7 @@ def accessibility_statement():
 def data_protection():
     """
     Render the data protection page.
-    
+
     Returns:
         The rendered data protection page.
     """
@@ -82,8 +82,8 @@ def data_protection():
 def security_information():
     """
     Render the security information page.
-    
+
     Returns:
         The rendered security information page.
     """
-    return render_template('compliance/security_information.html')
+    return render_template('legal/security_information.html')
