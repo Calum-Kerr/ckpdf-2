@@ -71,7 +71,7 @@ def create_app(test_config=None):
     # Initialize Talisman for HTTPS and security headers
     csp = {
         'default-src': '\'self\'',
-        'script-src': ['\'self\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
         'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
         'img-src': ['\'self\'', 'data:'],
         'font-src': ['\'self\'', 'https://cdnjs.cloudflare.com'],
