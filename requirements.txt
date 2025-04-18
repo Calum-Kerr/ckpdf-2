@@ -16,6 +16,12 @@ python-magic==0.4.27  # For file type detection
 # Security
 Flask-Talisman==1.0.0  # For security headers
 Flask-Limiter==3.3.1  # For rate limiting
+cryptography==41.0.3  # For encryption
+pyOpenSSL==23.2.0  # For SSL/TLS
+bleach==6.0.0  # For sanitizing user input
+bandit==1.7.5  # For security linting
+python-magic==0.4.27  # For file type detection
+PyJWT==2.8.0  # For secure token handling
 
 # Utilities
 python-dotenv==1.0.0  # For environment variables

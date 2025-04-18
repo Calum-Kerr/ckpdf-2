@@ -7,10 +7,20 @@ components such as blueprints, extensions, and error handlers.
 
 import os
 import datetime
+import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
+from flask_talisman import Talisman
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 csrf = CSRFProtect()
+talisman = Talisman()
 
 def create_app(test_config=None):
     """
@@ -29,8 +39,15 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev'),
         UPLOAD_FOLDER=os.path.join(app.instance_path, 'uploads'),
+        SECURE_STORAGE_DIR=os.path.join(app.instance_path, 'secure_storage'),
         MAX_CONTENT_LENGTH=50 * 1024 * 1024,  # 50MB max upload size
         ALLOWED_EXTENSIONS={'pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'html', 'zip'},
+        ALLOWED_ORIGINS=[f"https://{os.environ.get('DOMAIN', 'revisepdf.com')}"],
+        SECURE_STORAGE_RETENTION=600,  # 10 minutes
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1),
     )
 
     if test_config is None:
@@ -44,14 +61,42 @@ def create_app(test_config=None):
     try:
         os.makedirs(app.instance_path, exist_ok=True)
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    except OSError:
-        pass
+        os.makedirs(app.config['SECURE_STORAGE_DIR'], exist_ok=True)
+    except OSError as e:
+        logger.error(f"Error creating directories: {str(e)}")
 
-    # Initialize CSRF protection
+    # Initialize security features
     csrf.init_app(app)
 
+    # Initialize Talisman for HTTPS and security headers
+    csp = {
+        'default-src': '\'self\'',
+        'script-src': '\'self\'',
+        'style-src': ['\'self\'', '\'unsafe-inline\''],  # Allow inline styles for Bootstrap
+        'img-src': ['\'self\'', 'data:'],  # Allow data URLs for images
+        'font-src': '\'self\'',
+        'connect-src': '\'self\'',
+        'object-src': '\'none\'',
+    }
+
+    talisman.init_app(
+        app,
+        content_security_policy=csp,
+        content_security_policy_nonce_in=['script-src'],
+        force_https=not app.debug,  # Don't force HTTPS in debug mode
+        session_cookie_secure=app.config['SESSION_COOKIE_SECURE'],
+        session_cookie_http_only=app.config['SESSION_COOKIE_HTTPONLY'],
+        strict_transport_security=True,
+        strict_transport_security_preload=True,
+        referrer_policy='strict-origin-when-cross-origin'
+    )
+
+    # Initialize custom security features
+    from app.security import init_app as init_security
+    init_security(app)
+
     # Register blueprints
-    from app.routes import main_bp, optimize_bp, convert_to_pdf_bp, edit_bp, organize_bp, convert_from_pdf_bp, security_bp
+    from app.routes import main_bp, optimize_bp, convert_to_pdf_bp, edit_bp, organize_bp, convert_from_pdf_bp, security_bp, security_api_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(optimize_bp)
@@ -60,6 +105,7 @@ def create_app(test_config=None):
     app.register_blueprint(organize_bp)
     app.register_blueprint(convert_from_pdf_bp)
     app.register_blueprint(security_bp)
+    app.register_blueprint(security_api_bp)
 
     # Register error handlers
     from app.errors import register_error_handlers
@@ -86,5 +132,15 @@ def create_app(test_config=None):
     def inject_current_year():
         """Inject the current year into all templates."""
         return {'current_year': datetime.datetime.now().year}
+
+    # Add request ID to all requests for tracking
+    @app.before_request
+    def assign_request_id():
+        from flask import g
+        import uuid
+        g.request_id = str(uuid.uuid4())
+
+    # Log all application startup information
+    logger.info(f"Application initialized with environment: {os.environ.get('FLASK_ENV', 'production')}")
 
     return app
