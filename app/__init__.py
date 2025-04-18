@@ -96,7 +96,9 @@ def create_app(test_config=None):
     init_security(app)
 
     # Register blueprints
-    from app.routes import main_bp, optimize_bp, convert_to_pdf_bp, edit_bp, organize_bp, convert_from_pdf_bp, security_bp, security_api_bp
+    from app.routes.main import main_bp
+    from app.routes.security_api import security_api_bp
+    from app.routes import optimize_bp, convert_to_pdf_bp, edit_bp, organize_bp, convert_from_pdf_bp, security_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(optimize_bp)
