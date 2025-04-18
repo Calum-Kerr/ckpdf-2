@@ -71,10 +71,10 @@ def create_app(test_config=None):
     # Initialize Talisman for HTTPS and security headers
     csp = {
         'default-src': '\'self\'',
-        'script-src': '\'self\'',
-        'style-src': ['\'self\'', '\'unsafe-inline\''],  # Allow inline styles for Bootstrap
-        'img-src': ['\'self\'', 'data:'],  # Allow data URLs for images
-        'font-src': '\'self\'',
+        'script-src': ['\'self\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+        'img-src': ['\'self\'', 'data:'],
+        'font-src': ['\'self\'', 'https://cdnjs.cloudflare.com'],
         'connect-src': '\'self\'',
         'object-src': '\'none\'',
     }
