@@ -26,7 +26,7 @@ def privacy_policy():
     Returns:
         The rendered privacy policy page.
     """
-    return render_template('compliance/privacy_policy.html')
+    return render_template('legal/privacy_policy.html')
 
 @main_bp.route('/terms-of-service')
 def terms_of_service():
@@ -36,7 +36,7 @@ def terms_of_service():
     Returns:
         The rendered terms of service page.
     """
-    return render_template('compliance/terms_of_service.html')
+    return render_template('legal/terms_of_service.html')
 
 @main_bp.route('/cookie-policy')
 def cookie_policy():
@@ -46,7 +46,7 @@ def cookie_policy():
     Returns:
         The rendered cookie policy page.
     """
-    return render_template('compliance/cookie_policy.html')
+    return render_template('legal/cookie_policy.html')
 
 @main_bp.route('/gdpr-compliance')
 def gdpr_compliance():
@@ -56,7 +56,7 @@ def gdpr_compliance():
     Returns:
         The rendered GDPR compliance page.
     """
-    return render_template('compliance/gdpr_compliance.html')
+    return render_template('legal/gdpr_compliance.html')
 
 @main_bp.route('/accessibility-statement')
 def accessibility_statement():
@@ -66,7 +66,7 @@ def accessibility_statement():
     Returns:
         The rendered accessibility statement page.
     """
-    return render_template('compliance/accessibility_statement.html')
+    return render_template('legal/accessibility_statement.html')
 
 @main_bp.route('/data-protection')
 def data_protection():
@@ -76,7 +76,7 @@ def data_protection():
     Returns:
         The rendered data protection page.
     """
-    return render_template('compliance/data_protection.html')
+    return render_template('legal/data_protection.html')
 
 @main_bp.route('/security-information')
 def security_information():
