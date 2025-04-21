@@ -46,7 +46,7 @@
                             {% if profile %}
                                 {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
                                 <div class="progress mb-2">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
                                 </div>
                                 <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
                             {% else %}
