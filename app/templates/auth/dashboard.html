@@ -7,24 +7,24 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header" style="background-color: #238287; color: white;">
                     <h2 class="mb-0">My Account</h2>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                <button class="nav-link active" id="v-pills-dashboard-tab" data-bs-toggle="pill" data-bs-target="#v-pills-dashboard" type="button" role="tab" aria-controls="v-pills-dashboard" aria-selected="true">Dashboard</button>
-                                <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Profile</button>
-                                <button class="nav-link" id="v-pills-usage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-usage" type="button" role="tab" aria-controls="v-pills-usage" aria-selected="false">Usage</button>
+                                <button class="nav-link active" id="v-pills-dashboard-tab" data-bs-toggle="pill" data-bs-target="#v-pills-dashboard" type="button" role="tab" aria-controls="v-pills-dashboard" aria-selected="true" style="color: #238287;">Dashboard</button>
+                                <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false" style="color: #238287;">Profile</button>
+                                <button class="nav-link" id="v-pills-usage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-usage" type="button" role="tab" aria-controls="v-pills-usage" aria-selected="false" style="color: #238287;">Usage</button>
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div class="tab-content" id="v-pills-tabContent">
                                 <div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
                                     <h3>Welcome, {{ user.email }}</h3>
-                                    <p>Account Type: <span class="badge bg-primary">{{ profile.account_type|capitalize if profile else 'Free' }}</span></p>
-                                    
+                                    <p>Account Type: <span class="badge" style="background-color: #238287; color: white;">{{ profile.account_type|capitalize if profile else 'Free' }}</span></p>
+
                                     <div class="card mb-3">
                                         <div class="card-header">
                                             <h5 class="mb-0">Storage Usage</h5>
@@ -33,7 +33,7 @@
                                             {% if profile %}
                                                 {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
                                                 <div class="progress mb-2">
-                                                    <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                                    <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%; background-color: #238287;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
                                                 </div>
                                                 <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
                                             {% else %}
@@ -41,7 +41,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    
+
                                     <div class="card">
                                         <div class="card-header">
                                             <h5 class="mb-0">File Size Limits</h5>
@@ -49,13 +49,13 @@
                                         <div class="card-body">
                                             {% if profile and profile.account_type == 'free' %}
                                                 <p>Maximum file size: 10 MB</p>
-                                                <p>Want to process larger files? <a href="#" class="btn btn-sm btn-primary">Upgrade Now</a></p>
+                                                <p>Want to process larger files? <a href="#" class="btn btn-sm" style="background-color: #238287; color: white;">Upgrade Now</a></p>
                                             {% elif profile and profile.account_type == 'premium' %}
                                                 <p>Maximum file size: 100 MB</p>
                                                 <p>You're on our Premium plan!</p>
                                             {% else %}
                                                 <p>Maximum file size: 10 MB</p>
-                                                <p>Want to process larger files? <a href="#" class="btn btn-sm btn-primary">Upgrade Now</a></p>
+                                                <p>Want to process larger files? <a href="#" class="btn btn-sm" style="background-color: #238287; color: white;">Upgrade Now</a></p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -63,16 +63,16 @@
                                 <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                                     <h3>Profile Information</h3>
                                     <p>Email: {{ user.email }}</p>
-                                    <p>Account Type: {{ profile.account_type|capitalize if profile else 'Free' }}</p>
+                                    <p>Account Type: <span class="badge" style="background-color: #238287; color: white;">{{ profile.account_type|capitalize if profile else 'Free' }}</span></p>
                                     <p>Member Since: {{ profile.created_at|default('N/A') }}</p>
-                                    
+
                                     <div class="mt-3">
-                                        <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">Edit Profile</a>
+                                        <a href="{{ url_for('auth.profile') }}" class="btn" style="background-color: #238287; color: white;">Edit Profile</a>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-usage" role="tabpanel" aria-labelledby="v-pills-usage-tab">
                                     <h3>Usage Statistics</h3>
-                                    
+
                                     <div class="card mb-3">
                                         <div class="card-header">
                                             <h5 class="mb-0">File Size Limits</h5>
@@ -99,10 +99,10 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            
+
                                             {% if profile and profile.account_type == 'free' %}
                                                 <div class="mt-3">
-                                                    <a href="#" class="btn btn-primary">Upgrade to Premium</a>
+                                                    <a href="#" class="btn" style="background-color: #238287; color: white;">Upgrade to Premium</a>
                                                 </div>
                                             {% endif %}
                                         </div>
