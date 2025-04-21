@@ -51,7 +51,7 @@
                                 <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
                                 <form action="{{ url_for('auth.update_storage') }}" method="post" class="mt-2">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-primary">Add 1MB (Test)</button>
+                                    <button type="submit" class="btn btn-primary">Add 1MB to Storage (Test)</button>
                                 </form>
                             {% else %}
                                 <p>No usage data available.</p>
