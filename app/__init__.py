@@ -71,6 +71,9 @@ def create_app(test_config=None):
     # Initialize security features
     csrf.init_app(app)
 
+    # Disable CSRF protection for testing
+    app.config['WTF_CSRF_ENABLED'] = False
+
     # Add a custom CSRF check function that respects our csrf_exempt decorator
     @csrf.exempt
     def csrf_exempt_check():

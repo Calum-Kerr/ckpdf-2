@@ -192,24 +192,28 @@ def update_storage():
     test_file_size = 1 * 1024 * 1024  # 1MB in bytes
 
     # Force demo mode for testing
-    if user['id'] in demo_profiles:
-        current_usage = demo_profiles[user['id']].get('storage_used', 0)
-        new_usage = current_usage + test_file_size
-        demo_profiles[user['id']]['storage_used'] = new_usage
-        logger.info(f"Updated demo profile storage usage for user {user['id']}: {test_file_size} bytes")
-        success = True
-    else:
-        # Create a new demo profile
-        demo_profiles[user['id']] = {
-            'user_id': user['id'],
-            'email': user.get('email', 'unknown@example.com'),
-            'account_type': 'free',
-            'storage_used': test_file_size,
-            'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-            'created_at': datetime.datetime.now().isoformat()
-        }
-        logger.info(f"Created new demo profile with storage usage for user {user['id']}: {test_file_size} bytes")
-        success = True
+    try:
+        if user['id'] in demo_profiles:
+            current_usage = demo_profiles[user['id']].get('storage_used', 0)
+            new_usage = current_usage + test_file_size
+            demo_profiles[user['id']]['storage_used'] = new_usage
+            logger.info(f"Updated demo profile storage usage for user {user['id']}: {test_file_size} bytes")
+            success = True
+        else:
+            # Create a new demo profile
+            demo_profiles[user['id']] = {
+                'user_id': user['id'],
+                'email': user.get('email', 'unknown@example.com'),
+                'account_type': 'free',
+                'storage_used': test_file_size,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': datetime.datetime.now().isoformat()
+            }
+            logger.info(f"Created new demo profile with storage usage for user {user['id']}: {test_file_size} bytes")
+            success = True
+    except Exception as e:
+        logger.error(f"Error updating storage usage: {str(e)}")
+        success = False
 
     if success:
         flash('Added 1MB to your storage usage for testing.', 'success')
