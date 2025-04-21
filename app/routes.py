@@ -113,6 +113,19 @@ def save_uploaded_file(file):
     # Save the file
     file.save(file_path)
 
+    # Track file usage for authenticated users
+    try:
+        from app.auth.utils import get_current_user, track_file_usage
+        user = get_current_user()
+        if user:
+            file_size = os.path.getsize(file_path)
+            track_file_usage(user.get('id'), file_size)
+    except ImportError:
+        # Auth module not available, skip tracking
+        pass
+    except Exception as e:
+        logger.error(f"Error tracking file usage: {str(e)}")
+
     return file_path
 
 # Main routes

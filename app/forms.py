@@ -8,7 +8,7 @@ It includes forms for file uploads and various PDF processing operations.
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, SelectField, IntegerField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional
+from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional, EqualTo
 
 class FileUploadForm(FlaskForm):
     """Base form for file uploads."""
@@ -453,3 +453,38 @@ class SignatureForm(PDFUploadForm):
     """Form for adding signatures to PDF."""
 
     submit = SubmitField('Upload PDF')
+
+
+class LoginForm(FlaskForm):
+    """Form for user login."""
+
+    email = StringField('Email', validators=[
+        DataRequired('Please enter your email'),
+        Email('Please enter a valid email address')
+    ])
+    password = PasswordField('Password', validators=[
+        DataRequired('Please enter your password')
+    ])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Log In')
+
+
+class RegisterForm(FlaskForm):
+    """Form for user registration."""
+
+    email = StringField('Email', validators=[
+        DataRequired('Please enter your email'),
+        Email('Please enter a valid email address')
+    ])
+    password = PasswordField('Password', validators=[
+        DataRequired('Please enter a password'),
+        Length(min=8, message='Password must be at least 8 characters long')
+    ])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired('Please confirm your password'),
+        EqualTo('password', message='Passwords must match')
+    ])
+    agree_terms = BooleanField('I agree to the Terms of Service', validators=[
+        DataRequired('You must agree to the Terms of Service')
+    ])
+    submit = SubmitField('Register')

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">My Profile</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {{ user.email }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Account Type:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="badge bg-primary">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Storage Usage:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {% if profile %}
+                                {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                </div>
+                                <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
+                            {% else %}
+                                <p>No usage data available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>File Size Limit:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            {% if profile and profile.account_type == 'free' %}
+                                <p>Maximum file size: 10 MB</p>
+                            {% elif profile and profile.account_type == 'premium' %}
+                                <p>Maximum file size: 100 MB</p>
+                            {% else %}
+                                <p>Maximum file size: 10 MB</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h4>Account Actions</h4>
+                            <hr>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-outline-primary d-block">Change Password</a>
+                        </div>
+                        <div class="col-md-6">
+                            {% if profile and profile.account_type == 'free' %}
+                                <a href="#" class="btn btn-primary d-block">Upgrade to Premium</a>
+                            {% else %}
+                                <a href="#" class="btn btn-outline-secondary d-block">Manage Subscription</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <a href="{{ url_for('auth.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

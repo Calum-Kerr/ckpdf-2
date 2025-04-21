@@ -48,6 +48,9 @@ def create_app(test_config=None):
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE='Lax',
         PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1),
+        # Supabase configuration
+        SUPABASE_URL=os.environ.get('SUPABASE_URL', ''),
+        SUPABASE_KEY=os.environ.get('SUPABASE_KEY', ''),
     )
 
     if test_config is None:
@@ -95,6 +98,10 @@ def create_app(test_config=None):
     from app.security import init_app as init_security
     init_security(app)
 
+    # Initialize authentication features
+    from app.auth import init_app as init_auth
+    init_auth(app)
+
     # Register blueprints
     from app.routes.main import main_bp
     from app.routes.security_api import security_api_bp
@@ -125,6 +132,10 @@ def create_app(test_config=None):
     app.register_blueprint(convert_from_pdf_bp)
     app.register_blueprint(security_bp)
     app.register_blueprint(security_api_bp)
+
+    # Register authentication blueprint
+    from app.auth.routes import auth_bp
+    app.register_blueprint(auth_bp)
 
     # Register error handlers
     from app.errors import register_error_handlers

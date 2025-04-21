@@ -28,3 +28,8 @@ PyJWT==2.8.0  # For secure token handling
 python-dotenv==1.0.0  # For environment variables
 requests==2.31.0  # For HTTP requests
 pytest==7.4.0  # For testing
+
+# Authentication
+supabase-py==2.3.0  # For Supabase integration
+python-jose==3.3.0  # For JWT handling
+passlib==1.7.4  # For password hashing
