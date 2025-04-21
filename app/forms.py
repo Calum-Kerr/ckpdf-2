@@ -464,7 +464,7 @@ class LoginForm(FlaskForm):
     ])
     password = PasswordField('Password', validators=[
         DataRequired('Please enter your password')
-    ])
+    ], render_kw={"autocomplete": "current-password"})
     remember = BooleanField('Remember Me')
     submit = SubmitField('Log In')
 
@@ -479,11 +479,11 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password', validators=[
         DataRequired('Please enter a password'),
         Length(min=8, message='Password must be at least 8 characters long')
-    ])
+    ], render_kw={"autocomplete": "new-password"})
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired('Please confirm your password'),
         EqualTo('password', message='Passwords must match')
-    ])
+    ], render_kw={"autocomplete": "new-password"})
     agree_terms = BooleanField('I agree to the Terms of Service', validators=[
         DataRequired('You must agree to the Terms of Service')
     ])

@@ -5,9 +5,15 @@ This module provides utilities for authentication and user management.
 
 import logging
 import json
+import uuid
+import datetime
 from flask import session, request, redirect, url_for, flash, current_app
 from functools import wraps
 from .supabase_client import get_supabase
+
+# Demo mode storage (for testing without Supabase)
+demo_users = {}
+demo_profiles = {}
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -25,8 +31,24 @@ def login_user(email, password):
     """
     supabase = get_supabase()
     if not supabase:
-        logger.error("Supabase client not initialized.")
-        return None
+        logger.warning("Supabase client not initialized. Using demo mode for login.")
+        # Demo mode login
+        if email in demo_users and demo_users[email]['password'] == password:
+            user_id = demo_users[email]['id']
+            session['user'] = {
+                'id': user_id,
+                'email': email,
+                'access_token': 'demo-token',
+                'refresh_token': 'demo-refresh-token'
+            }
+            logger.info(f"Demo user logged in: {email}")
+            return {
+                'id': user_id,
+                'email': email
+            }
+        else:
+            logger.warning(f"Demo login failed for: {email}")
+            return None
 
     try:
         response = supabase.auth.sign_in_with_password({"email": email, "password": password})
@@ -56,8 +78,36 @@ def register_user(email, password):
     """
     supabase = get_supabase()
     if not supabase:
-        logger.error("Supabase client not initialized.")
-        return None
+        logger.warning("Supabase client not initialized. Using demo mode for registration.")
+        # Demo mode registration
+        if email in demo_users:
+            logger.warning(f"Demo registration failed: Email already exists: {email}")
+            return None
+
+        # Create a demo user
+        user_id = str(uuid.uuid4())
+        demo_users[email] = {
+            'id': user_id,
+            'email': email,
+            'password': password,
+            'created_at': datetime.datetime.now().isoformat()
+        }
+
+        # Create a demo profile
+        demo_profiles[user_id] = {
+            'user_id': user_id,
+            'email': email,
+            'account_type': 'free',
+            'storage_used': 0,
+            'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+            'created_at': datetime.datetime.now().isoformat()
+        }
+
+        logger.info(f"Demo user registered: {email}")
+        return {
+            'id': user_id,
+            'email': email
+        }
 
     try:
         response = supabase.auth.sign_up({
@@ -90,8 +140,12 @@ def logout_user():
     """
     supabase = get_supabase()
     if not supabase:
-        logger.error("Supabase client not initialized.")
-        return False
+        logger.warning("Supabase client not initialized. Using demo mode for logout.")
+        # Demo mode logout
+        if 'user' in session:
+            session.pop('user', None)
+            logger.info("Demo user logged out")
+        return True
 
     try:
         if 'user' in session:
@@ -156,9 +210,24 @@ def get_file_size_limit(user_id=None):
 
     supabase = get_supabase()
     if not supabase:
-        logger.warning("Supabase client not initialized. Using default file size limits.")
-        # In demo mode, we'll pretend the user is premium
-        return PREMIUM_USER_LIMIT
+        logger.warning("Supabase client not initialized. Using demo mode for file size limits.")
+        # Demo mode get file size limit
+        if user_id in demo_profiles:
+            profile = demo_profiles[user_id]
+            account_type = profile.get('account_type', 'free')
+
+            # Use the storage_limit from the profile if available
+            if 'storage_limit' in profile:
+                return profile.get('storage_limit')
+
+            # Otherwise, use the default limit based on account type
+            if account_type == 'premium':
+                return PREMIUM_USER_LIMIT
+            else:
+                return FREE_USER_LIMIT
+        else:
+            # Default to premium in demo mode for testing
+            return PREMIUM_USER_LIMIT
 
     try:
         response = supabase.table('user_profiles').select('account_type, storage_limit').eq('user_id', user_id).execute()
@@ -198,8 +267,17 @@ def track_file_usage(user_id, file_size):
 
     supabase = get_supabase()
     if not supabase:
-        logger.warning("Supabase client not initialized. File usage tracking disabled.")
-        return True  # Pretend it worked in demo mode
+        logger.warning("Supabase client not initialized. Using demo mode for file usage tracking.")
+        # Demo mode tracking
+        if user_id in demo_profiles:
+            current_usage = demo_profiles[user_id].get('storage_used', 0)
+            new_usage = current_usage + file_size
+            demo_profiles[user_id]['storage_used'] = new_usage
+            logger.info(f"Demo mode: File usage tracked for user {user_id}: {file_size} bytes")
+            return True
+        else:
+            logger.warning(f"Demo mode: User profile not found for user {user_id}")
+            return False
 
     try:
         # Update user profile with new storage used
@@ -271,9 +349,15 @@ def get_user_profile(user_id):
     Returns:
         dict: The user profile if found, None otherwise.
     """
+    if user_id is None:
+        return None
+
     supabase = get_supabase()
     if not supabase:
-        logger.error("Supabase client not initialized.")
+        logger.warning("Supabase client not initialized. Using demo mode for user profile.")
+        # Demo mode get profile
+        if user_id in demo_profiles:
+            return demo_profiles[user_id]
         return None
 
     try:
