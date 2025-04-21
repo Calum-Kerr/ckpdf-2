@@ -395,9 +395,67 @@ def get_user_profile(user_id):
         response = supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
 
         if response.data and len(response.data) > 0:
-            return response.data[0]
+            profile = response.data[0]
+            logger.info(f"Retrieved user profile: {profile}")
+            return profile
 
-        return None
+        # Profile doesn't exist, try to create one
+        logger.info(f"User profile not found for user {user_id}, attempting to create one")
+        return create_user_profile(user_id)
     except Exception as e:
         logger.error(f"Error getting user profile: {str(e)}")
+        return None
+
+def create_user_profile(user_id):
+    """
+    Create a user profile if it doesn't exist.
+
+    Args:
+        user_id (str): The user ID.
+
+    Returns:
+        dict: The created user profile if successful, None otherwise.
+    """
+    if user_id is None:
+        return None
+
+    supabase = get_supabase()
+    if not supabase:
+        logger.warning("Supabase client not initialized. Using demo mode for profile creation.")
+        # Demo mode create profile
+        if user_id not in demo_profiles:
+            # Get user email from session
+            user_email = session.get('user', {}).get('email', 'unknown@example.com')
+            demo_profiles[user_id] = {
+                'user_id': user_id,
+                'email': user_email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': datetime.datetime.now().isoformat()
+            }
+            logger.info(f"Created demo user profile for user {user_id}")
+        return demo_profiles[user_id]
+
+    try:
+        # Get user email from session
+        user_email = session.get('user', {}).get('email', 'unknown@example.com')
+
+        # Create user profile
+        response = supabase.table('user_profiles').insert({
+            'user_id': user_id,
+            'email': user_email,
+            'account_type': 'free',
+            'storage_used': 0,
+            'storage_limit': 50 * 1024 * 1024  # 50MB for free users
+        }).execute()
+
+        if response.data and len(response.data) > 0:
+            logger.info(f"Created user profile for user {user_id}")
+            return response.data[0]
+
+        logger.warning(f"Failed to create user profile for user {user_id}")
+        return None
+    except Exception as e:
+        logger.error(f"Error creating user profile: {str(e)}")
         return None
