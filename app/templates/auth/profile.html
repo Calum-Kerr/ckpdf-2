@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card">
-                <div class="card-header" style="background-color: #238287; color: white;">
+                <div class="card-header bg-primary">
                     <h2 class="mb-0">My Profile</h2>
                 </div>
                 <div class="card-body">
@@ -25,7 +25,7 @@
                             <strong>Account Type:</strong>
                         </div>
                         <div class="col-md-8">
-                            <span class="badge" style="background-color: #238287; color: white;">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                            <span class="badge bg-primary">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
                         </div>
                     </div>
 
@@ -37,7 +37,7 @@
                             {% if profile %}
                                 {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
                                 <div class="progress mb-2">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%; background-color: #238287;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
                                 </div>
                                 <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
                             {% else %}
@@ -70,20 +70,20 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <a href="#" class="btn btn-outline d-block" style="color: #238287; border-color: #238287;">Change Password</a>
+                            <a href="#" class="btn btn-outline-primary d-block">Change Password</a>
                         </div>
                         <div class="col-md-6">
                             {% if profile and profile.account_type == 'free' %}
-                                <a href="#" class="btn d-block" style="background-color: #238287; color: white;">Upgrade to Premium</a>
+                                <a href="#" class="btn btn-primary d-block">Upgrade to Premium</a>
                             {% else %}
-                                <a href="#" class="btn btn-outline d-block" style="color: #238287; border-color: #238287;">Manage Subscription</a>
+                                <a href="#" class="btn btn-outline-primary d-block">Manage Subscription</a>
                             {% endif %}
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-12">
-                            <a href="{{ url_for('auth.dashboard') }}" class="btn" style="background-color: #6c757d; color: white;">Back to Dashboard</a>
+                            <a href="{{ url_for('auth.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
                         </div>
                     </div>
                 </div>

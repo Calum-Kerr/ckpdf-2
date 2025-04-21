@@ -282,9 +282,41 @@ a:hover {
 .btn[style*="background: #238287"],
 .btn-sm.btn-primary,
 a.btn-primary,
-a.btn.btn-sm.btn-primary {
+a.btn.btn-sm.btn-primary,
+.btn.btn-primary,
+.btn.btn-primary.d-block,
+a.btn.btn-primary,
+a.btn.btn-primary.d-block {
     color: white !important;
     text-decoration: none !important;
+}
+
+/* Force white text on all buttons with primary background */
+.btn.bg-primary,
+.btn[class*="btn-primary"],
+.btn[class*="btn"][style*="background-color: #238287"],
+.btn[class*="btn"][style*="background:#238287"],
+.btn[class*="btn"][style*="background: #238287"],
+.btn-primary,
+.btn.btn-primary,
+a.btn.btn-primary,
+button.btn.btn-primary,
+input.btn.btn-primary {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Override any conflicting styles */
+.btn-primary:not(:disabled):not(.disabled),
+.btn-primary:not(:disabled):not(.disabled):hover,
+.btn-primary:not(:disabled):not(.disabled):focus,
+.btn-primary:not(:disabled):not(.disabled):active {
+    color: white !important;
+}
+
+/* Specific override for Edit Profile button */
+a[href*="profile"].btn.btn-primary {
+    color: white !important;
 }
 
 /* Fix for nav pills hover */
