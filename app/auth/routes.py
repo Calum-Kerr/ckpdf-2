@@ -8,7 +8,7 @@ import logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, track_file_usage
+from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, track_file_usage, csrf_exempt
 from app.forms import LoginForm, RegisterForm
 
 # Create blueprint
@@ -148,6 +148,7 @@ def profile_debug():
 
 @auth_bp.route('/profile/update-storage', methods=['POST', 'GET'])
 @login_required
+@csrf_exempt
 def update_storage():
     """
     Manually update storage usage for testing.
@@ -190,6 +191,7 @@ def update_storage():
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
 @login_required
+@csrf_exempt
 def create_profile():
     """
     Create a user profile if it doesn't exist.

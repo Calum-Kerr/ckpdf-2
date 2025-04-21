@@ -7,7 +7,7 @@ import logging
 import json
 import uuid
 import datetime
-from flask import session, request, redirect, url_for, flash, current_app
+from flask import session, request, redirect, url_for, flash, current_app, g
 from functools import wraps
 from .supabase_client import get_supabase
 
@@ -244,6 +244,22 @@ def login_required(f):
         if 'user' not in session:
             flash('Please log in to access this page.', 'warning')
             return redirect(url_for('auth.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def csrf_exempt(f):
+    """
+    Decorator to exempt a route from CSRF protection.
+
+    Args:
+        f: The function to decorate.
+
+    Returns:
+        function: The decorated function.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        g._csrf_exempt = True
         return f(*args, **kwargs)
     return decorated_function
 

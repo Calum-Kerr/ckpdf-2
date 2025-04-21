@@ -8,7 +8,7 @@ components such as blueprints, extensions, and error handlers.
 import os
 import datetime
 import logging
-from flask import Flask
+from flask import Flask, g
 from flask_wtf.csrf import CSRFProtect
 from flask_talisman import Talisman
 
@@ -71,15 +71,10 @@ def create_app(test_config=None):
     # Initialize security features
     csrf.init_app(app)
 
-    # Exempt certain routes from CSRF protection for testing
-    csrf_exempt_routes = [
-        '/auth/profile/update-storage',
-        '/auth/profile/create'
-    ]
-
-    # Register CSRF exempt routes
-    for route in csrf_exempt_routes:
-        csrf.exempt(route)
+    # Add a custom CSRF check function that respects our csrf_exempt decorator
+    @csrf.exempt
+    def csrf_exempt_check():
+        return hasattr(g, '_csrf_exempt') and g._csrf_exempt
 
     # Initialize Talisman for HTTPS and security headers
     csp = {
