@@ -156,9 +156,14 @@ def profile_debug():
     user = get_current_user()
     profile = get_user_profile(user['id']) if user else None
 
+    # Get the demo profile
+    demo_profile = demo_profiles.get(user['id'], {}) if user else {}
+
     return jsonify({
         'user': user,
-        'profile': profile
+        'profile': profile,
+        'demo_profile': demo_profile,
+        'demo_profiles_count': len(demo_profiles)
     })
 
 @auth_bp.route('/profile/update-storage', methods=['POST', 'GET'])
@@ -193,24 +198,24 @@ def update_storage():
 
     # Force demo mode for testing
     try:
-        if user['id'] in demo_profiles:
-            current_usage = demo_profiles[user['id']].get('storage_used', 0)
-            new_usage = current_usage + test_file_size
-            demo_profiles[user['id']]['storage_used'] = new_usage
-            logger.info(f"Updated demo profile storage usage for user {user['id']}: {test_file_size} bytes")
-            success = True
-        else:
-            # Create a new demo profile
+        # Create a new demo profile if it doesn't exist
+        if user['id'] not in demo_profiles:
             demo_profiles[user['id']] = {
                 'user_id': user['id'],
                 'email': user.get('email', 'unknown@example.com'),
                 'account_type': 'free',
-                'storage_used': test_file_size,
+                'storage_used': 0,
                 'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
                 'created_at': datetime.datetime.now().isoformat()
             }
-            logger.info(f"Created new demo profile with storage usage for user {user['id']}: {test_file_size} bytes")
-            success = True
+            logger.info(f"Created new demo profile for user {user['id']}")
+
+        # Update storage usage
+        current_usage = demo_profiles[user['id']].get('storage_used', 0)
+        new_usage = current_usage + test_file_size
+        demo_profiles[user['id']]['storage_used'] = new_usage
+        logger.info(f"Updated demo profile storage usage for user {user['id']}: {test_file_size} bytes, new total: {new_usage} bytes")
+        success = True
     except Exception as e:
         logger.error(f"Error updating storage usage: {str(e)}")
         success = False
@@ -225,7 +230,13 @@ def update_storage():
     if updated_profile:
         logger.info(f"Updated profile: {updated_profile}")
 
+    # Add a flash message with the current storage usage
+    if updated_profile:
+        flash(f"Current storage usage: {(updated_profile.get('storage_used', 0) / 1024 / 1024):.2f} MB of {(updated_profile.get('storage_limit', 0) / 1024 / 1024):.2f} MB", 'success')
+
     return redirect(url_for('auth.profile'))
+
+
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
 @login_required
