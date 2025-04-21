@@ -160,6 +160,18 @@ def update_storage():
         flash('You must be logged in to update storage usage.', 'danger')
         return redirect(url_for('auth.login'))
 
+    # Get or create profile
+    profile = get_user_profile(user['id'])
+    if not profile:
+        logger.warning(f"No profile found for user {user['id']}, creating one")
+        from .utils import create_user_profile
+        profile = create_user_profile(user['id'])
+        if profile:
+            flash('Created a new profile for you.', 'success')
+        else:
+            flash('Failed to create a profile. Please try again.', 'danger')
+            return redirect(url_for('auth.profile'))
+
     # Add 1MB to storage usage for testing
     test_file_size = 1 * 1024 * 1024  # 1MB in bytes
     success = track_file_usage(user['id'], test_file_size)
@@ -168,5 +180,36 @@ def update_storage():
         flash('Added 1MB to your storage usage for testing.', 'success')
     else:
         flash('Failed to update storage usage.', 'danger')
+
+    return redirect(url_for('auth.profile'))
+
+@auth_bp.route('/profile/create', methods=['GET', 'POST'])
+@login_required
+def create_profile():
+    """
+    Create a user profile if it doesn't exist.
+
+    Returns:
+        Redirect to profile page.
+    """
+    user = get_current_user()
+    if not user:
+        flash('You must be logged in to create a profile.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Check if profile already exists
+    profile = get_user_profile(user['id'])
+    if profile:
+        flash('You already have a profile.', 'info')
+        return redirect(url_for('auth.profile'))
+
+    # Create profile
+    from .utils import create_user_profile
+    profile = create_user_profile(user['id'])
+
+    if profile:
+        flash('Created a new profile for you.', 'success')
+    else:
+        flash('Failed to create a profile. Please try again.', 'danger')
 
     return redirect(url_for('auth.profile'))
