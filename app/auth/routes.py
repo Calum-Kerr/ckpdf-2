@@ -76,7 +76,8 @@ def register():
             user = register_user(email, password)
 
             if user:
-                flash('Registration successful! Please check your email to verify your account.', 'success')
+                # The flash message is now handled in the register_user function
+                # to provide more specific information about email verification
                 return redirect(url_for('auth.login'))
             else:
                 flash('Registration failed. Please try again.', 'danger')

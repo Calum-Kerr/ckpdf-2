@@ -117,11 +117,16 @@ def register_user(email, password):
         })
         user = response.user
 
+        # Check if email confirmation is required
+        if not response.session:
+            # Email confirmation is required
+            logger.info(f"User registered but email confirmation is required: {email}")
+            flash("Registration successful! Please check your email to confirm your account before logging in.", "success")
+            return user
+
+        # If we get here, email confirmation is not required
         # Log in the user to get a session token
-        login_response = supabase.auth.sign_in_with_password({
-            "email": email,
-            "password": password
-        })
+        login_response = response  # Use the session from sign_up
 
         # Store the session in Flask session
         session['user'] = {
