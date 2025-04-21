@@ -50,8 +50,13 @@
                                 </div>
                                 <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
                             {% else %}
-                                <p>No usage data available.</p>
-                                <a href="{{ url_for('auth.create_profile') }}" class="btn btn-success mt-2">Create Profile</a>
+                                <div class="alert alert-info">
+                                    <p>Using demo mode for storage tracking.</p>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">10%</div>
+                                    </div>
+                                    <p>Demo storage: Click the buttons below to test storage tracking</p>
+                                </div>
                             {% endif %}
 
                             <form action="{{ url_for('auth.update_storage') }}" method="post" class="mt-2">
