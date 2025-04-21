@@ -4,6 +4,7 @@ This module provides middleware for authentication and file size validation.
 """
 
 import logging
+import os
 from functools import wraps
 from flask import request, flash, redirect, url_for, session, current_app
 from werkzeug.utils import secure_filename
@@ -48,7 +49,14 @@ def validate_file_size(f):
 
                 # Track file usage for logged-in users
                 if user_id:
-                    track_file_usage(user_id, file_size)
+                    # Get actual file size from the file object
+                    file.seek(0, os.SEEK_END)
+                    actual_file_size = file.tell()
+                    file.seek(0)  # Reset file pointer
+
+                    # Use actual file size instead of content_length
+                    logger.info(f"Tracking file usage for user {user_id}: {actual_file_size} bytes")
+                    track_file_usage(user_id, actual_file_size)
 
         return f(*args, **kwargs)
 

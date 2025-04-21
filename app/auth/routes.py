@@ -3,12 +3,12 @@ Authentication routes for the application.
 This module contains routes for authentication features.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 import logging
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile
+from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, track_file_usage
 from app.forms import LoginForm, RegisterForm
 
 # Create blueprint
@@ -128,3 +128,45 @@ def profile():
     profile = get_user_profile(user['id']) if user else None
 
     return render_template('auth/profile.html', user=user, profile=profile)
+
+@auth_bp.route('/profile/debug')
+@login_required
+def profile_debug():
+    """
+    Display debug information about the user profile.
+
+    Returns:
+        JSON with profile information.
+    """
+    user = get_current_user()
+    profile = get_user_profile(user['id']) if user else None
+
+    return jsonify({
+        'user': user,
+        'profile': profile
+    })
+
+@auth_bp.route('/profile/update-storage', methods=['POST'])
+@login_required
+def update_storage():
+    """
+    Manually update storage usage for testing.
+
+    Returns:
+        Redirect to profile page.
+    """
+    user = get_current_user()
+    if not user:
+        flash('You must be logged in to update storage usage.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    # Add 1MB to storage usage for testing
+    test_file_size = 1 * 1024 * 1024  # 1MB in bytes
+    success = track_file_usage(user['id'], test_file_size)
+
+    if success:
+        flash('Added 1MB to your storage usage for testing.', 'success')
+    else:
+        flash('Failed to update storage usage.', 'danger')
+
+    return redirect(url_for('auth.profile'))
