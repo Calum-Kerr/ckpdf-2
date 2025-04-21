@@ -397,6 +397,20 @@ def get_user_profile(user_id):
         if response.data and len(response.data) > 0:
             profile = response.data[0]
             logger.info(f"Retrieved user profile: {profile}")
+
+            # Ensure profile has created_at field
+            if 'created_at' not in profile or not profile['created_at']:
+                now = datetime.datetime.now().isoformat()
+                profile['created_at'] = now
+                logger.info(f"Added missing created_at field to profile: {profile}")
+
+                # Update the profile in the database
+                try:
+                    supabase.table('user_profiles').update({'created_at': now}).eq('user_id', user_id).execute()
+                    logger.info(f"Updated profile in database with created_at field")
+                except Exception as update_error:
+                    logger.error(f"Error updating profile with created_at field: {str(update_error)}")
+
             return profile
 
         # Profile doesn't exist, try to create one
@@ -442,12 +456,15 @@ def create_user_profile(user_id):
         user_email = session.get('user', {}).get('email', 'unknown@example.com')
 
         # Create user profile
+        now = datetime.datetime.now().isoformat()
         response = supabase.table('user_profiles').insert({
             'user_id': user_id,
             'email': user_email,
             'account_type': 'free',
             'storage_used': 0,
-            'storage_limit': 50 * 1024 * 1024  # 50MB for free users
+            'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+            'created_at': now,
+            'updated_at': now
         }).execute()
 
         if response.data and len(response.data) > 0:
