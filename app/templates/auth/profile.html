@@ -48,7 +48,7 @@
                                 <div class="progress mb-2">
                                     <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
                                 </div>
-                                <p>{{ (profile.storage_used / 1024 / 1024)|round(2) }} MB used of {{ (profile.storage_limit / 1024 / 1024)|round(2) }} MB</p>
+                                <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>{{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB</strong></p>
                             {% else %}
                                 <div class="alert alert-info">
                                     <p>Using demo mode for storage tracking.</p>
@@ -60,7 +60,7 @@
                             {% endif %}
 
                             <div class="mt-2">
-                                <a href="{{ url_for('auth.update_storage') }}" class="btn btn-success">Add 1MB to Storage (Test)</a>
+                                <a href="{{ url_for('auth.update_storage') }}" class="btn btn-success">Add 5MB to Storage</a>
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,6 @@
                     <div class="row">
                         <div class="col-12">
                             <a href="{{ url_for('auth.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
-                            <a href="{{ url_for('auth.profile_debug') }}" class="btn btn-link" target="_blank">Debug Info</a>
                         </div>
                     </div>
                 </div>

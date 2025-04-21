@@ -3,13 +3,13 @@ Authentication routes for the application.
 This module contains routes for authentication features.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 import logging
 import datetime
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, track_file_usage, csrf_exempt, demo_profiles
+from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, demo_profiles, csrf_exempt
 from app.forms import LoginForm, RegisterForm
 
 # Create blueprint
@@ -170,31 +170,10 @@ def profile():
 
     return render_template('auth/profile.html', user=user, profile=profile)
 
-@auth_bp.route('/profile/debug')
+
+
+@auth_bp.route('/profile/update-storage', methods=['GET'])
 @login_required
-def profile_debug():
-    """
-    Display debug information about the user profile.
-
-    Returns:
-        JSON with profile information.
-    """
-    user = get_current_user()
-    profile = get_user_profile(user['id']) if user else None
-
-    # Get the demo profile
-    demo_profile = demo_profiles.get(user['id'], {}) if user else {}
-
-    return jsonify({
-        'user': user,
-        'profile': profile,
-        'demo_profile': demo_profile,
-        'demo_profiles_count': len(demo_profiles)
-    })
-
-@auth_bp.route('/profile/update-storage', methods=['POST', 'GET'])
-@login_required
-@csrf_exempt
 def update_storage():
     """
     Manually update storage usage for testing.
@@ -219,8 +198,8 @@ def update_storage():
             flash('Failed to create a profile. Please try again.', 'danger')
             return redirect(url_for('auth.profile'))
 
-    # Add 1MB to storage usage for testing
-    test_file_size = 1 * 1024 * 1024  # 1MB in bytes
+    # Add 5MB to storage usage for testing
+    test_file_size = 5 * 1024 * 1024  # 5MB in bytes
 
     # Force demo mode for testing
     try:
@@ -247,18 +226,17 @@ def update_storage():
         success = False
 
     if success:
-        flash('Added 1MB to your storage usage for testing.', 'success')
+        flash(f'Added {test_file_size / 1024 / 1024:.0f}MB to your storage usage.', 'success')
     else:
         flash('Failed to update storage usage.', 'danger')
 
-    # Log the updated profile
+    # Add a flash message with the current storage usage
     updated_profile = demo_profiles.get(user['id'])
     if updated_profile:
-        logger.info(f"Updated profile: {updated_profile}")
-
-    # Add a flash message with the current storage usage
-    if updated_profile:
-        flash(f"Current storage usage: {(updated_profile.get('storage_used', 0) / 1024 / 1024):.2f} MB of {(updated_profile.get('storage_limit', 0) / 1024 / 1024):.2f} MB", 'success')
+        used_mb = updated_profile.get('storage_used', 0) / 1024 / 1024
+        limit_mb = updated_profile.get('storage_limit', 0) / 1024 / 1024
+        usage_percent = (used_mb / limit_mb * 100) if limit_mb > 0 else 0
+        flash(f"Current storage usage: {used_mb:.1f} MB of {limit_mb:.0f} MB ({usage_percent:.0f}%)", 'success')
 
     return redirect(url_for('auth.profile'))
 
