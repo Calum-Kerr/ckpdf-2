@@ -319,10 +319,17 @@ a[href*="profile"].btn.btn-primary {
     color: white !important;
 }
 
-/* Fix for nav pills hover */
+/* Fix for nav pills hover and active states */
 .nav-pills .nav-link:hover {
     background-color: var(--primary-light) !important;
     color: var(--primary) !important;
+}
+
+/* Override Bootstrap's default active nav-pill style */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--primary) !important;
+    color: white !important;
 }
 
 /* Fix for any buttons with inline styles */
