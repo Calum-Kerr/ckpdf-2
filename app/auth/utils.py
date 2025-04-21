@@ -110,20 +110,43 @@ def register_user(email, password):
         }
 
     try:
+        # Sign up the user
         response = supabase.auth.sign_up({
             "email": email,
             "password": password
         })
         user = response.user
 
-        # Create user profile in the database
-        supabase.table('user_profiles').insert({
-            'user_id': user.id,
+        # Log in the user to get a session token
+        login_response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+
+        # Store the session in Flask session
+        session['user'] = {
+            'id': user.id,
             'email': user.email,
-            'account_type': 'free',
-            'storage_used': 0,
-            'storage_limit': 50 * 1024 * 1024  # 50MB for free users
-        }).execute()
+            'access_token': login_response.session.access_token,
+            'refresh_token': login_response.session.refresh_token
+        }
+
+        try:
+            # Create user profile in the database
+            # Now that we're authenticated, this should work with RLS
+            supabase.table('user_profiles').insert({
+                'user_id': user.id,
+                'email': user.email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024  # 50MB for free users
+            }).execute()
+
+            logger.info(f"User profile created for: {email}")
+        except Exception as profile_error:
+            logger.error(f"Error creating user profile: {str(profile_error)}")
+            # Continue anyway, as the user is created
+            # We can create the profile later when they log in
 
         logger.info(f"User registered: {email}")
         return user
