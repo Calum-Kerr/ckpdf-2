@@ -157,6 +157,28 @@ def create_app(test_config=None):
         """Extract the basename from a path."""
         return os.path.basename(path)
 
+    @app.template_filter('format_date')
+    def format_date_filter(date_str):
+        """Format a date string to a more readable format."""
+        if not date_str:
+            return 'N/A'
+        try:
+            # Try to parse ISO format date
+            if isinstance(date_str, str):
+                date_obj = datetime.datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+            else:
+                date_obj = date_str
+            return date_obj.strftime('%d %b %Y')
+        except (ValueError, TypeError):
+            try:
+                # Try to parse with different format
+                if isinstance(date_str, str):
+                    date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%f%z')
+                    return date_obj.strftime('%d %b %Y')
+            except (ValueError, TypeError):
+                pass
+            return str(date_str)
+
     # Add context processors
     @app.context_processor
     def inject_current_year():
