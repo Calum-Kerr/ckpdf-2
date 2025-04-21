@@ -20,16 +20,20 @@ supabase: Client = None
 def init_supabase():
     """
     Initialize the Supabase client.
-    
+
     Returns:
         Client: The Supabase client.
     """
     global supabase
-    
+
     if not SUPABASE_URL or not SUPABASE_KEY:
         logger.warning("Supabase credentials not found. Authentication will not work.")
         return None
-    
+
+    if SUPABASE_URL == 'https://your-project-id.supabase.co':
+        logger.warning("Using default Supabase URL. Authentication will be in demo mode.")
+        return None
+
     try:
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         logger.info("Supabase client initialized successfully.")
@@ -41,13 +45,13 @@ def init_supabase():
 def get_supabase():
     """
     Get the Supabase client.
-    
+
     Returns:
         Client: The Supabase client.
     """
     global supabase
-    
+
     if supabase is None:
         return init_supabase()
-    
+
     return supabase

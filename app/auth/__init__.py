@@ -26,6 +26,14 @@ def init_app(app):
     app.config['AUTH_LOG_DIR'] = log_dir
     os.makedirs(log_dir, exist_ok=True)
 
+    # Initialize Supabase client
+    from .supabase_client import init_supabase
+    init_supabase()
+
+    # Apply file size validation to all routes
+    from .middleware import apply_file_size_validation
+    apply_file_size_validation(app)
+
     # Log initialization
     logger.info("Authentication features initialized")
 
