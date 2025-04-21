@@ -146,7 +146,7 @@ def profile_debug():
         'profile': profile
     })
 
-@auth_bp.route('/profile/update-storage', methods=['POST'])
+@auth_bp.route('/profile/update-storage', methods=['POST', 'GET'])
 @login_required
 def update_storage():
     """
@@ -180,6 +180,11 @@ def update_storage():
         flash('Added 1MB to your storage usage for testing.', 'success')
     else:
         flash('Failed to update storage usage.', 'danger')
+
+    # Log the updated profile
+    updated_profile = get_user_profile(user['id'])
+    if updated_profile:
+        logger.info(f"Updated profile: {updated_profile}")
 
     return redirect(url_for('auth.profile'))
 

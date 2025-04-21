@@ -71,6 +71,16 @@ def create_app(test_config=None):
     # Initialize security features
     csrf.init_app(app)
 
+    # Exempt certain routes from CSRF protection for testing
+    csrf_exempt_routes = [
+        '/auth/profile/update-storage',
+        '/auth/profile/create'
+    ]
+
+    # Register CSRF exempt routes
+    for route in csrf_exempt_routes:
+        csrf.exempt(route)
+
     # Initialize Talisman for HTTPS and security headers
     csp = {
         'default-src': '\'self\'',
