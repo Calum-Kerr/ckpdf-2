@@ -149,15 +149,18 @@ def logout_user():
 
     try:
         if 'user' in session:
-            access_token = session['user'].get('access_token')
-            if access_token:
-                supabase.auth.sign_out(access_token)
+            # Just sign out without passing the token
+            supabase.auth.sign_out()
             session.pop('user', None)
             logger.info("User logged out")
         return True
     except Exception as e:
         logger.error(f"Logout error: {str(e)}")
-        return False
+        # Even if there's an error with Supabase, clear the session
+        if 'user' in session:
+            session.pop('user', None)
+            logger.info("Session cleared despite Supabase error")
+        return True
 
 def get_current_user():
     """
