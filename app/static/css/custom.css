@@ -264,6 +264,28 @@ a:hover {
     color: #fff;
 }
 
+/* Fix for button hover styles */
+.btn:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    color: white !important;
+}
+
+/* Fix for nav pills hover */
+.nav-pills .nav-link:hover {
+    background-color: var(--primary-light) !important;
+    color: var(--primary) !important;
+}
+
+/* Fix for any buttons with inline styles */
+[style*="background-color: #238287"]:hover,
+[style*="background:#238287"]:hover,
+[style*="background: #238287"]:hover,
+[style*="background-color:#238287"]:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
 /* Custom background classes */
 .bg-primary-custom {
     background-color: var(--primary) !important;
