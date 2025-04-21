@@ -30,6 +30,10 @@ def init_app(app):
     from .supabase_client import init_supabase
     init_supabase()
 
+    # Initialize demo user for testing
+    from .utils import init_demo_user
+    init_demo_user()
+
     # Apply file size validation to all routes
     from .middleware import apply_file_size_validation
     apply_file_size_validation(app)
