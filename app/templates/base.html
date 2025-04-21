@@ -29,6 +29,10 @@
             --text-light: #555555;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             min-height: 100vh;
             display: flex;
@@ -53,6 +57,12 @@
         main {
             flex: 1 0 auto;
             padding: 2rem 0;
+        }
+
+        .content-wrapper {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
         }
         .navbar {
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -280,15 +290,16 @@
         }
 
         /* Footer styling */
-        .footer {
+        footer {
             background-color: var(--primary-color);
             color: var(--secondary-color);
             padding: 1.5rem 0;
             font-size: 14px;
             margin-top: auto;
+            flex-shrink: 0;
         }
 
-        .footer a {
+        footer a {
             color: var(--secondary-color);
             text-decoration: none;
             margin: 0 10px;
@@ -296,26 +307,26 @@
             font-size: 13px;
         }
 
-        .footer a:hover {
+        footer a:hover {
             opacity: 0.8;
             text-decoration: underline;
         }
 
-        .footer p {
+        footer p {
             margin-bottom: 0.5rem;
         }
 
-        .footer .social-icons a {
+        footer .social-icons a {
             font-size: 20px;
             margin: 0 5px;
             display: inline-block;
         }
 
-        .footer .footer-links {
+        footer .footer-links {
             margin-bottom: 1rem;
         }
 
-        .footer .copyright {
+        footer .copyright {
             font-size: 13px;
             opacity: 0.8;
         }
@@ -513,7 +524,7 @@
 </div>
 
 <!-- Footer -->
-<footer class="bg-primary py-4 mt-5 text-white">
+<footer class="py-4 mt-5 text-white">
     <div class="container">
         <div class="row">
             <div class="col-md-4">
