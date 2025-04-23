@@ -449,6 +449,50 @@ def check_file_size_limit(file_size, user_id=None):
     limit = get_file_size_limit(user_id)
     return file_size <= limit
 
+def get_user_creation_date(user_id):
+    """
+    Get a user's creation date from Supabase Auth.
+
+    Args:
+        user_id (str): The user ID.
+
+    Returns:
+        str: The user's creation date in ISO format, or None if not found.
+    """
+    if user_id is None:
+        return None
+
+    supabase = get_supabase()
+    if not supabase:
+        logger.warning("Supabase client not initialized. Using demo mode for user creation date.")
+        # Demo mode get creation date
+        if user_id in demo_users:
+            return demo_users[user_id].get('created_at')
+        return None
+
+    try:
+        # Get user metadata from Supabase Auth
+        # This requires admin access, so we'll use the user_profiles table instead
+        response = supabase.table('user_profiles').select('created_at').eq('user_id', user_id).execute()
+
+        if response.data and len(response.data) > 0 and response.data[0].get('created_at'):
+            return response.data[0].get('created_at')
+
+        # If no creation date in profile, try to get it from auth.users
+        # This might not work without admin privileges
+        try:
+            auth_response = supabase.rpc('get_user_created_at', {'user_id_param': user_id}).execute()
+            if auth_response.data:
+                return auth_response.data
+        except Exception as auth_error:
+            logger.warning(f"Could not get user creation date from auth: {str(auth_error)}")
+
+        # Fall back to current time if we can't get the real creation date
+        return datetime.datetime.now().isoformat()
+    except Exception as e:
+        logger.error(f"Error getting user creation date: {str(e)}")
+        return datetime.datetime.now().isoformat()
+
 def get_user_profile(user_id):
     """
     Get a user's profile.
@@ -479,13 +523,14 @@ def get_user_profile(user_id):
 
             # Ensure profile has created_at field
             if 'created_at' not in profile or not profile['created_at']:
-                now = datetime.datetime.now().isoformat()
-                profile['created_at'] = now
+                # Try to get the real creation date from Supabase Auth
+                creation_date = get_user_creation_date(user_id)
+                profile['created_at'] = creation_date
                 logger.info(f"Added missing created_at field to profile: {profile}")
 
                 # Update the profile in the database
                 try:
-                    supabase.table('user_profiles').update({'created_at': now}).eq('user_id', user_id).execute()
+                    supabase.table('user_profiles').update({'created_at': creation_date}).eq('user_id', user_id).execute()
                     logger.info(f"Updated profile in database with created_at field")
                 except Exception as update_error:
                     logger.error(f"Error updating profile with created_at field: {str(update_error)}")
@@ -568,6 +613,9 @@ def create_user_profile(user_id):
         # Get user email from session
         user_email = session.get('user', {}).get('email', 'unknown@example.com')
 
+        # Try to get the user's creation date from Supabase Auth
+        creation_date = get_user_creation_date(user_id)
+
         # Create user profile
         now = datetime.datetime.now().isoformat()
         response = supabase.table('user_profiles').insert({
@@ -576,7 +624,7 @@ def create_user_profile(user_id):
             'account_type': 'free',
             'storage_used': 0,
             'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-            'created_at': now,
+            'created_at': creation_date,
             'updated_at': now
         }).execute()
 

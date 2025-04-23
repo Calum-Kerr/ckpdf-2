@@ -123,13 +123,16 @@ def dashboard():
             logger.info(f"Using existing demo profile for user {user['id']}")
         else:
             # Create a new demo profile
+            from .utils import get_user_creation_date
+            creation_date = get_user_creation_date(user['id']) or datetime.datetime.now().isoformat()
+
             demo_profiles[user['id']] = {
                 'user_id': user['id'],
                 'email': user.get('email', 'unknown@example.com'),
                 'account_type': 'free',
                 'storage_used': 0,
                 'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                'created_at': datetime.datetime.now().isoformat()
+                'created_at': creation_date
             }
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
@@ -157,13 +160,16 @@ def profile():
             logger.info(f"Using existing demo profile for user {user['id']}")
         else:
             # Create a new demo profile
+            from .utils import get_user_creation_date
+            creation_date = get_user_creation_date(user['id']) or datetime.datetime.now().isoformat()
+
             demo_profiles[user['id']] = {
                 'user_id': user['id'],
                 'email': user.get('email', 'unknown@example.com'),
                 'account_type': 'free',
                 'storage_used': 0,
                 'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                'created_at': datetime.datetime.now().isoformat()
+                'created_at': creation_date
             }
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
