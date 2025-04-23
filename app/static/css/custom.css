@@ -361,6 +361,10 @@ a[href*="profile"].btn.btn-success {
 }
 
 /* Fix for nav pills hover and active states */
+.nav-pills .nav-link {
+    color: var(--primary) !important;
+}
+
 .nav-pills .nav-link:hover {
     background-color: var(--primary-light) !important;
     color: var(--primary) !important;
