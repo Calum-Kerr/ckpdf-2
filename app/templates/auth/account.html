@@ -8,9 +8,16 @@
         <div class="col-lg-10 mx-auto">
             <div class="card mb-4">
                 <div class="card-header bg-success">
-                    <h2 class="mb-0 text-white">My Account</h2>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0 text-white">My Account</h2>
+                        <span class="badge bg-warning text-dark">BETA</span>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h4 class="alert-heading">Beta Mode Active</h4>
+                        <p>RevisePDF is currently in beta testing. During this period, all features are <strong>unlimited</strong> for all users. Enjoy full access to all tools and features!</p>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <h3>Profile Information</h3>
@@ -34,11 +41,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-12">
-                                            {% if profile and profile.account_type == 'free' %}
-                                                <a href="#" class="btn btn-success btn-sm">Upgrade to Premium</a>
-                                            {% else %}
-                                                <a href="#" class="btn btn-outline-success btn-sm">Manage Subscription</a>
-                                            {% endif %}
+                                            <p class="text-muted small">All features unlimited during beta</p>
                                         </div>
                                     </div>
                                 </div>
@@ -61,19 +64,23 @@
                             <h3>Storage Usage</h3>
                             <div class="card mb-4">
                                 <div class="card-body">
+                                    <div class="alert alert-warning">
+                                        <p class="mb-0"><strong>Beta Benefit:</strong> Unlimited storage during beta testing!</p>
+                                    </div>
+
                                     {% if profile %}
                                         {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
                                         <div class="progress mb-2">
                                             <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
                                         </div>
-                                        <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>{{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB</strong></p>
+                                        <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>UNLIMITED</strong> <span class="text-muted small">(normally {{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB)</span></p>
                                     {% else %}
                                         <div class="alert alert-info">
                                             <p>Your storage usage will be displayed here once you start using the tools.</p>
                                             <div class="progress mb-2">
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                                             </div>
-                                            <p>0 MB used of 50 MB</p>
+                                            <p>0 MB used of UNLIMITED <span class="text-muted small">(normally 50 MB)</span></p>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -88,36 +95,38 @@
                                                 <th>Account Type</th>
                                                 <th>Maximum File Size</th>
                                                 <th>Storage Limit</th>
+                                                <th>Beta Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>Free</td>
-                                                <td>10 MB</td>
-                                                <td>50 MB</td>
+                                                <td><s>10 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
+                                                <td><s>50 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
+                                                <td><i class="fas fa-check-circle text-success"></i> Active</td>
                                             </tr>
                                             <tr>
                                                 <td>Premium</td>
-                                                <td>100 MB</td>
-                                                <td>1 GB</td>
+                                                <td><s>100 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
+                                                <td><s>1 GB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
+                                                <td><i class="fas fa-check-circle text-success"></i> Active</td>
                                             </tr>
                                         </tbody>
                                     </table>
 
                                     <div class="mt-3">
                                         <p>
-                                            <strong>Your current limit:</strong> 
-                                            {% if profile and profile.account_type == 'free' %}
-                                                10 MB per file
-                                            {% elif profile and profile.account_type == 'premium' %}
-                                                100 MB per file
-                                            {% else %}
-                                                10 MB per file
-                                            {% endif %}
+                                            <strong>Your current limit:</strong>
+                                            <span class="badge bg-warning text-dark">UNLIMITED DURING BETA</span>
                                         </p>
-                                        
+
+                                        <div class="alert alert-success">
+                                            <p class="mb-0"><strong>Beta Benefit:</strong> Enjoy unlimited file sizes during our beta period!</p>
+                                        </div>
+
                                         {% if profile and profile.account_type == 'free' %}
                                             <a href="#" class="btn btn-success">Upgrade to Premium</a>
+                                            <p class="text-muted small mt-2">Premium features will be activated after beta</p>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -126,7 +135,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="text-center">
                 <a href="{{ url_for('main.index') }}" class="btn btn-outline-success">Back to Home</a>
             </div>
