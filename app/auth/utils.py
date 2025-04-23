@@ -4,10 +4,9 @@ This module provides utilities for authentication and user management.
 """
 
 import logging
-import json
 import uuid
 import datetime
-from flask import session, request, redirect, url_for, flash, current_app, g
+from flask import session, request, redirect, url_for, flash, g
 from functools import wraps
 from .supabase_client import get_supabase
 
@@ -453,116 +452,7 @@ def check_file_size_limit(file_size, user_id=None):
     limit = get_file_size_limit(user_id)
     return file_size <= limit
 
-def get_user_creation_date(user_id):
-    """
-    Get a user's creation date from the user_profiles table.
 
-    Args:
-        user_id (str): The user ID.
-
-    Returns:
-        str: The user's creation date in ISO format, or None if not found.
-    """
-    if user_id is None:
-        return None
-
-    supabase = get_supabase()
-    if not supabase:
-        logger.warning("Supabase client not initialized. Using demo mode for user creation date.")
-        # Demo mode get creation date
-        if user_id in demo_users:
-            return demo_users[user_id].get('created_at')
-        return None
-
-    try:
-        # Get creation date from user_profiles table
-        response = supabase.table('user_profiles').select('created_at').eq('user_id', user_id).execute()
-
-        if response.data and len(response.data) > 0 and response.data[0].get('created_at'):
-            logger.info(f"Retrieved creation date from user_profiles: {response.data[0].get('created_at')}")
-            return response.data[0].get('created_at')
-
-        # If no profile exists or no creation date in profile, try to get user metadata
-        try:
-            # Get the current user's metadata
-            user_response = supabase.auth.get_user()
-            if user_response and user_response.user:
-                user = user_response.user
-                if hasattr(user, 'created_at') and user.created_at:
-                    logger.info(f"Retrieved creation date from user metadata: {user.created_at}")
-
-                    # Update the profile with this date if it exists
-                    try:
-                        supabase.table('user_profiles').update({'created_at': user.created_at}).eq('user_id', user_id).execute()
-                        logger.info(f"Updated profile with creation date from metadata")
-                    except Exception as update_error:
-                        logger.error(f"Error updating profile with creation date: {str(update_error)}")
-
-                    return user.created_at
-        except Exception as auth_error:
-            logger.warning(f"Could not get user metadata: {str(auth_error)}")
-
-        # Try the RPC function as a last resort
-        try:
-            auth_response = supabase.rpc('get_user_created_at', {'user_id_param': user_id}).execute()
-            if auth_response.data:
-                logger.info(f"Retrieved creation date from RPC function: {auth_response.data}")
-                return auth_response.data
-        except Exception as rpc_error:
-            logger.warning(f"Could not get user creation date from RPC: {str(rpc_error)}")
-
-        # Fall back to current time if we can't get the real creation date
-        logger.warning(f"Using current time as fallback for creation date")
-        return datetime.datetime.now().isoformat()
-    except Exception as e:
-        logger.error(f"Error getting user creation date: {str(e)}")
-        return datetime.datetime.now().isoformat()
-
-def update_profile_creation_date(user_id, profile=None):
-    """
-    Update a user profile with the correct creation date.
-
-    Args:
-        user_id (str): The user ID.
-        profile (dict, optional): The user profile. If None, it will be fetched.
-
-    Returns:
-        dict: The updated profile if successful, None otherwise.
-    """
-    if user_id is None:
-        return None
-
-    supabase = get_supabase()
-    if not supabase:
-        logger.warning("Supabase client not initialized. Cannot update profile creation date.")
-        return profile
-
-    try:
-        # Get the current user's metadata
-        user_response = supabase.auth.get_user()
-        if user_response and user_response.user:
-            user = user_response.user
-            if hasattr(user, 'created_at') and user.created_at:
-                logger.info(f"Retrieved creation date from user metadata: {user.created_at}")
-
-                # Update the profile with this date
-                try:
-                    update_response = supabase.table('user_profiles').update(
-                        {'created_at': user.created_at}
-                    ).eq('user_id', user_id).execute()
-
-                    if update_response.data and len(update_response.data) > 0:
-                        logger.info(f"Updated profile with creation date from metadata")
-                        if profile:
-                            profile['created_at'] = user.created_at
-                        return update_response.data[0]
-                except Exception as update_error:
-                    logger.error(f"Error updating profile with creation date: {str(update_error)}")
-
-        return profile
-    except Exception as e:
-        logger.error(f"Error updating profile creation date: {str(e)}")
-        return profile
 
 def get_user_profile(user_id):
     """
@@ -594,23 +484,17 @@ def get_user_profile(user_id):
 
             # Ensure profile has created_at field
             if 'created_at' not in profile or not profile['created_at']:
-                # Try to get the real creation date from Supabase Auth
-                creation_date = get_user_creation_date(user_id)
-                profile['created_at'] = creation_date
+                # Use current time as creation date
+                now = datetime.datetime.now().isoformat()
+                profile['created_at'] = now
                 logger.info(f"Added missing created_at field to profile: {profile}")
 
                 # Update the profile in the database
                 try:
-                    supabase.table('user_profiles').update({'created_at': creation_date}).eq('user_id', user_id).execute()
+                    supabase.table('user_profiles').update({'created_at': now}).eq('user_id', user_id).execute()
                     logger.info(f"Updated profile in database with created_at field")
                 except Exception as update_error:
                     logger.error(f"Error updating profile with created_at field: {str(update_error)}")
-
-            # Try to update the profile with the correct creation date from auth metadata
-            # This is a more reliable source than what might be in the profile
-            updated_profile = update_profile_creation_date(user_id, profile)
-            if updated_profile:
-                profile = updated_profile
 
             return profile
 
@@ -690,11 +574,9 @@ def create_user_profile(user_id):
         # Get user email from session
         user_email = session.get('user', {}).get('email', 'unknown@example.com')
 
-        # Try to get the user's creation date from Supabase Auth
-        creation_date = get_user_creation_date(user_id)
-
         # Create user profile
         now = datetime.datetime.now().isoformat()
+        creation_date = now
         response = supabase.table('user_profiles').insert({
             'user_id': user_id,
             'email': user_email,

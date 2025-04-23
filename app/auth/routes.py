@@ -123,8 +123,7 @@ def dashboard():
             logger.info(f"Using existing demo profile for user {user['id']}")
         else:
             # Create a new demo profile
-            from .utils import get_user_creation_date
-            creation_date = get_user_creation_date(user['id']) or datetime.datetime.now().isoformat()
+            creation_date = datetime.datetime.now().isoformat()
 
             demo_profiles[user['id']] = {
                 'user_id': user['id'],
@@ -136,14 +135,6 @@ def dashboard():
             }
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
-
-    # If we have a profile, try to update it with the correct creation date
-    if profile and user:
-        from .utils import update_profile_creation_date
-        updated_profile = update_profile_creation_date(user['id'], profile)
-        if updated_profile:
-            profile = updated_profile
-            logger.info(f"Updated profile with correct creation date")
 
     return render_template('auth/dashboard.html', user=user, profile=profile)
 
@@ -168,8 +159,7 @@ def profile():
             logger.info(f"Using existing demo profile for user {user['id']}")
         else:
             # Create a new demo profile
-            from .utils import get_user_creation_date
-            creation_date = get_user_creation_date(user['id']) or datetime.datetime.now().isoformat()
+            creation_date = datetime.datetime.now().isoformat()
 
             demo_profiles[user['id']] = {
                 'user_id': user['id'],
@@ -181,14 +171,6 @@ def profile():
             }
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
-
-    # If we have a profile, try to update it with the correct creation date
-    if profile and user:
-        from .utils import update_profile_creation_date
-        updated_profile = update_profile_creation_date(user['id'], profile)
-        if updated_profile:
-            profile = updated_profile
-            logger.info(f"Updated profile with correct creation date")
 
     return render_template('auth/profile.html', user=user, profile=profile)
 
