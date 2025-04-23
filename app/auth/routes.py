@@ -137,6 +137,14 @@ def dashboard():
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
 
+    # If we have a profile, try to update it with the correct creation date
+    if profile and user:
+        from .utils import update_profile_creation_date
+        updated_profile = update_profile_creation_date(user['id'], profile)
+        if updated_profile:
+            profile = updated_profile
+            logger.info(f"Updated profile with correct creation date")
+
     return render_template('auth/dashboard.html', user=user, profile=profile)
 
 @auth_bp.route('/profile')
@@ -173,6 +181,14 @@ def profile():
             }
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
+
+    # If we have a profile, try to update it with the correct creation date
+    if profile and user:
+        from .utils import update_profile_creation_date
+        updated_profile = update_profile_creation_date(user['id'], profile)
+        if updated_profile:
+            profile = updated_profile
+            logger.info(f"Updated profile with correct creation date")
 
     return render_template('auth/profile.html', user=user, profile=profile)
 
