@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - RevisePDF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card mb-4">
+                <div class="card-header bg-success">
+                    <h2 class="mb-0 text-white">My Account</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3>Profile Information</h3>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <strong>Email:</strong>
+                                        </div>
+                                        <div class="col-md-8">
+                                            {{ user.email }}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <strong>Account Type:</strong>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <span class="badge bg-success">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            {% if profile and profile.account_type == 'free' %}
+                                                <a href="#" class="btn btn-success btn-sm">Upgrade to Premium</a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-outline-success btn-sm">Manage Subscription</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3>Account Actions</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <a href="#" class="btn btn-outline-success d-block mb-2">Change Password</a>
+                                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger d-block">Logout</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h3>Storage Usage</h3>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    {% if profile %}
+                                        {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                        </div>
+                                        <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>{{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB</strong></p>
+                                    {% else %}
+                                        <div class="alert alert-info">
+                                            <p>Your storage usage will be displayed here once you start using the tools.</p>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                            <p>0 MB used of 50 MB</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <h3>File Size Limits</h3>
+                            <div class="card">
+                                <div class="card-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Account Type</th>
+                                                <th>Maximum File Size</th>
+                                                <th>Storage Limit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Free</td>
+                                                <td>10 MB</td>
+                                                <td>50 MB</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Premium</td>
+                                                <td>100 MB</td>
+                                                <td>1 GB</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="mt-3">
+                                        <p>
+                                            <strong>Your current limit:</strong> 
+                                            {% if profile and profile.account_type == 'free' %}
+                                                10 MB per file
+                                            {% elif profile and profile.account_type == 'premium' %}
+                                                100 MB per file
+                                            {% else %}
+                                                10 MB per file
+                                            {% endif %}
+                                        </p>
+                                        
+                                        {% if profile and profile.account_type == 'free' %}
+                                            <a href="#" class="btn btn-success">Upgrade to Premium</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-success">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

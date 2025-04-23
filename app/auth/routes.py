@@ -136,43 +136,18 @@ def dashboard():
             profile = demo_profiles[user['id']]
             logger.info(f"Created new demo profile for user {user['id']}")
 
-    return render_template('auth/dashboard.html', user=user, profile=profile)
+    return render_template('auth/account.html', user=user, profile=profile)
 
 @auth_bp.route('/profile')
 @login_required
 def profile():
     """
-    Display the user profile.
+    Redirect to the dashboard.
 
     Returns:
-        The rendered profile page.
+        Redirect to the dashboard page.
     """
-    user = get_current_user()
-
-    # Try to get profile from Supabase
-    profile = get_user_profile(user['id']) if user else None
-
-    # If Supabase fails, use demo profile or create one
-    if not profile and user:
-        if user['id'] in demo_profiles:
-            profile = demo_profiles[user['id']]
-            logger.info(f"Using existing demo profile for user {user['id']}")
-        else:
-            # Create a new demo profile
-            creation_date = datetime.datetime.now().isoformat()
-
-            demo_profiles[user['id']] = {
-                'user_id': user['id'],
-                'email': user.get('email', 'unknown@example.com'),
-                'account_type': 'free',
-                'storage_used': 0,
-                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                'created_at': creation_date
-            }
-            profile = demo_profiles[user['id']]
-            logger.info(f"Created new demo profile for user {user['id']}")
-
-    return render_template('auth/profile.html', user=user, profile=profile)
+    return redirect(url_for('auth.dashboard'))
 
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
