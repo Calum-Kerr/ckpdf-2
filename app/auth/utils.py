@@ -596,3 +596,67 @@ def create_user_profile(user_id):
     except Exception as e:
         logger.error(f"Error creating user profile: {str(e)}")
         return None
+
+def change_user_password(user_id, current_password, new_password):
+    """
+    Change a user's password.
+
+    Args:
+        user_id (str): The user ID.
+        current_password (str): The current password.
+        new_password (str): The new password.
+
+    Returns:
+        bool: True if the password was changed successfully, False otherwise.
+    """
+    if user_id is None:
+        logger.error("Cannot change password: user_id is None")
+        return False
+
+    supabase = get_supabase()
+    if not supabase:
+        logger.error("Cannot change password: Supabase client not initialized")
+        return False
+
+    try:
+        # First verify the current password by attempting to sign in
+        user_email = session.get('user', {}).get('email')
+        if not user_email:
+            logger.error("Cannot change password: user email not found in session")
+            return False
+
+        # Try to sign in with current password
+        try:
+            auth_response = supabase.auth.sign_in_with_password({
+                "email": user_email,
+                "password": current_password
+            })
+
+            if not auth_response or not auth_response.user:
+                logger.error("Cannot change password: current password verification failed")
+                return False
+
+        except Exception as auth_error:
+            logger.error(f"Cannot change password: current password verification failed: {str(auth_error)}")
+            return False
+
+        # Now change the password
+        try:
+            update_response = supabase.auth.update_user({
+                "password": new_password
+            })
+
+            if update_response and update_response.user:
+                logger.info(f"Password changed successfully for user {user_id}")
+                return True
+            else:
+                logger.error("Password change failed: no user in response")
+                return False
+
+        except Exception as update_error:
+            logger.error(f"Password change failed: {str(update_error)}")
+            return False
+
+    except Exception as e:
+        logger.error(f"Password change failed with unexpected error: {str(e)}")
+        return False

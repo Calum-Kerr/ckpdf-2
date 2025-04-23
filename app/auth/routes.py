@@ -9,8 +9,9 @@ import datetime
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, demo_profiles, csrf_exempt
+from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, demo_profiles, csrf_exempt, change_user_password
 from app.forms import LoginForm, RegisterForm
+from .forms import ChangePasswordForm
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -149,6 +150,44 @@ def profile():
     """
     return redirect(url_for('auth.dashboard'))
 
+
+@auth_bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """
+    Handle password change.
+
+    Returns:
+        The rendered change password page or a redirect.
+    """
+    user = get_current_user()
+    if not user:
+        flash('You must be logged in to change your password.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    form = ChangePasswordForm()
+
+    if request.method == 'POST':
+        logger.info(f"Change password form submitted for user {user['id']}")
+
+        if form.validate_on_submit():
+            current_password = form.current_password.data
+            new_password = form.new_password.data
+
+            success = change_user_password(user['id'], current_password, new_password)
+
+            if success:
+                flash('Your password has been changed successfully.', 'success')
+                return redirect(url_for('auth.dashboard'))
+            else:
+                flash('Failed to change password. Please check your current password and try again.', 'danger')
+        else:
+            logger.warning(f"Form validation failed: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{field}: {error}", 'danger')
+
+    return render_template('auth/change_password.html', form=form)
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
 @login_required
