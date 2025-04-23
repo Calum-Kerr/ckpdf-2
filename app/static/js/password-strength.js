@@ -3,21 +3,45 @@
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Get password input elements
-    const passwordInput = document.getElementById('password') || document.getElementById('new_password');
-    const strengthIndicator = document.getElementById('password-strength');
-    const strengthText = document.getElementById('strength-text');
-    
-    if (passwordInput && strengthIndicator && strengthText) {
-        // Add input event listener to password field
-        passwordInput.addEventListener('input', function() {
-            const password = passwordInput.value;
-            const strength = checkPasswordStrength(password);
-            
-            // Update strength indicator
-            updateStrengthIndicator(strength);
+    const currentPasswordInput = document.getElementById('current_password');
+    const newPasswordInput = document.getElementById('new_password') || document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+
+    // Get strength text elements
+    const currentStrengthText = document.getElementById('current-strength-text');
+    const newStrengthText = document.getElementById('new-strength-text') || document.getElementById('strength-text');
+    const confirmStrengthText = document.getElementById('confirm-strength-text');
+
+    // Get strength indicator for new password
+    const newStrengthIndicator = document.getElementById('new-password-strength') || document.getElementById('password-strength');
+
+    // Setup event listeners for all password fields
+    if (currentPasswordInput && currentStrengthText) {
+        currentPasswordInput.addEventListener('input', function() {
+            const strength = checkPasswordStrength(currentPasswordInput.value);
+            updateStrengthText(currentStrengthText, strength);
         });
     }
-    
+
+    if (newPasswordInput && newStrengthText) {
+        newPasswordInput.addEventListener('input', function() {
+            const strength = checkPasswordStrength(newPasswordInput.value);
+            updateStrengthText(newStrengthText, strength);
+
+            // Update progress bar if it exists
+            if (newStrengthIndicator) {
+                updateStrengthIndicator(newStrengthIndicator, strength);
+            }
+        });
+    }
+
+    if (confirmPasswordInput && confirmStrengthText) {
+        confirmPasswordInput.addEventListener('input', function() {
+            const strength = checkPasswordStrength(confirmPasswordInput.value);
+            updateStrengthText(confirmStrengthText, strength);
+        });
+    }
+
     /**
      * Check password strength
      * @param {string} password - The password to check
@@ -27,9 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!password) {
             return 0; // Empty password
         }
-        
+
         let score = 0;
-        
+
         // Length check
         if (password.length >= 8) {
             score += 1;
@@ -37,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (password.length >= 12) {
             score += 1;
         }
-        
+
         // Character variety checks
         if (/[A-Z]/.test(password)) { // Has uppercase
             score += 1;
@@ -51,50 +75,70 @@ document.addEventListener('DOMContentLoaded', function() {
         if (/[^A-Za-z0-9]/.test(password)) { // Has special character
             score += 1;
         }
-        
+
         // Normalize score to 0-4 range
         return Math.min(4, Math.floor(score / 1.5));
     }
-    
+
     /**
-     * Update the strength indicator
+     * Update the strength text
+     * @param {HTMLElement} element - The text element to update
      * @param {number} strength - Strength score (0-4)
      */
-    function updateStrengthIndicator(strength) {
-        // Remove all classes
-        strengthIndicator.className = 'progress-bar';
-        
-        // Set width based on strength
-        const width = (strength * 25) + '%';
-        strengthIndicator.style.width = width;
-        
-        // Set color and text based on strength
-        let color, text;
-        
+    function updateStrengthText(element, strength) {
+        let text;
+
         switch (strength) {
             case 0:
-                color = 'bg-danger';
                 text = 'None';
                 break;
             case 1:
-                color = 'bg-danger';
                 text = 'Weak';
                 break;
             case 2:
-                color = 'bg-warning';
                 text = 'Fair';
                 break;
             case 3:
-                color = 'bg-info';
                 text = 'Good';
                 break;
             case 4:
-                color = 'bg-success';
                 text = 'Strong';
                 break;
         }
-        
-        strengthIndicator.classList.add(color);
-        strengthText.textContent = text;
+
+        element.textContent = 'Password strength: ' + text;
+    }
+
+    /**
+     * Update the strength indicator
+     * @param {HTMLElement} indicator - The progress bar element
+     * @param {number} strength - Strength score (0-4)
+     */
+    function updateStrengthIndicator(indicator, strength) {
+        // Remove all classes except progress-bar
+        indicator.className = 'progress-bar';
+
+        // Set color based on strength
+        let color;
+
+        switch (strength) {
+            case 0:
+                color = 'bg-secondary';
+                break;
+            case 1:
+                color = 'bg-danger';
+                break;
+            case 2:
+                color = 'bg-warning';
+                break;
+            case 3:
+                color = 'bg-info';
+                break;
+            case 4:
+                color = 'bg-success';
+                break;
+        }
+
+        indicator.classList.add(color);
     }
 });
