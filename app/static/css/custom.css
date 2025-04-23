@@ -96,18 +96,30 @@
     color: var(--primary) !important;
 }
 
+.text-success {
+    color: var(--primary) !important;
+}
+
 .btn-primary {
     background-color: var(--primary) !important;
     border-color: var(--primary-border) !important;
     color: white !important;
 }
 
-.btn-primary:hover, .btn-primary:focus {
+.btn-success {
+    background-color: var(--primary) !important;
+    border-color: var(--primary-border) !important;
+    color: white !important;
+}
+
+.btn-primary:hover, .btn-primary:focus,
+.btn-success:hover, .btn-success:focus {
     background-color: var(--primary-hover) !important;
     border-color: var(--primary-hover) !important;
 }
 
-.btn-primary:active {
+.btn-primary:active,
+.btn-success:active {
     background-color: var(--primary-active) !important;
     border-color: var(--primary-active) !important;
 }
@@ -117,7 +129,13 @@
     border-color: var(--primary) !important;
 }
 
-.btn-outline-primary:hover, .btn-outline-primary:focus {
+.btn-outline-success {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus,
+.btn-outline-success:hover, .btn-outline-success:focus {
     background-color: var(--primary) !important;
     color: #fff !important;
 }
@@ -277,31 +295,49 @@ a:hover {
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active,
+.btn-success,
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active,
 .btn[style*="background-color: #238287"],
 .btn[style*="background:#238287"],
 .btn[style*="background: #238287"],
 .btn-sm.btn-primary,
+.btn-sm.btn-success,
 a.btn-primary,
+a.btn-success,
 a.btn.btn-sm.btn-primary,
+a.btn.btn-sm.btn-success,
 .btn.btn-primary,
+.btn.btn-success,
 .btn.btn-primary.d-block,
+.btn.btn-success.d-block,
 a.btn.btn-primary,
-a.btn.btn-primary.d-block {
+a.btn.btn-success,
+a.btn.btn-primary.d-block,
+a.btn.btn-success.d-block {
     color: white !important;
     text-decoration: none !important;
 }
 
 /* Force white text on all buttons with primary background */
 .btn.bg-primary,
+.btn.bg-success,
 .btn[class*="btn-primary"],
+.btn[class*="btn-success"],
 .btn[class*="btn"][style*="background-color: #238287"],
 .btn[class*="btn"][style*="background:#238287"],
 .btn[class*="btn"][style*="background: #238287"],
 .btn-primary,
+.btn-success,
 .btn.btn-primary,
+.btn.btn-success,
 a.btn.btn-primary,
+a.btn.btn-success,
 button.btn.btn-primary,
-input.btn.btn-primary {
+button.btn.btn-success,
+input.btn.btn-primary,
+input.btn.btn-success {
     color: white !important;
     text-decoration: none !important;
 }
@@ -310,12 +346,17 @@ input.btn.btn-primary {
 .btn-primary:not(:disabled):not(.disabled),
 .btn-primary:not(:disabled):not(.disabled):hover,
 .btn-primary:not(:disabled):not(.disabled):focus,
-.btn-primary:not(:disabled):not(.disabled):active {
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-success:not(:disabled):not(.disabled),
+.btn-success:not(:disabled):not(.disabled):hover,
+.btn-success:not(:disabled):not(.disabled):focus,
+.btn-success:not(:disabled):not(.disabled):active {
     color: white !important;
 }
 
 /* Specific override for Edit Profile button */
-a[href*="profile"].btn.btn-primary {
+a[href*="profile"].btn.btn-primary,
+a[href*="profile"].btn.btn-success {
     color: white !important;
 }
 
@@ -329,6 +370,16 @@ a[href*="profile"].btn.btn-primary {
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
     background-color: var(--primary) !important;
+    color: white !important;
+}
+
+/* Ensure bg-success uses our theme color */
+.bg-success {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+.bg-success h1, .bg-success h2, .bg-success h3, .bg-success h4, .bg-success h5, .bg-success h6 {
     color: white !important;
 }
 
