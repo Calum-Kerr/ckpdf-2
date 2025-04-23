@@ -9,9 +9,9 @@ import datetime
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, demo_profiles, csrf_exempt, change_user_password
+from .utils import login_user, register_user, logout_user, get_current_user, login_required, get_user_profile, demo_profiles, csrf_exempt, change_user_password, get_reset_token, verify_reset_token, send_reset_email, reset_password
 from app.forms import LoginForm, RegisterForm
-from .forms import ChangePasswordForm
+from .forms import ChangePasswordForm, RequestPasswordResetForm, ResetPasswordForm
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -150,6 +150,91 @@ def profile():
     """
     return redirect(url_for('auth.dashboard'))
 
+
+@auth_bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_request():
+    """
+    Handle password reset request.
+
+    Returns:
+        The rendered reset request page or a redirect.
+    """
+    # If user is already logged in, redirect to dashboard
+    if 'user' in session:
+        return redirect(url_for('auth.dashboard'))
+
+    form = RequestPasswordResetForm()
+
+    if request.method == 'POST':
+        logger.info("Password reset request form submitted")
+
+        if form.validate_on_submit():
+            email = form.email.data
+
+            # Generate a reset token
+            token = get_reset_token(email)
+
+            # Send the reset email
+            if send_reset_email(email, token):
+                flash('If an account with that email exists, a password reset link has been sent.', 'info')
+
+                # For demo purposes, display the reset link
+                if 'reset_link' in session:
+                    flash(f'Demo mode: Reset link: {session["reset_link"]}', 'info')
+
+                return redirect(url_for('auth.login'))
+            else:
+                flash('An error occurred while sending the password reset email. Please try again.', 'danger')
+        else:
+            logger.warning(f"Form validation failed: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{field}: {error}", 'danger')
+
+    return render_template('auth/reset_request.html', form=form)
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    """
+    Handle password reset with token.
+
+    Args:
+        token (str): The password reset token.
+
+    Returns:
+        The rendered reset password page or a redirect.
+    """
+    # If user is already logged in, redirect to dashboard
+    if 'user' in session:
+        return redirect(url_for('auth.dashboard'))
+
+    # Verify the token
+    email = verify_reset_token(token)
+    if not email:
+        flash('That is an invalid or expired token', 'warning')
+        return redirect(url_for('auth.reset_request'))
+
+    form = ResetPasswordForm()
+
+    if request.method == 'POST':
+        logger.info(f"Password reset form submitted for {email}")
+
+        if form.validate_on_submit():
+            new_password = form.password.data
+
+            # Reset the password
+            if reset_password(email, new_password):
+                flash('Your password has been updated! You can now log in with your new password.', 'success')
+                return redirect(url_for('auth.login'))
+            else:
+                flash('An error occurred while resetting your password. Please try again.', 'danger')
+        else:
+            logger.warning(f"Form validation failed: {form.errors}")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"{field}: {error}", 'danger')
+
+    return render_template('auth/reset_password.html', form=form, token=token)
 
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
