@@ -18,6 +18,18 @@
                         <p id="status-message">Please wait while we complete your authentication...</p>
                         <pre id="debug-info" class="mt-3 text-start" style="font-size: 0.8rem; background-color: #f8f9fa; padding: 10px; border-radius: 5px;"></pre>
                     </div>
+
+                    <div class="mt-4">
+                        <h5>Manual Authentication</h5>
+                        <p>If automatic authentication doesn't work, you can try manual authentication:</p>
+                        <div id="token-info" class="alert alert-info" style="display: none;">
+                            <p>Access token found in URL. Click the button below to authenticate.</p>
+                            <button id="manual-auth-btn" class="btn btn-primary">Authenticate Manually</button>
+                        </div>
+                        <div id="no-token-info" class="alert alert-warning" style="display: none;">
+                            <p>No access token found in URL.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -27,65 +39,91 @@
 
 {% block extra_js %}
 <script>
-    // Execute immediately without waiting for DOMContentLoaded
-    console.log('OAuth callback page loaded');
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('OAuth callback page loaded');
 
-    // Display the current URL for debugging
-    document.getElementById('debug-info').textContent = 'Current URL: ' + window.location.href;
+        // Display the current URL for debugging
+        const debugInfo = document.getElementById('debug-info');
+        const statusMessage = document.getElementById('status-message');
+        const tokenInfo = document.getElementById('token-info');
+        const noTokenInfo = document.getElementById('no-token-info');
+        const manualAuthBtn = document.getElementById('manual-auth-btn');
 
-    // Function to process the access token
-    function processAccessToken() {
-        console.log('Processing access token...');
+        debugInfo.textContent = 'Current URL: ' + window.location.href;
 
-        // Check if there's an access token in the URL fragment
-        if (window.location.hash && window.location.hash.includes('access_token=')) {
-            console.log('Access token found in URL fragment');
-            document.getElementById('status-message').textContent = 'Access token found, processing...';
-
-            try {
-                // Parse the hash fragment
-                const hashParams = {};
+        // Function to parse hash parameters
+        function parseHashParams() {
+            const hashParams = {};
+            if (window.location.hash && window.location.hash.length > 1) {
                 window.location.hash.substring(1).split('&').forEach(pair => {
                     if (pair && pair.includes('=')) {
                         const [key, value] = pair.split('=');
                         hashParams[key] = decodeURIComponent(value);
                     }
                 });
+            }
+            return hashParams;
+        }
 
-                console.log('Hash params keys:', Object.keys(hashParams));
-                document.getElementById('debug-info').textContent += '\nHash params keys: ' + Object.keys(hashParams).join(', ');
+        // Function to authenticate with token
+        function authenticateWithToken(token) {
+            console.log('Authenticating with token...');
+            statusMessage.textContent = 'Authenticating with token...';
 
-                // Check if we have an access token
-                if (hashParams.access_token) {
-                    console.log('Access token found, redirecting to dashboard...');
-                    document.getElementById('status-message').textContent = 'Access token found, redirecting to dashboard...';
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/auth/process-token';
+            form.style.display = 'none';
 
-                    // Redirect to the dashboard with the access token as a query parameter
-                    window.location.href = '/auth/dashboard?access_token=' + encodeURIComponent(hashParams.access_token);
-                } else {
-                    console.error('No access token found in hash params');
-                    document.getElementById('status-message').textContent = 'No access token found, redirecting to login...';
-                    window.location.href = '/auth/login?error=no_access_token';
-                }
+            // Add token data
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'access_token';
+            tokenInput.value = token;
+            form.appendChild(tokenInput);
+
+            // Add the form to the document and submit it
+            document.body.appendChild(form);
+            console.log('Submitting form to process token...');
+            form.submit();
+        }
+
+        // Check if there's an access token in the URL fragment
+        const hashParams = parseHashParams();
+        debugInfo.textContent += '\nHash params: ' + JSON.stringify(hashParams, null, 2);
+
+        if (hashParams.access_token) {
+            console.log('Access token found in URL fragment');
+            debugInfo.textContent += '\nAccess token found: ' + hashParams.access_token.substring(0, 10) + '...';
+            statusMessage.textContent = 'Access token found, processing...';
+
+            // Show the token info section
+            tokenInfo.style.display = 'block';
+
+            // Set up manual authentication button
+            manualAuthBtn.addEventListener('click', function() {
+                authenticateWithToken(hashParams.access_token);
+            });
+
+            // Try automatic authentication
+            try {
+                // Redirect to dashboard with token
+                window.location.href = '/auth/dashboard?access_token=' + encodeURIComponent(hashParams.access_token);
             } catch (error) {
-                console.error('Error processing hash fragment:', error);
-                document.getElementById('status-message').textContent = 'Error processing authentication, redirecting to login...';
-                window.location.href = '/auth/login?error=processing_error';
+                console.error('Error redirecting to dashboard:', error);
+                debugInfo.textContent += '\nError redirecting to dashboard: ' + error.message;
+                statusMessage.textContent = 'Error redirecting to dashboard. Please try manual authentication.';
             }
         } else {
             console.log('No access token in URL fragment');
-            document.getElementById('status-message').textContent = 'No access token found, redirecting to login...';
-            window.location.href = '/auth/login?error=no_access_token';
+            debugInfo.textContent += '\nNo access token found in URL fragment';
+            statusMessage.textContent = 'No access token found. Please try logging in again.';
+
+            // Show the no token info section
+            noTokenInfo.style.display = 'block';
         }
-    }
-
-    // Call the function immediately
-    processAccessToken();
-
-    // Also call it when the page is fully loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM fully loaded, processing access token again...');
-        processAccessToken();
     });
 </script>
 {% endblock %}
