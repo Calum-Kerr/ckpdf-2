@@ -8,6 +8,8 @@ It uses PyMuPDF (fitz) to convert interactive elements to static content.
 import os
 import logging
 import fitz  # PyMuPDF
+import tempfile
+import shutil
 from app.errors import PDFProcessingError
 
 # Configure logging
@@ -42,10 +44,13 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
             raise PDFProcessingError(f"Input file not found: {input_path}")
         
         # Open the input PDF
-        doc = fitz.open(input_path)
+        src_doc = fitz.open(input_path)
+        
+        # Create a new PDF document
+        dst_doc = fitz.open()
         
         # Get the input page count
-        input_page_count = doc.page_count
+        input_page_count = src_doc.page_count
         
         # Count form fields and annotations
         form_fields_count = 0
@@ -53,11 +58,15 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
         
         # Process each page
         for page_num in range(input_page_count):
-            page = doc[page_num]
+            src_page = src_doc[page_num]
+            
+            # Copy the page to the new document
+            dst_page = dst_doc.new_page(width=src_page.rect.width, height=src_page.rect.height)
+            dst_page.show_pdf_page(dst_page.rect, src_doc, page_num)
             
             # Count and flatten form fields
-            if flatten_form_fields and doc.is_form_pdf:
-                widgets = page.widgets()
+            if flatten_form_fields and src_doc.is_form_pdf:
+                widgets = list(src_page.widgets())  # Convert generator to list
                 form_fields_count += len(widgets)
                 
                 for widget in widgets:
@@ -73,27 +82,24 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
                         
                         # Add text for text fields
                         if field_type == fitz.PDF_WIDGET_TYPE_TEXT and field_value:
-                            page.insert_text(
+                            dst_page.insert_text(
                                 point=(field_rect.x0 + 2, field_rect.y0 + field_rect.height/2),
                                 text=str(field_value),
                                 fontsize=10
                             )
                     else:
                         # For widgets without JavaScript, use the appearance stream
-                        page.show_pdf_page(
+                        dst_page.show_pdf_page(
                             rect=widget.rect,
-                            src=doc,
+                            src=src_doc,
                             pno=page_num,
                             keep_proportion=True,
                             overlay=True
                         )
-                    
-                    # Remove the widget
-                    page.delete_widget(widget)
             
             # Count and flatten annotations
             if flatten_annotations:
-                annots = page.annots()
+                annots = list(src_page.annots())  # Convert generator to list
                 annotations_count += len(annots)
                 
                 for annot in annots:
@@ -103,7 +109,7 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
                     
                     # For text annotations, add the text content to the page
                     if annot_type == fitz.PDF_ANNOT_TEXT and annot.info.get("content"):
-                        page.insert_text(
+                        dst_page.insert_text(
                             point=(annot_rect.x0, annot_rect.y0),
                             text=annot.info["content"],
                             fontsize=10
@@ -111,27 +117,24 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
                     
                     # For highlight annotations, add a yellow rectangle
                     elif annot_type == fitz.PDF_ANNOT_HIGHLIGHT:
-                        page.draw_rect(annot_rect, color=(1, 1, 0), fill=(1, 1, 0, 0.3))
+                        dst_page.draw_rect(annot_rect, color=(1, 1, 0), fill=(1, 1, 0, 0.3))
                     
                     # For other annotations, try to render them as they appear
                     else:
-                        # Use the annotation appearance if available
-                        page.show_pdf_page(
+                        dst_page.show_pdf_page(
                             rect=annot_rect,
-                            src=doc,
+                            src=src_doc,
                             pno=page_num,
                             keep_proportion=True,
                             overlay=True
                         )
-                    
-                    # Remove the annotation
-                    page.delete_annot(annot)
         
-        # Save the document
-        doc.save(output_path)
+        # Save the new document
+        dst_doc.save(output_path, garbage=4, deflate=True)
         
-        # Close the document
-        doc.close()
+        # Close both documents
+        src_doc.close()
+        dst_doc.close()
         
         return {
             'input_page_count': input_page_count,
@@ -140,7 +143,6 @@ def flatten_pdf(input_path, output_path, flatten_annotations=True, flatten_form_
         }
     
     except PDFProcessingError:
-        # Re-raise PDFProcessingError
         raise
     
     except Exception as e:
@@ -186,11 +188,11 @@ def has_form_fields_or_annotations(pdf_path):
             
             # Count form fields
             if has_form_fields:
-                widgets = page.widgets()
+                widgets = list(page.widgets())  # Convert generator to list
                 form_fields_count += len(widgets)
             
             # Count annotations
-            annots = page.annots()
+            annots = list(page.annots())  # Convert generator to list
             annotations_count += len(annots)
         
         # Close the document
@@ -204,7 +206,6 @@ def has_form_fields_or_annotations(pdf_path):
         }
     
     except PDFProcessingError:
-        # Re-raise PDFProcessingError
         raise
     
     except Exception as e:
