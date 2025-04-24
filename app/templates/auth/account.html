@@ -2,94 +2,110 @@
 
 {% block title %}My Account - RevisePDF{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="col-lg-10 mx-auto">
-            <div class="card mb-4">
-                <div class="card-header bg-success">
+            <div class="account-card">
+                <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0 text-white">My Account</h2>
-                        <span class="badge bg-warning text-dark">BETA</span>
+                        <h2 class="mb-0">My Account</h2>
+                        <span class="beta-badge">BETA</span>
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info mb-4">
-                        <h4 class="alert-heading">Beta Mode Active</h4>
+                    <div class="beta-alert">
+                        <h4><i class="fas fa-info-circle"></i> Beta Mode Active</h4>
                         <p>RevisePDF is currently in beta testing. During this period, all features are <strong>unlimited</strong> for all users. Enjoy full access to all tools and features!</p>
                     </div>
+                    
                     <div class="row">
                         <div class="col-md-6">
-                            <h3>Profile Information</h3>
-                            <div class="card mb-4">
+                            <div class="section-header">
+                                <i class="fas fa-user-circle"></i>
+                                <h3>Profile Information</h3>
+                            </div>
+                            <div class="section-card">
                                 <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <strong>Email:</strong>
-                                        </div>
-                                        <div class="col-md-8">
-                                            {{ user.email }}
+                                    <div class="profile-item">
+                                        <div class="profile-item-label">Email:</div>
+                                        <div class="profile-item-value">{{ user.email }}</div>
+                                    </div>
+                                    <div class="profile-item">
+                                        <div class="profile-item-label">Account Type:</div>
+                                        <div class="profile-item-value">
+                                            <span class="account-type-badge">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
                                         </div>
                                     </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <strong>Account Type:</strong>
-                                        </div>
-                                        <div class="col-md-8">
-                                            <span class="badge bg-success">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="text-muted small">All features unlimited during beta</p>
+                                    <div class="profile-item">
+                                        <div class="profile-item-value">
+                                            <p class="text-muted small mb-0">All features unlimited during beta</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <h3>Account Actions</h3>
-                            <div class="card">
+                            <div class="section-header mt-4">
+                                <i class="fas fa-cog"></i>
+                                <h3>Account Actions</h3>
+                            </div>
+                            <div class="section-card">
                                 <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-12">
-                                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-success d-block mb-2">Change Password</a>
-                                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger d-block">Logout</a>
-                                        </div>
-                                    </div>
+                                    <a href="{{ url_for('auth.change_password') }}" class="action-button secondary">
+                                        <i class="fas fa-key me-2"></i> Change Password
+                                    </a>
+                                    <a href="{{ url_for('auth.logout') }}" class="action-button danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                    </a>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <h3>Storage Usage</h3>
-                            <div class="card mb-4">
+                            <div class="section-header">
+                                <i class="fas fa-database"></i>
+                                <h3>Storage Usage</h3>
+                            </div>
+                            <div class="section-card">
                                 <div class="card-body">
-                                    <div class="alert alert-warning">
-                                        <p class="mb-0"><strong>Beta Benefit:</strong> Unlimited storage during beta testing!</p>
+                                    <div class="benefit-card">
+                                        <strong>Beta Benefit:</strong> Unlimited storage during beta testing!
                                     </div>
 
                                     {% if profile %}
                                         {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
-                                        <div class="progress mb-2">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
+                                        <div class="storage-progress progress">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
-                                        <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>UNLIMITED</strong> <span class="text-muted small">(normally {{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB)</span></p>
+                                        <div class="storage-info">
+                                            <span class="storage-used">{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB used</span>
+                                            <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally {{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB)</span></span>
+                                        </div>
                                     {% else %}
-                                        <div class="alert alert-info">
-                                            <p>Your storage usage will be displayed here once you start using the tools.</p>
-                                            <div class="progress mb-2">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                            </div>
-                                            <p>0 MB used of UNLIMITED <span class="text-muted small">(normally 50 MB)</span></p>
+                                        <div class="storage-progress progress">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
+                                        <div class="storage-info">
+                                            <span class="storage-used">0.0 MB used</span>
+                                            <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally 50 MB)</span></span>
+                                        </div>
+                                        <p class="text-muted small mt-2">Your storage usage will be displayed here once you start using the tools.</p>
                                     {% endif %}
                                 </div>
                             </div>
 
-                            <h3>File Size Limits</h3>
-                            <div class="card">
+                            <div class="section-header mt-4">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>File Size Limits</h3>
+                            </div>
+                            <div class="section-card">
                                 <div class="card-body">
-                                    <table class="table">
+                                    <table class="limits-table">
                                         <thead>
                                             <tr>
                                                 <th>Account Type</th>
@@ -101,15 +117,15 @@
                                         <tbody>
                                             <tr>
                                                 <td>Free</td>
-                                                <td><s>10 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
-                                                <td><s>50 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
-                                                <td><i class="fas fa-check-circle text-success"></i> Active</td>
+                                                <td><s>10 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                                <td><s>50 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                                <td><i class="fas fa-check-circle status-active"></i> Active</td>
                                             </tr>
                                             <tr>
                                                 <td>Premium</td>
-                                                <td><s>100 MB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
-                                                <td><s>1 GB</s> <span class="badge bg-warning text-dark">Unlimited</span></td>
-                                                <td><i class="fas fa-check-circle text-success"></i> Active</td>
+                                                <td><s>100 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                                <td><s>1 GB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                                <td><i class="fas fa-check-circle status-active"></i> Active</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -117,15 +133,17 @@
                                     <div class="mt-3">
                                         <p>
                                             <strong>Your current limit:</strong>
-                                            <span class="badge bg-warning text-dark">UNLIMITED DURING BETA</span>
+                                            <span class="current-limit-badge">UNLIMITED DURING BETA</span>
                                         </p>
 
-                                        <div class="alert alert-success">
-                                            <p class="mb-0"><strong>Beta Benefit:</strong> Enjoy unlimited file sizes during our beta period!</p>
+                                        <div class="benefit-card">
+                                            <strong>Beta Benefit:</strong> Enjoy unlimited file sizes during our beta period!
                                         </div>
 
                                         {% if profile and profile.account_type == 'free' %}
-                                            <a href="#" class="btn btn-success">Upgrade to Premium</a>
+                                            <a href="#" class="upgrade-button">
+                                                <i class="fas fa-arrow-circle-up me-2"></i> Upgrade to Premium
+                                            </a>
                                             <p class="text-muted small mt-2">Premium features will be activated after beta</p>
                                         {% endif %}
                                     </div>
@@ -136,8 +154,10 @@
                 </div>
             </div>
 
-            <div class="text-center">
-                <a href="{{ url_for('main.index') }}" class="btn btn-outline-success">Back to Home</a>
+            <div class="text-center mb-4">
+                <a href="{{ url_for('main.index') }}" class="back-button">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Home
+                </a>
             </div>
         </div>
     </div>
