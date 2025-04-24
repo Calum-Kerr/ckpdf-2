@@ -455,6 +455,82 @@ def check_file_size_limit(file_size, user_id=None):
     return file_size <= limit
 
 
+def handle_oauth_login(auth_code):
+    """
+    Handle OAuth login with authorization code.
+
+    Args:
+        auth_code (str): The authorization code from the OAuth provider.
+
+    Returns:
+        dict: The user data if login is successful, None otherwise.
+    """
+    supabase = get_supabase()
+    if not supabase:
+        logger.warning("Supabase client not initialized. Cannot handle OAuth login.")
+        return None
+
+    try:
+        # Exchange the authorization code for a session
+        # For newer Supabase client versions, we need to use session.create_with_oauth_code
+        try:
+            # Try the newer method first
+            session_response = supabase.auth.exchange_code_for_session({
+                'auth_code': auth_code
+            })
+        except (AttributeError, Exception) as e:
+            logger.warning(f"Could not use exchange_code_for_session: {str(e)}")
+            # Fall back to the older method
+            session_response = supabase.auth.sign_in_with_oauth({
+                'provider': 'google',
+                'code': auth_code
+            })
+
+        # Get the user from the session
+        user = getattr(session_response, 'user', None)
+
+        if not user:
+            # Try to get user from session data
+            if hasattr(session_response, 'session') and hasattr(session_response.session, 'user'):
+                user = session_response.session.user
+            else:
+                logger.error("No user returned from OAuth exchange")
+                return None
+
+        # Get access and refresh tokens
+        access_token = None
+        refresh_token = None
+
+        if hasattr(session_response, 'session'):
+            access_token = getattr(session_response.session, 'access_token', None)
+            refresh_token = getattr(session_response.session, 'refresh_token', None)
+
+        # Store the session in Flask session
+        session['user'] = {
+            'id': user.id,
+            'email': user.email,
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }
+
+        # Check if the user has a profile, create one if not
+        try:
+            profile = get_user_profile(user.id)
+
+            if not profile:
+                # Profile creation is handled in get_user_profile
+                logger.info(f"Profile will be created for OAuth user: {user.email}")
+        except Exception as profile_error:
+            logger.error(f"Error checking user profile: {str(profile_error)}")
+            # Continue anyway, as the user is authenticated
+
+        logger.info(f"User logged in via OAuth: {user.email}")
+        return user
+    except Exception as e:
+        logger.error(f"OAuth login error: {str(e)}")
+        return None
+
+
 
 def get_user_profile(user_id):
     """

@@ -35,7 +35,14 @@ def init_supabase():
         return None
 
     try:
+        # Create the Supabase client
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+        # Configure the auth client with the redirect URL
+        # This ensures that the OAuth flow uses the correct redirect URL
+        redirect_url = "http://127.0.0.1:5002/auth/oauth-callback"
+        logger.info(f"Setting redirect URL for Supabase auth: {redirect_url}")
+
         logger.info("Supabase client initialized successfully.")
         return supabase
     except Exception as e:

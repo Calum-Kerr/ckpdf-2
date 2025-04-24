@@ -3,7 +3,11 @@ Main routes for the application.
 This module contains the main routes for the application.
 """
 
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, request, redirect, url_for
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Create blueprint
 main_bp = Blueprint('main', __name__)
@@ -12,10 +16,19 @@ main_bp = Blueprint('main', __name__)
 def index():
     """
     Render the index page.
+    Also handles OAuth callback redirects if a code parameter is present.
 
     Returns:
-        The rendered index page.
+        The rendered index page or a redirect to the OAuth callback.
     """
+    # Check if this is an OAuth callback (has a code parameter)
+    code = request.args.get('code')
+    if code:
+        logger.info(f"Detected OAuth callback code at root URL: {code[:10]}... (truncated)")
+        # Redirect to the OAuth callback route with the code
+        return redirect(url_for('auth.oauth_callback', code=code))
+
+    # Normal index page rendering
     return render_template('index.html')
 
 @main_bp.route('/privacy-policy')
