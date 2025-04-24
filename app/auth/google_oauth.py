@@ -6,11 +6,11 @@ This module provides direct Google OAuth authentication without using Supabase.
 import os
 import logging
 import requests
-import json
 import datetime
-from flask import current_app, session, redirect, url_for, request, flash
+from flask import current_app, session
 from urllib.parse import urlencode
 import uuid
+from .utils import get_user_profile, create_user_profile
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 def get_google_auth_url():
     """
     Get the Google OAuth authorization URL.
-    
+
     Returns:
         str: The Google OAuth authorization URL.
     """
     # Get Google OAuth configuration
     client_id = current_app.config.get('GOOGLE_CLIENT_ID')
-    
+
     # Determine the redirect URI based on environment
     if os.environ.get('DYNO'):
         # We're on Heroku, use the production URL
@@ -34,14 +34,14 @@ def get_google_auth_url():
         # We're in development, use the local URL
         site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
         logger.info(f"Running locally, using development URL: {site_url}")
-    
+
     redirect_uri = f"{site_url}/auth/google-callback"
     logger.info(f"Using redirect URI: {redirect_uri}")
-    
+
     # Generate a state parameter to prevent CSRF
     state = str(uuid.uuid4())
     session['google_oauth_state'] = state
-    
+
     # Build the authorization URL
     auth_url = "https://accounts.google.com/o/oauth2/v2/auth"
     params = {
@@ -52,23 +52,23 @@ def get_google_auth_url():
         'state': state,
         'prompt': 'select_account'
     }
-    
+
     return f"{auth_url}?{urlencode(params)}"
 
 def exchange_code_for_token(code):
     """
     Exchange the authorization code for an access token.
-    
+
     Args:
         code (str): The authorization code from Google.
-        
+
     Returns:
         dict: The token response from Google, or None if there was an error.
     """
     # Get Google OAuth configuration
     client_id = current_app.config.get('GOOGLE_CLIENT_ID')
     client_secret = current_app.config.get('GOOGLE_CLIENT_SECRET')
-    
+
     # Determine the redirect URI based on environment
     if os.environ.get('DYNO'):
         # We're on Heroku, use the production URL
@@ -76,9 +76,9 @@ def exchange_code_for_token(code):
     else:
         # We're in development, use the local URL
         site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
-    
+
     redirect_uri = f"{site_url}/auth/google-callback"
-    
+
     # Exchange the code for a token
     token_url = "https://oauth2.googleapis.com/token"
     data = {
@@ -88,7 +88,7 @@ def exchange_code_for_token(code):
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code'
     }
-    
+
     try:
         response = requests.post(token_url, data=data)
         response.raise_for_status()  # Raise an exception for 4XX/5XX responses
@@ -103,10 +103,10 @@ def exchange_code_for_token(code):
 def get_user_info(access_token):
     """
     Get the user's information from Google.
-    
+
     Args:
         access_token (str): The access token from Google.
-        
+
     Returns:
         dict: The user information from Google, or None if there was an error.
     """
@@ -127,17 +127,17 @@ def get_user_info(access_token):
 def create_user_session(user_info, token_info):
     """
     Create a user session from Google user information.
-    
+
     Args:
         user_info (dict): The user information from Google.
         token_info (dict): The token information from Google.
-        
+
     Returns:
         dict: The user session data.
     """
     # Create a unique user ID based on the Google sub (subject) ID
     user_id = f"google-{user_info.get('sub')}"
-    
+
     # Create the user session
     user_session = {
         'id': user_id,
@@ -152,5 +152,17 @@ def create_user_session(user_info, token_info):
         'provider': 'google',
         'login_time': datetime.datetime.now().isoformat()
     }
-    
+
+    # Check if user profile exists, if not create one
+    profile = get_user_profile(user_id)
+    if not profile:
+        logger.info(f"Creating profile for Google user: {user_info.get('email')}")
+        profile = create_user_profile(user_id)
+        if profile:
+            logger.info(f"Successfully created profile for Google user: {user_info.get('email')}")
+        else:
+            logger.warning(f"Failed to create profile for Google user: {user_info.get('email')}")
+    else:
+        logger.info(f"Found existing profile for Google user: {user_info.get('email')}")
+
     return user_session

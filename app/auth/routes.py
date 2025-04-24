@@ -297,23 +297,54 @@ def google_callback():
             from .google_oauth import exchange_code_for_token, get_user_info, create_user_session
 
             # Exchange the code for a token
-            token_info = exchange_code_for_token(code)
-            if not token_info:
-                logger.error("Failed to exchange code for token")
-                flash("Authentication failed: Could not get access token", "danger")
+            try:
+                token_info = exchange_code_for_token(code)
+                if not token_info:
+                    logger.error("Failed to exchange code for token")
+                    flash("Authentication failed: Could not get access token. Please try again.", "danger")
+                    return redirect(url_for('auth.login'))
+            except Exception as token_error:
+                logger.error(f"Error exchanging code for token: {str(token_error)}")
+                flash(f"Authentication failed: Error getting access token - {str(token_error)}", "danger")
                 return redirect(url_for('auth.login'))
 
             # Get the user info
-            access_token = token_info.get('access_token')
-            user_info = get_user_info(access_token)
-            if not user_info:
-                logger.error("Failed to get user info")
-                flash("Authentication failed: Could not get user information", "danger")
+            try:
+                access_token = token_info.get('access_token')
+                user_info = get_user_info(access_token)
+                if not user_info:
+                    logger.error("Failed to get user info")
+                    flash("Authentication failed: Could not get user information. Please try again.", "danger")
+                    return redirect(url_for('auth.login'))
+            except Exception as user_info_error:
+                logger.error(f"Error getting user info: {str(user_info_error)}")
+                flash(f"Authentication failed: Error getting user information - {str(user_info_error)}", "danger")
                 return redirect(url_for('auth.login'))
 
             # Create a user session
-            user_session = create_user_session(user_info, token_info)
-            session['user'] = user_session
+            try:
+                user_session = create_user_session(user_info, token_info)
+
+                # Set session expiration based on token expiration
+                if token_info.get('expires_in'):
+                    # Calculate expiration time
+                    expires_in = int(token_info.get('expires_in', 3600))
+                    expiration_time = datetime.datetime.now() + datetime.timedelta(seconds=expires_in)
+                    user_session['expiration_time'] = expiration_time.isoformat()
+                    logger.info(f"Session will expire at: {expiration_time}")
+
+                # Store the session
+                session['user'] = user_session
+
+                # Set permanent session with a lifetime of 30 days if refresh token is available
+                if token_info.get('refresh_token'):
+                    session.permanent = True
+                    current_app.permanent_session_lifetime = datetime.timedelta(days=30)
+                    logger.info("Set permanent session with 30-day lifetime")
+            except Exception as session_error:
+                logger.error(f"Error creating user session: {str(session_error)}")
+                flash(f"Authentication failed: Error creating user session - {str(session_error)}", "danger")
+                return redirect(url_for('auth.login'))
 
             logger.info(f"Created Google user session for: {user_session.get('email')}")
             flash(f"Welcome, {user_session.get('name')}! You have successfully logged in with Google.", "success")
@@ -324,19 +355,10 @@ def google_callback():
             flash(f"Authentication failed: {str(e)}", "danger")
             return redirect(url_for('auth.login'))
 
-    # If we get here, it's a direct access to the callback URL (from the debug button)
-    # For backward compatibility, create a Google user session directly
-    logger.info("Direct access to Google callback - creating Google user session")
-    session['user'] = {
-        'id': f'google-user-direct-{datetime.datetime.now().timestamp()}',
-        'email': 'direct-google@example.com',
-        'access_token': 'direct_google_token',
-        'is_google_user': True
-    }
-
-    logger.info("Created direct Google user session")
-    flash("You have successfully logged in with direct Google access!", "success")
-    return redirect(url_for('auth.dashboard'))
+    # If we get here, there was no code parameter
+    logger.error("No authorization code found in Google callback")
+    flash("Authentication failed: No authorization code received from Google", "danger")
+    return redirect(url_for('auth.login'))
 
 
 # Add a special route to handle the case where Supabase might redirect to a different URL structure
@@ -705,27 +727,6 @@ def process_token():
             'message': f'Authentication failed: {str(e)}',
             'redirect_url': url_for('auth.login')
         }), 500
-
-
-@auth_bp.route('/test-oauth-callback')
-@csrf_exempt
-def test_oauth_callback():
-    """
-    Test route for OAuth callback.
-
-    This route simulates the OAuth callback with a test token.
-
-    Returns:
-        Redirect to the OAuth callback page with a test token.
-    """
-    # Create a test URL with a fragment containing a test token
-    test_url = url_for('auth.oauth_callback', _external=True) + '#access_token=test_token&token_type=bearer&expires_in=3600'
-
-    # Log the test URL
-    logger.info(f"Test OAuth callback URL: {test_url}")
-
-    # Redirect to the test URL
-    return redirect(test_url)
 
 
 @auth_bp.route('/check-auth', methods=['GET'])

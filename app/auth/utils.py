@@ -6,7 +6,6 @@ This module provides utilities for authentication and user management.
 import logging
 import uuid
 import datetime
-import secrets
 from flask import session, request, redirect, url_for, flash, g, current_app
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from functools import wraps
@@ -232,7 +231,49 @@ def get_current_user():
     if 'user' not in session:
         return None
 
-    return session['user']
+    user = session['user']
+
+    # Check for session expiration
+    if 'expiration_time' in user:
+        try:
+            expiration_time = datetime.datetime.fromisoformat(user['expiration_time'])
+            if datetime.datetime.now() > expiration_time:
+                logger.info(f"Session expired for user {user.get('email')}")
+
+                # Check if we have a refresh token
+                if 'refresh_token' in user:
+                    logger.info("Attempting to refresh token")
+                    try:
+                        # Get Supabase client
+                        supabase = get_supabase()
+                        if supabase:
+                            # Refresh the token
+                            refresh_response = supabase.auth.refresh_session(user['refresh_token'])
+                            if refresh_response and hasattr(refresh_response, 'session'):
+                                # Update the session with new tokens
+                                user['access_token'] = refresh_response.session.access_token
+                                user['refresh_token'] = refresh_response.session.refresh_token
+
+                                # Calculate new expiration time
+                                expires_in = getattr(refresh_response.session, 'expires_in', 3600)
+                                new_expiration = datetime.datetime.now() + datetime.timedelta(seconds=expires_in)
+                                user['expiration_time'] = new_expiration.isoformat()
+
+                                # Update the session
+                                session['user'] = user
+                                logger.info(f"Token refreshed for user {user.get('email')}")
+                                return user
+                    except Exception as e:
+                        logger.error(f"Error refreshing token: {str(e)}")
+
+                # If we get here, either we don't have a refresh token or refresh failed
+                # Clear the session and return None
+                session.pop('user', None)
+                return None
+        except (ValueError, TypeError) as e:
+            logger.error(f"Error parsing expiration time: {str(e)}")
+
+    return user
 
 def login_required(f):
     """

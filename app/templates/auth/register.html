@@ -72,7 +72,7 @@
                     <div class="mt-4 text-center">
                         <p class="mb-2">Or sign up with:</p>
                         <a href="{{ url_for('auth.google_login') }}" class="btn btn-light border d-flex align-items-center justify-content-center mx-auto" style="max-width: 240px;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" style="height: 18px; margin-right: 10px;">
+                            <img src="{{ url_for('static', filename='images/google-logo.svg') }}" alt="Google logo" style="height: 18px; margin-right: 10px;">
                             Sign up with Google
                         </a>
                     </div>

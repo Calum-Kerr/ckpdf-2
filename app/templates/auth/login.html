@@ -51,7 +51,7 @@
                     <div class="mt-4 text-center">
                         <p class="mb-2">Or sign in with:</p>
                         <a href="{{ url_for('auth.google_login') }}" class="btn btn-light border d-flex align-items-center justify-content-center mx-auto" style="max-width: 240px;">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" style="height: 18px; margin-right: 10px;">
+                            <img src="{{ url_for('static', filename='images/google-logo.svg') }}" alt="Google logo" style="height: 18px; margin-right: 10px;">
                             Sign in with Google
                         </a>
                         <small class="text-muted mt-2">Secure login with your Google account</small>
@@ -64,26 +64,7 @@
                 </div>
             </div>
 
-            <!-- Debug section for development -->
-            <div class="card mt-3">
-                <div class="card-header" style="background-color: #6c757d; color: white;">
-                    <h5 class="mb-0">Debug Tools</h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">These links are for debugging OAuth issues:</p>
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('auth.oauth_callback') }}" class="btn btn-sm btn-outline-secondary mb-2">
-                            Test OAuth Callback Page
-                        </a>
-                        <a href="{{ url_for('auth.test_oauth_callback') }}" class="btn btn-sm btn-outline-secondary mb-2">
-                            Test OAuth Callback with Test Token
-                        </a>
-                        <a href="{{ url_for('auth.google_callback') }}" class="btn btn-sm btn-outline-primary">
-                            Direct Google Login (Bypass OAuth)
-                        </a>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
