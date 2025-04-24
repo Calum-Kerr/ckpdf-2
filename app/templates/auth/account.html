@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}?v={{ range(1, 10000) | random }}">
 {% endblock %}
 
 {% block content %}
@@ -23,7 +23,7 @@
                         <h4><i class="fas fa-info-circle"></i> Beta Mode Active</h4>
                         <p>RevisePDF is currently in beta testing. During this period, all features are <strong>unlimited</strong> for all users. Enjoy full access to all tools and features!</p>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="section-header">

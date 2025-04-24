@@ -12,7 +12,7 @@
 }
 
 .account-card .card-header {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: white;
     padding: 1.25rem 1.5rem;
     border-bottom: none;
@@ -36,14 +36,14 @@
 /* Beta Mode Alert */
 .beta-alert {
     background-color: #e6f3f3;
-    border-left: 4px solid var(--primary);
+    border-left: 4px solid var(--primary-color);
     border-radius: 8px;
     padding: 1.25rem;
     margin-bottom: 1.5rem;
 }
 
 .beta-alert h4 {
-    color: var(--primary);
+    color: var(--primary-color);
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
@@ -65,7 +65,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 1rem;
-    color: var(--primary);
+    color: var(--primary-color);
     font-weight: 600;
 }
 
@@ -93,7 +93,7 @@
 
 /* Account Type Badge */
 .account-type-badge {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: white;
     padding: 0.35rem 0.75rem;
     border-radius: 50px;
@@ -111,7 +111,7 @@
 }
 
 .storage-progress .progress-bar {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     border-radius: 50px;
 }
 
@@ -124,7 +124,7 @@
 
 .storage-used {
     font-weight: 600;
-    color: var(--primary);
+    color: var(--primary-color);
 }
 
 .storage-limit {
@@ -133,7 +133,7 @@
 
 /* Unlimited Badge */
 .unlimited-badge {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
@@ -188,20 +188,20 @@
 }
 
 .action-button.primary {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: white;
     border: none;
 }
 
 .action-button.primary:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--primary-dark);
     text-decoration: none;
 }
 
 .action-button.secondary {
     background-color: white;
-    color: var(--primary);
-    border: 2px solid var(--primary);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
 }
 
 .action-button.secondary:hover {
@@ -226,8 +226,8 @@
     padding: 0.5rem 1.5rem;
     border-radius: 50px;
     background-color: white;
-    color: var(--primary);
-    border: 2px solid var(--primary);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
     font-weight: 600;
     transition: all 0.2s ease;
 }
@@ -246,13 +246,13 @@
 }
 
 .benefit-card strong {
-    color: var(--primary);
+    color: var(--primary-color);
     font-weight: 600;
 }
 
 /* Active Status */
 .status-active {
-    color: var(--primary);
+    color: var(--primary-color);
     font-size: 1.1rem;
 }
 
@@ -273,7 +273,7 @@
     display: inline-block;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: white;
     font-weight: 600;
     transition: all 0.2s ease;
@@ -282,6 +282,6 @@
 }
 
 .upgrade-button:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--primary-dark);
     text-decoration: none;
 }
