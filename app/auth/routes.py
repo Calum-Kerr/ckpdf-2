@@ -7,6 +7,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import logging
 import datetime
 import urllib.parse
+import os
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -192,7 +193,17 @@ def google_login():
         try:
             # For production, specify the redirect_to parameter explicitly
             # This ensures Supabase redirects back to our application
-            site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+
+            # Check if we're in production (Heroku)
+            if os.environ.get('DYNO'):
+                # We're on Heroku, use the production URL
+                site_url = "https://www.revisepdf.com"
+                logger.info(f"Running on Heroku, using production URL: {site_url}")
+            else:
+                # We're in development, use the local URL
+                site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+                logger.info(f"Running locally, using development URL: {site_url}")
+
             redirect_url = f"{site_url}/auth/oauth-callback"
             logger.info(f"Using redirect URL: {redirect_url}")
 

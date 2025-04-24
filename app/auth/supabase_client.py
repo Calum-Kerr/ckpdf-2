@@ -38,7 +38,18 @@ def init_supabase():
         # Create the Supabase client with the simplest possible initialization
         # This should work with all versions of the Supabase client library
         from flask import current_app
-        site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+        import os
+
+        # Check if we're in production (Heroku)
+        if os.environ.get('DYNO'):
+            # We're on Heroku, use the production URL
+            site_url = "https://www.revisepdf.com"
+            logger.info(f"Running on Heroku, using production URL: {site_url}")
+        else:
+            # We're in development, use the local URL
+            site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+            logger.info(f"Running locally, using development URL: {site_url}")
+
         redirect_url = f"{site_url}/auth/oauth-callback"
         logger.info(f"Setting redirect URL for Supabase auth: {redirect_url}")
 
