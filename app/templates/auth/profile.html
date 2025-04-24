@@ -76,7 +76,7 @@
 
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <a href="#" class="btn btn-outline-success d-block">Change Password</a>
+                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-success d-block">Change Password</a>
                         </div>
                         <div class="col-md-6">
                             {% if profile and profile.account_type == 'free' %}

@@ -55,13 +55,17 @@
                                         <div class="card-body">
                                             {% if profile and profile.account_type == 'free' %}
                                                 <p>Maximum file size: 10 MB</p>
-                                                <p>Want to process larger files? <a href="#" class="btn btn-sm btn-success">Upgrade Now</a></p>
+                                                <div class="mt-3">
+                                                    <a href="#" class="btn btn-success">Upgrade to Premium</a>
+                                                </div>
                                             {% elif profile and profile.account_type == 'premium' %}
                                                 <p>Maximum file size: 100 MB</p>
                                                 <p>You're on our Premium plan!</p>
                                             {% else %}
                                                 <p>Maximum file size: 10 MB</p>
-                                                <p>Want to process larger files? <a href="#" class="btn btn-sm btn-success">Upgrade Now</a></p>
+                                                <div class="mt-3">
+                                                    <a href="#" class="btn btn-success">Upgrade to Premium</a>
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>

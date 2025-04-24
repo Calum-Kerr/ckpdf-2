@@ -99,6 +99,8 @@
         .tools-container {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
         }
 
         /* Full-width mega menu styling */
@@ -352,12 +354,29 @@
 
                 <!-- All PDF Tools dropdown on the right -->
                 <div class="tools-container">
-                    <a class="tools-dropdown-btn" href="#" id="toolsDropdown" role="button">
+                    <a class="tools-dropdown-btn me-4" href="#" id="toolsDropdown" role="button">
                         <span class="pdf-tools-icon">
                             <i class="fas fa-tools"></i>
                         </span>
                         All PDF Tools
                     </a>
+
+                    <!-- Account link -->
+                    {% if session.get('user') %}
+                        <a class="tools-dropdown-btn" href="{{ url_for('auth.dashboard') }}" role="button">
+                            <span class="pdf-tools-icon">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            My Account
+                        </a>
+                    {% else %}
+                        <a class="tools-dropdown-btn" href="{{ url_for('auth.login') }}" role="button">
+                            <span class="pdf-tools-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </span>
+                            Login
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
