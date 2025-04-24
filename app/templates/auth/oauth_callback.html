@@ -67,7 +67,7 @@
         }
 
         // Function to authenticate with token
-        function authenticateWithToken(token) {
+        function authenticateWithToken(token, refreshToken, expiresIn, providerToken) {
             console.log('Authenticating with token...');
             statusMessage.textContent = 'Authenticating with token...';
 
@@ -83,6 +83,31 @@
             tokenInput.name = 'access_token';
             tokenInput.value = token;
             form.appendChild(tokenInput);
+
+            // Add additional token data if available
+            if (refreshToken) {
+                const refreshInput = document.createElement('input');
+                refreshInput.type = 'hidden';
+                refreshInput.name = 'refresh_token';
+                refreshInput.value = refreshToken;
+                form.appendChild(refreshInput);
+            }
+
+            if (expiresIn) {
+                const expiresInput = document.createElement('input');
+                expiresInput.type = 'hidden';
+                expiresInput.name = 'expires_in';
+                expiresInput.value = expiresIn;
+                form.appendChild(expiresInput);
+            }
+
+            if (providerToken) {
+                const providerInput = document.createElement('input');
+                providerInput.type = 'hidden';
+                providerInput.name = 'provider_token';
+                providerInput.value = providerToken;
+                form.appendChild(providerInput);
+            }
 
             // Add the form to the document and submit it
             document.body.appendChild(form);
@@ -104,17 +129,28 @@
 
             // Set up manual authentication button
             manualAuthBtn.addEventListener('click', function() {
-                authenticateWithToken(hashParams.access_token);
+                authenticateWithToken(
+                    hashParams.access_token,
+                    hashParams.refresh_token,
+                    hashParams.expires_in,
+                    hashParams.provider_token
+                );
             });
 
-            // Try automatic authentication
+            // Try automatic authentication using the form submission instead of redirect
+            // This is more reliable across browsers and handles the token more securely
             try {
-                // Redirect to dashboard with token
-                window.location.href = '/auth/dashboard?access_token=' + encodeURIComponent(hashParams.access_token);
+                console.log('Attempting automatic authentication...');
+                authenticateWithToken(
+                    hashParams.access_token,
+                    hashParams.refresh_token,
+                    hashParams.expires_in,
+                    hashParams.provider_token
+                );
             } catch (error) {
-                console.error('Error redirecting to dashboard:', error);
-                debugInfo.textContent += '\nError redirecting to dashboard: ' + error.message;
-                statusMessage.textContent = 'Error redirecting to dashboard. Please try manual authentication.';
+                console.error('Error during automatic authentication:', error);
+                debugInfo.textContent += '\nError during automatic authentication: ' + error.message;
+                statusMessage.textContent = 'Error during automatic authentication. Please try the manual authentication button below.';
             }
         } else {
             console.log('No access token in URL fragment');

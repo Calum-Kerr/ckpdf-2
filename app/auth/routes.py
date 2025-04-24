@@ -357,6 +357,12 @@ def oauth_callback():
         flash(f"Authentication error: {error}. {error_description}", "danger")
         return redirect(url_for('auth.login'))
 
+    # Check for access token in query parameters (some OAuth providers might use this)
+    access_token = request.args.get('access_token')
+    if access_token:
+        logger.info(f"Access token found in query parameters, redirecting to dashboard")
+        return redirect(url_for('auth.dashboard', access_token=access_token))
+
     # Generate a nonce for CSP
     if not hasattr(request, 'csp_nonce'):
         request.csp_nonce = base64.b64encode(os.urandom(16)).decode('utf-8')
@@ -504,7 +510,7 @@ def process_token():
     try:
         logger.info(f"Process token endpoint called with method: {request.method}")
         logger.info(f"Request content type: {request.content_type}")
-        logger.info(f"Form data: {request.form}")
+        logger.info(f"Form data keys: {list(request.form.keys()) if request.form else 'No form data'}")
         logger.info(f"JSON data: {request.get_json(silent=True)}")
 
         # Get the token data from the request (either form data or JSON)
@@ -513,7 +519,7 @@ def process_token():
         else:
             token_data = request.form
 
-        logger.info(f"Processing token data: {token_data.keys() if token_data else 'No token data'}")
+        logger.info(f"Processing token data keys: {list(token_data.keys()) if token_data else 'No token data'}")
 
         if not token_data or 'access_token' not in token_data:
             logger.error("No access token provided")
@@ -545,6 +551,15 @@ def process_token():
             # Get the user data from the token
             logger.info(f"Using access token: {access_token[:10]}... (truncated)")
 
+            # Extract additional token information
+            refresh_token = token_data.get('refresh_token')
+            expires_in = token_data.get('expires_in')
+            provider_token = token_data.get('provider_token')
+
+            logger.info(f"Additional token info - refresh_token: {'Present' if refresh_token else 'Not present'}, " +
+                       f"expires_in: {expires_in if expires_in else 'Not present'}, " +
+                       f"provider_token: {'Present' if provider_token else 'Not present'}")
+
             user = supabase.auth.get_user(access_token)
             logger.info(f"User data retrieved: {user}")
 
@@ -552,12 +567,21 @@ def process_token():
                 user_data = user.user
 
                 # Store the session in Flask session
-                session['user'] = {
+                session_data = {
                     'id': user_data.id,
                     'email': user_data.email,
-                    'access_token': access_token,
-                    'refresh_token': token_data.get('refresh_token')
+                    'access_token': access_token
                 }
+
+                # Add additional token data if available
+                if refresh_token:
+                    session_data['refresh_token'] = refresh_token
+                if expires_in:
+                    session_data['expires_in'] = expires_in
+                if provider_token:
+                    session_data['provider_token'] = provider_token
+
+                session['user'] = session_data
 
                 # Check if the user has a profile, create one if not
                 get_user_profile(user_data.id)
