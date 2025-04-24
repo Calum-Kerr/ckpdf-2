@@ -74,8 +74,11 @@
                         <a href="{{ url_for('auth.oauth_callback') }}" class="btn btn-sm btn-outline-secondary mb-2">
                             Test OAuth Callback Page
                         </a>
-                        <a href="{{ url_for('auth.test_oauth_callback') }}" class="btn btn-sm btn-outline-secondary">
+                        <a href="{{ url_for('auth.test_oauth_callback') }}" class="btn btn-sm btn-outline-secondary mb-2">
                             Test OAuth Callback with Test Token
+                        </a>
+                        <a href="{{ url_for('auth.google_callback') }}" class="btn btn-sm btn-outline-primary">
+                            Direct Google Login (Bypass OAuth)
                         </a>
                     </div>
                 </div>
