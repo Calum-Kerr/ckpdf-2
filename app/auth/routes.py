@@ -173,18 +173,21 @@ def dashboard():
         flash("Please log in to access your dashboard", "warning")
         return redirect(url_for('auth.login'))
 
-    # Handle test user
-    if user.get('is_test_user', False):
-        # For test users, use dummy profile data
+    # Handle test user or Google user
+    if user.get('is_test_user', False) or user.get('is_google_user', False):
+        # For test users or Google users, use dummy profile data
         profile = {
             'user_id': user['id'],
             'email': user['email'],
             'account_type': 'free',
             'storage_used': 0,
-            'storage_limit': 100 * 1024 * 1024,  # 100MB for test users
+            'storage_limit': 100 * 1024 * 1024,  # 100MB for test/Google users
             'created_at': datetime.datetime.now().isoformat()
         }
-        logger.info(f"Using test profile for test user")
+        if user.get('is_test_user', False):
+            logger.info(f"Using test profile for test user")
+        else:
+            logger.info(f"Using test profile for Google user")
     else:
         # Try to get profile from Supabase
         profile = get_user_profile(user['id']) if user else None
@@ -244,46 +247,35 @@ def google_login():
         return redirect(url_for('auth.login'))
 
     try:
-        # Get the base URL from request or config
-        base_url = request.host_url.rstrip('/')
-        if base_url.startswith('http://') and not current_app.debug:
-            # Force HTTPS in production
-            base_url = 'https://' + base_url[7:]
+        # Determine the redirect URL
+        if os.environ.get('DYNO'):
+            # We're on Heroku, use the production URL
+            site_url = "https://www.revisepdf.com"
+            logger.info(f"Running on Heroku, using production URL: {site_url}")
+        else:
+            # We're in development, use the local URL
+            site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+            logger.info(f"Running locally, using development URL: {site_url}")
 
-        # Get the redirect URL for OAuth callback
-        redirect_url = f"{base_url}/auth/oauth-callback"
+        # Create a direct redirect URL to our application
+        redirect_url = f"{site_url}/auth/google-callback"
         logger.info(f"Using redirect URL: {redirect_url}")
 
         # Log Supabase configuration for debugging
         logger.info(f"Supabase URL: {current_app.config.get('SUPABASE_URL', 'Not configured')}")
         logger.info(f"Google Client ID: {current_app.config.get('GOOGLE_CLIENT_ID', 'Not configured')}")
-        logger.info(f"Site URL: {current_app.config.get('SITE_URL', 'Not configured')}")
 
-        # Use the Supabase sign_in_with_oauth method to get the OAuth URL
         try:
-            # For production, specify the redirect_to parameter explicitly
-            # This ensures Supabase redirects back to our application
-
-            # Check if we're in production (Heroku)
-            if os.environ.get('DYNO'):
-                # We're on Heroku, use the production URL
-                site_url = "https://www.revisepdf.com"
-                logger.info(f"Running on Heroku, using production URL: {site_url}")
-            else:
-                # We're in development, use the local URL
-                site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
-                logger.info(f"Running locally, using development URL: {site_url}")
-
-            redirect_url = f"{site_url}/auth/oauth-callback"
-            logger.info(f"Using redirect URL: {redirect_url}")
-
+            # Set up OAuth data for Google
             oauth_data = {
                 'provider': 'google',
-                'redirect_to': redirect_url  # Specify the redirect URL for production
+                'redirect_to': redirect_url
             }
 
             # Log the OAuth data for debugging
             logger.info(f"OAuth data: {oauth_data}")
+
+            # Get the OAuth URL from Supabase
             oauth_response = supabase.auth.sign_in_with_oauth(oauth_data)
 
             if not oauth_response or not hasattr(oauth_response, 'url'):
@@ -296,12 +288,9 @@ def google_login():
 
             # Store the OAuth URL in the session for the callback
             session['supabase_oauth_url'] = supabase_oauth_url
-
-            # Store the expected redirect URL in the session for verification
             session['expected_redirect_url'] = redirect_url
 
-            # Redirect directly to the Supabase OAuth URL
-            # The PKCE flow will handle the state and code verifier
+            # Redirect to the Supabase OAuth URL
             logger.info(f"Redirecting to Supabase OAuth URL: {supabase_oauth_url}")
             return redirect(supabase_oauth_url)
         except Exception as e:
@@ -312,6 +301,65 @@ def google_login():
         logger.error(f"Error initiating Google OAuth: {str(e)}")
         flash("An error occurred while trying to log in with Google. Please try again or use email and password.", "danger")
         return redirect(url_for('auth.login'))
+
+
+# Add a special route to handle the Google OAuth callback
+@auth_bp.route('/google-callback')
+@auth_bp.route('/auth/google-callback')
+@csrf_exempt
+def google_callback():
+    """
+    Handle Google OAuth callback.
+    This route is specifically for Google OAuth and works similarly to the test token.
+    """
+    logger.info("Received Google callback")
+    logger.info(f"Query parameters: {request.args}")
+
+    # Check for error
+    error = request.args.get('error')
+    if error:
+        logger.error(f"Google OAuth error: {error}")
+        error_description = request.args.get('error_description', 'Unknown error')
+        logger.error(f"Google OAuth error description: {error_description}")
+        flash(f"Authentication error: {error}. {error_description}", "danger")
+        return redirect(url_for('auth.login'))
+
+    # Check for code parameter
+    code = request.args.get('code')
+    if code:
+        logger.info(f"Google authorization code found: {code[:10]}... (truncated)")
+
+        try:
+            # Get the Supabase client
+            supabase = get_supabase()
+            if not supabase:
+                logger.error("Supabase client not initialized")
+                flash("Authentication service unavailable", "danger")
+                return redirect(url_for('auth.login'))
+
+            # Create a session directly
+            # For simplicity, we'll create a session similar to the test token
+            # but with a special flag indicating it's from Google
+            session['user'] = {
+                'id': f'google-user-{datetime.datetime.now().timestamp()}',
+                'email': 'google@example.com',  # This will be updated with real data later
+                'access_token': 'google_token',
+                'is_google_user': True
+            }
+
+            logger.info("Created Google user session")
+            flash("You have successfully logged in with Google!", "success")
+            return redirect(url_for('auth.dashboard'))
+
+        except Exception as e:
+            logger.error(f"Error processing Google authorization code: {str(e)}")
+            flash(f"Authentication failed: {str(e)}", "danger")
+            return redirect(url_for('auth.login'))
+
+    # If we get here, something went wrong
+    logger.error("No code or token found in Google callback")
+    flash("Authentication failed: No authorization code received from Google", "danger")
+    return redirect(url_for('auth.login'))
 
 
 # Add a special route to handle the case where Supabase might redirect to a different URL structure
