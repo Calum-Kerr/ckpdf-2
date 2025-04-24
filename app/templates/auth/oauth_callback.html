@@ -97,18 +97,30 @@
                 body: JSON.stringify(data)
             })
             .then(response => {
+                debugInfo.textContent += '\nResponse status: ' + response.status;
                 if (response.redirected) {
                     // If the server redirected us, follow the redirect
+                    debugInfo.textContent += '\nRedirected to: ' + response.url;
                     window.location.href = response.url;
                 } else if (response.ok) {
+                    debugInfo.textContent += '\nResponse OK, parsing JSON...';
                     return response.json();
                 } else {
-                    throw new Error('Authentication failed: ' + response.status);
+                    debugInfo.textContent += '\nResponse not OK: ' + response.statusText;
+                    return response.text().then(text => {
+                        debugInfo.textContent += '\nResponse body: ' + text;
+                        throw new Error('Authentication failed: ' + response.status + ' ' + response.statusText);
+                    });
                 }
             })
             .then(data => {
+                debugInfo.textContent += '\nResponse data: ' + JSON.stringify(data);
                 if (data && data.redirect_url) {
+                    debugInfo.textContent += '\nRedirecting to: ' + data.redirect_url;
                     window.location.href = data.redirect_url;
+                } else if (data && data.success) {
+                    debugInfo.textContent += '\nAuthentication successful, but no redirect URL. Redirecting to dashboard...';
+                    window.location.href = '/auth/dashboard';
                 } else {
                     statusMessage.textContent = 'Authentication successful, but no redirect URL provided.';
                 }

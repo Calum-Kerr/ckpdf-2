@@ -568,11 +568,29 @@ def process_token():
                        f"expires_in: {expires_in if expires_in else 'Not present'}, " +
                        f"provider_token: {'Present' if provider_token else 'Not present'}")
 
-            user = supabase.auth.get_user(access_token)
-            logger.info(f"User data retrieved: {user}")
+            try:
+                user = supabase.auth.get_user(access_token)
+                logger.info(f"User data retrieved: {user}")
+            except Exception as e:
+                logger.error(f"Error getting user data from token: {str(e)}")
+                # Try to exchange the token for a session
+                try:
+                    logger.info("Attempting to exchange token for session")
+                    session_response = supabase.auth.set_session(access_token, refresh_token)
+                    logger.info(f"Session response: {session_response}")
+                    user = supabase.auth.get_user()
+                    logger.info(f"User data retrieved after session exchange: {user}")
+                except Exception as inner_e:
+                    logger.error(f"Error exchanging token for session: {str(inner_e)}")
+                    return jsonify({
+                        'success': False,
+                        'message': f'Authentication failed: Could not validate token: {str(e)}',
+                        'redirect_url': url_for('auth.login')
+                    }), 400
 
             if user and hasattr(user, 'user'):
                 user_data = user.user
+                logger.info(f"User data: {user_data}")
 
                 # Store the session in Flask session
                 session_data = {
