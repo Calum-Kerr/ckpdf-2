@@ -159,7 +159,8 @@ def blog_post(slug):
         'how-to-compress-pdf-without-losing-quality': 'blog/how-to-compress-pdf-without-losing-quality.html',
         'ocr-technology-explained': 'blog/ocr-technology-explained.html',
         'secure-pdf-handling-best-practices': 'blog/secure-pdf-handling-best-practices.html',
-        'convert-images-to-pdf-guide': 'blog/convert-images-to-pdf-guide.html'
+        'convert-images-to-pdf-guide': 'blog/convert-images-to-pdf-guide.html',
+        'pdf-accessibility-guide': 'blog/pdf-accessibility-guide.html'
     }
 
     if slug in blog_posts:

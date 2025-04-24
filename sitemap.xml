@@ -205,9 +205,15 @@
   <!-- Blog Pages -->
   <url>
     <loc>https://www.revisepdf.com/blog</loc>
-    <lastmod>2025-04-15</lastmod>
+    <lastmod>2025-04-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.revisepdf.com/blog/pdf-accessibility-guide</loc>
+    <lastmod>2025-04-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.revisepdf.com/blog/best-pdf-tools-for-students</loc>
