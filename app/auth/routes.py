@@ -230,7 +230,7 @@ def profile():
 @csrf_exempt
 def google_login():
     """
-    Initiate Google OAuth login.
+    Initiate direct Google OAuth login.
 
     Returns:
         Redirect to Google OAuth login page.
@@ -240,63 +240,19 @@ def google_login():
         logger.info(f"User already authenticated: {session['user'].get('email')}")
         return redirect(url_for('auth.dashboard'))
 
-    supabase = get_supabase()
-    if not supabase:
-        logger.warning("Supabase client not initialized. Cannot use Google login.")
-        flash("Google login is not available at this time. Please use email and password.", "warning")
-        return redirect(url_for('auth.login'))
-
     try:
-        # Determine the redirect URL
-        if os.environ.get('DYNO'):
-            # We're on Heroku, use the production URL
-            site_url = "https://www.revisepdf.com"
-            logger.info(f"Running on Heroku, using production URL: {site_url}")
-        else:
-            # We're in development, use the local URL
-            site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
-            logger.info(f"Running locally, using development URL: {site_url}")
+        # Import the Google OAuth module
+        from .google_oauth import get_google_auth_url
 
-        # Create a direct redirect URL to our application
-        redirect_url = f"{site_url}/auth/google-callback"
-        logger.info(f"Using redirect URL: {redirect_url}")
+        # Get the Google OAuth URL
+        auth_url = get_google_auth_url()
 
-        # Log Supabase configuration for debugging
-        logger.info(f"Supabase URL: {current_app.config.get('SUPABASE_URL', 'Not configured')}")
-        logger.info(f"Google Client ID: {current_app.config.get('GOOGLE_CLIENT_ID', 'Not configured')}")
+        # Log the Google OAuth URL
+        logger.info(f"Got Google OAuth URL: {auth_url[:100]}... (truncated)")
 
-        try:
-            # Set up OAuth data for Google
-            oauth_data = {
-                'provider': 'google',
-                'redirect_to': redirect_url
-            }
-
-            # Log the OAuth data for debugging
-            logger.info(f"OAuth data: {oauth_data}")
-
-            # Get the OAuth URL from Supabase
-            oauth_response = supabase.auth.sign_in_with_oauth(oauth_data)
-
-            if not oauth_response or not hasattr(oauth_response, 'url'):
-                logger.error("Failed to get OAuth URL from Supabase")
-                flash("Google login is not available at this time. Please use email and password.", "warning")
-                return redirect(url_for('auth.login'))
-
-            supabase_oauth_url = oauth_response.url
-            logger.info(f"Got OAuth URL from Supabase: {supabase_oauth_url}")
-
-            # Store the OAuth URL in the session for the callback
-            session['supabase_oauth_url'] = supabase_oauth_url
-            session['expected_redirect_url'] = redirect_url
-
-            # Redirect to the Supabase OAuth URL
-            logger.info(f"Redirecting to Supabase OAuth URL: {supabase_oauth_url}")
-            return redirect(supabase_oauth_url)
-        except Exception as e:
-            logger.error(f"Error getting OAuth URL from Supabase: {str(e)}")
-            flash("An error occurred while trying to log in with Google. Please try again or use email and password.", "danger")
-            return redirect(url_for('auth.login'))
+        # Redirect to the Google OAuth URL
+        logger.info("Redirecting to Google OAuth URL")
+        return redirect(auth_url)
     except Exception as e:
         logger.error(f"Error initiating Google OAuth: {str(e)}")
         flash("An error occurred while trying to log in with Google. Please try again or use email and password.", "danger")
@@ -310,7 +266,7 @@ def google_login():
 def google_callback():
     """
     Handle Google OAuth callback.
-    This route is specifically for Google OAuth and works similarly to the test token.
+    This route processes the response from Google's OAuth service.
     """
     logger.info("Received Google callback")
     logger.info(f"Query parameters: {request.args}")
@@ -324,31 +280,43 @@ def google_callback():
         flash(f"Authentication error: {error}. {error_description}", "danger")
         return redirect(url_for('auth.login'))
 
+    # Check for state parameter to prevent CSRF
+    state = request.args.get('state')
+    if not state or state != session.get('google_oauth_state'):
+        logger.error("Invalid state parameter in Google callback")
+        flash("Authentication failed: Invalid state parameter", "danger")
+        return redirect(url_for('auth.login'))
+
     # Check for code parameter
     code = request.args.get('code')
     if code:
         logger.info(f"Google authorization code found: {code[:10]}... (truncated)")
 
         try:
-            # Get the Supabase client
-            supabase = get_supabase()
-            if not supabase:
-                logger.error("Supabase client not initialized")
-                flash("Authentication service unavailable", "danger")
+            # Import the Google OAuth module
+            from .google_oauth import exchange_code_for_token, get_user_info, create_user_session
+
+            # Exchange the code for a token
+            token_info = exchange_code_for_token(code)
+            if not token_info:
+                logger.error("Failed to exchange code for token")
+                flash("Authentication failed: Could not get access token", "danger")
                 return redirect(url_for('auth.login'))
 
-            # Create a session directly
-            # For simplicity, we'll create a session similar to the test token
-            # but with a special flag indicating it's from Google
-            session['user'] = {
-                'id': f'google-user-{datetime.datetime.now().timestamp()}',
-                'email': 'google@example.com',  # This will be updated with real data later
-                'access_token': 'google_token',
-                'is_google_user': True
-            }
+            # Get the user info
+            access_token = token_info.get('access_token')
+            user_info = get_user_info(access_token)
+            if not user_info:
+                logger.error("Failed to get user info")
+                flash("Authentication failed: Could not get user information", "danger")
+                return redirect(url_for('auth.login'))
 
-            logger.info("Created Google user session")
-            flash("You have successfully logged in with Google!", "success")
+            # Create a user session
+            user_session = create_user_session(user_info, token_info)
+            session['user'] = user_session
+
+            logger.info(f"Created Google user session for: {user_session.get('email')}")
+            flash(f"Welcome, {user_session.get('name')}! You have successfully logged in with Google.", "success")
             return redirect(url_for('auth.dashboard'))
 
         except Exception as e:
@@ -357,7 +325,7 @@ def google_callback():
             return redirect(url_for('auth.login'))
 
     # If we get here, it's a direct access to the callback URL (from the debug button)
-    # Create a Google user session directly
+    # For backward compatibility, create a Google user session directly
     logger.info("Direct access to Google callback - creating Google user session")
     session['user'] = {
         'id': f'google-user-direct-{datetime.datetime.now().timestamp()}',

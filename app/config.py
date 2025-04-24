@@ -45,6 +45,11 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
     GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
+    # Make sure we have the Google OAuth configuration
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        print("WARNING: Google OAuth configuration is missing. Google login will not work.")
+        print("Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.")
+
     # Site URL for OAuth callbacks
     SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:5002')
 
