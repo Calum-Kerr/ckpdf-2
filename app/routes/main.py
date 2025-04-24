@@ -3,8 +3,9 @@ Main routes for the application.
 This module contains the main routes for the application.
 """
 
-from flask import Blueprint, render_template, current_app, request, redirect, url_for
+from flask import Blueprint, render_template, current_app, request, redirect, url_for, send_from_directory
 import logging
+import os
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -100,3 +101,58 @@ def security_information():
         The rendered security information page.
     """
     return render_template('legal/security_information.html')
+
+@main_bp.route('/sitemap.xml')
+def sitemap():
+    """
+    Serve the sitemap.xml file.
+
+    Returns:
+        The sitemap.xml file.
+    """
+    return send_from_directory(current_app.root_path + '/../', 'sitemap.xml')
+
+@main_bp.route('/robots.txt')
+def robots():
+    """
+    Serve the robots.txt file.
+
+    Returns:
+        The robots.txt file.
+    """
+    return send_from_directory(current_app.root_path + '/../', 'robots.txt')
+
+@main_bp.route('/blog')
+def blog():
+    """
+    Render the blog index page.
+
+    Returns:
+        The rendered blog index page.
+    """
+    return render_template('blog/index.html')
+
+@main_bp.route('/blog/<slug>')
+def blog_post(slug):
+    """
+    Render a specific blog post.
+
+    Args:
+        slug: The slug of the blog post.
+
+    Returns:
+        The rendered blog post page.
+    """
+    # Map slugs to template files
+    blog_posts = {
+        'best-pdf-tools-for-students': 'blog/best-pdf-tools-for-students.html',
+        'how-to-compress-pdf-without-losing-quality': 'blog/how-to-compress-pdf-without-losing-quality.html',
+        'ocr-technology-explained': 'blog/ocr-technology-explained.html',
+        'secure-pdf-handling-best-practices': 'blog/secure-pdf-handling-best-practices.html',
+        'convert-images-to-pdf-guide': 'blog/convert-images-to-pdf-guide.html'
+    }
+
+    if slug in blog_posts:
+        return render_template(blog_posts[slug])
+    else:
+        return render_template('errors/404.html'), 404

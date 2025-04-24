@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /auth/
+Disallow: /instance/
+Disallow: /uploads/
+Disallow: /temp/
+
+# Allow all bots to access the sitemap
+Sitemap: https://www.revisepdf.com/sitemap.xml

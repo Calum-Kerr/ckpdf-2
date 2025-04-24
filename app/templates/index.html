@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}RevisePDF - The Ultimate PDF Toolkit{% endblock %}
+{% block title %}RevisePDF - Free Online PDF Tools for Editing, Converting & Optimizing{% endblock %}
+
+{% block meta_description %}RevisePDF offers 20+ free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimize your PDF files. No installation required.{% endblock %}
+
+{% block meta_keywords %}PDF tools, compress PDF, convert PDF, edit PDF, merge PDF, split PDF, OCR PDF, watermark PDF, PDF to image, image to PDF, PDF editor online, free PDF tools, PDF converter, PDF compressor{% endblock %}
 
 {% block content %}
 <div class="jumbotron bg-primary p-5 rounded-3 mb-5 text-white">
@@ -130,4 +134,129 @@
         </div>
     </div>
 </div>
+
+<!-- FAQ Section with Structured Data -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Frequently Asked Questions</h3>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                                What PDF tools does RevisePDF offer?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                RevisePDF offers over 20 free PDF tools including compression, conversion (to and from PDF), editing (content, text, watermarks, page numbers), organization (merge, split, extract, rotate), and security features (encryption, decryption, redaction, flattening). All tools are free to use and require no software installation.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                                Is RevisePDF completely free to use?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, RevisePDF is currently in beta mode with all features available for free. We plan to implement a subscription model in the future for larger file sizes, but we will always maintain a free tier with generous limits for basic PDF processing needs.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                                How secure is RevisePDF for processing my PDF files?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                RevisePDF takes security seriously. All file transfers are encrypted using HTTPS/TLS, and your files are automatically deleted after processing or after a short period (typically 24 hours). We never share your files with third parties, and our processing happens on secure servers with strict access controls.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                                Do I need to create an account to use RevisePDF?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                No, you can use most of RevisePDF's tools without creating an account. However, creating a free account gives you benefits like higher file size limits, the ability to save your processing history, and access to premium features when they become available.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+                                What is OCR and why would I need it for my PDFs?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                OCR (Optical Character Recognition) is a technology that converts scanned documents or images containing text into searchable and editable PDF files. If you have scanned documents, using OCR allows you to search for text within the document, copy text from it, and make the document more accessible for screen readers and other assistive technologies.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add FAQ Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What PDF tools does RevisePDF offer?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "RevisePDF offers over 20 free PDF tools including compression, conversion (to and from PDF), editing (content, text, watermarks, page numbers), organization (merge, split, extract, rotate), and security features (encryption, decryption, redaction, flattening). All tools are free to use and require no software installation."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Is RevisePDF completely free to use?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, RevisePDF is currently in beta mode with all features available for free. We plan to implement a subscription model in the future for larger file sizes, but we will always maintain a free tier with generous limits for basic PDF processing needs."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How secure is RevisePDF for processing my PDF files?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "RevisePDF takes security seriously. All file transfers are encrypted using HTTPS/TLS, and your files are automatically deleted after processing or after a short period (typically 24 hours). We never share your files with third parties, and our processing happens on secure servers with strict access controls."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do I need to create an account to use RevisePDF?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No, you can use most of RevisePDF's tools without creating an account. However, creating a free account gives you benefits like higher file size limits, the ability to save your processing history, and access to premium features when they become available."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What is OCR and why would I need it for my PDFs?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "OCR (Optical Character Recognition) is a technology that converts scanned documents or images containing text into searchable and editable PDF files. If you have scanned documents, using OCR allows you to search for text within the document, copy text from it, and make the document more accessible for screen readers and other assistive technologies."
+            }
+        }
+    ]
+}
+</script>
 {% endblock %}

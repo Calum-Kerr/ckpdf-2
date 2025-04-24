@@ -5,8 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}RevisePDF - PDF Processing Tools{% endblock %}</title>
-    <meta name="description" content="RevisePDF - A comprehensive suite of PDF processing tools">
-    <meta name="keywords" content="PDF, compress, convert, edit, merge, split, OCR, watermark, optimise">
+    <meta name="description" content="{% block meta_description %}RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimize your PDF files.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}PDF tools, compress PDF, convert PDF, edit PDF, merge PDF, split PDF, OCR PDF, watermark PDF, PDF to image, image to PDF, PDF editor online, free PDF tools{% endblock %}">
+    <meta name="author" content="RevisePDF">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{% block canonical_url %}https://www.revisepdf.com{{ request.path }}{% endblock %}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.revisepdf.com{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}https://www.revisepdf.com{{ url_for('static', filename='img/revisepdf-og-image.jpg') }}{% endblock %}">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://www.revisepdf.com{{ request.path }}">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}https://www.revisepdf.com{{ url_for('static', filename='img/revisepdf-twitter-image.jpg') }}{% endblock %}">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,6 +34,64 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "RevisePDF",
+        "url": "https://www.revisepdf.com",
+        "logo": "https://www.revisepdf.com{{ url_for('static', filename='img/revisepdf-logo.png') }}",
+        "description": "RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimize your PDF files.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Edinburgh",
+            "addressRegion": "Scotland"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "email": "calum@revisepdf.com"
+        },
+        "sameAs": [
+            "https://www.facebook.com/revisepdf",
+            "https://twitter.com/revisepdf",
+            "https://www.linkedin.com/company/revisepdf"
+        ]
+    }
+    </script>
+
+    <!-- Structured Data - WebSite -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "RevisePDF",
+        "url": "https://www.revisepdf.com",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.revisepdf.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
+    <!-- Structured Data - BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://www.revisepdf.com"
+            }{% block breadcrumb_json %}{% endblock %}
+        ]
+    }
+    </script>
 
     {% block head %}{% endblock %}
 
@@ -553,6 +628,7 @@
                 <p>A comprehensive suite of PDF processing tools.</p>
                 <p><small>Edinburgh, Scotland</small></p>
                 <p><small>Email: <a href="mailto:calum@revisepdf.com" class="text-white">calum@revisepdf.com</a></small></p>
+                <p class="mt-2"><a href="{{ url_for('main.blog') }}" class="text-white">PDF Blog</a> - Tips & Tutorials</p>
             </div>
             <div class="col-md-4">
                 <h5>Legal</h5>
