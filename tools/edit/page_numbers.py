@@ -135,22 +135,20 @@ def add_page_numbers(input_path, output_path, start_number=1, position='bottom-c
             # Create the page number text
             text = f"{prefix}{current_number}{suffix}"
             
-            # Add the page number
+            # Add the page number directly using insert_text
             page.insert_text(
                 point=(x, y),
                 text=text,
                 fontname=font_name,
                 fontsize=font_size,
-                color=color,
-                render_mode=0,  # 0 = fill, 1 = stroke, 2 = fill+stroke
-                align=get_alignment(position)
+                color=color
             )
             
             # Increment the page number
             current_number += 1
         
         # Save the document
-        doc.save(output_path)
+        doc.save(output_path, garbage=4, deflate=True)
         
         # Close the document
         doc.close()
