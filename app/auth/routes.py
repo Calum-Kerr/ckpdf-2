@@ -111,7 +111,6 @@ def logout():
     return redirect(url_for('main.index'))
 
 @auth_bp.route('/dashboard')
-@login_required
 def dashboard():
     """
     Display the user dashboard.
@@ -119,7 +118,44 @@ def dashboard():
     Returns:
         The rendered dashboard page.
     """
+    # Check if the user is logged in via session
     user = get_current_user()
+
+    # If not logged in via session, check for access token in query parameters
+    if not user:
+        logger.info("User not logged in via session, checking for token in query parameters")
+        access_token = request.args.get('access_token')
+
+        if access_token:
+            logger.info(f"Access token found in query parameters: {access_token[:10]}... (truncated)")
+            try:
+                # Get the Supabase client
+                supabase = get_supabase()
+                if supabase:
+                    # Get user data from token
+                    user_response = supabase.auth.get_user(access_token)
+                    if user_response and hasattr(user_response, 'user'):
+                        user_data = user_response.user
+
+                        # Store in session
+                        session['user'] = {
+                            'id': user_data.id,
+                            'email': user_data.email,
+                            'access_token': access_token
+                        }
+
+                        # Update user for the rest of the function
+                        user = get_current_user()
+                        logger.info(f"Successfully authenticated user with token: {user_data.email}")
+                        flash("You have successfully logged in!", "success")
+            except Exception as e:
+                logger.error(f"Error authenticating with token: {str(e)}")
+
+    # If still not logged in, redirect to login page
+    if not user:
+        logger.warning("User not logged in and no valid token found")
+        flash("Please log in to access your dashboard", "warning")
+        return redirect(url_for('auth.login'))
 
     # Try to get profile from Supabase
     profile = get_user_profile(user['id']) if user else None

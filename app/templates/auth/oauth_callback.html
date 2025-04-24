@@ -15,7 +15,8 @@
                         <div class="spinner-border text-success mb-3" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p>Please wait while we complete your authentication...</p>
+                        <p id="status-message">Please wait while we complete your authentication...</p>
+                        <pre id="debug-info" class="mt-3 text-start" style="font-size: 0.8rem; background-color: #f8f9fa; padding: 10px; border-radius: 5px;"></pre>
                     </div>
                 </div>
             </div>
@@ -26,13 +27,21 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('OAuth callback page loaded');
-        
+    // Execute immediately without waiting for DOMContentLoaded
+    console.log('OAuth callback page loaded');
+
+    // Display the current URL for debugging
+    document.getElementById('debug-info').textContent = 'Current URL: ' + window.location.href;
+
+    // Function to process the access token
+    function processAccessToken() {
+        console.log('Processing access token...');
+
         // Check if there's an access token in the URL fragment
         if (window.location.hash && window.location.hash.includes('access_token=')) {
             console.log('Access token found in URL fragment');
-            
+            document.getElementById('status-message').textContent = 'Access token found, processing...';
+
             try {
                 // Parse the hash fragment
                 const hashParams = {};
@@ -42,67 +51,41 @@
                         hashParams[key] = decodeURIComponent(value);
                     }
                 });
-                
+
                 console.log('Hash params keys:', Object.keys(hashParams));
-                
+                document.getElementById('debug-info').textContent += '\nHash params keys: ' + Object.keys(hashParams).join(', ');
+
                 // Check if we have an access token
                 if (hashParams.access_token) {
-                    console.log('Processing access token...');
-                    
-                    // Create a form and submit it
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '/auth/process-token';
-                    form.style.display = 'none';
-                    
-                    // Add token data
-                    const tokenInput = document.createElement('input');
-                    tokenInput.type = 'hidden';
-                    tokenInput.name = 'access_token';
-                    tokenInput.value = hashParams.access_token;
-                    form.appendChild(tokenInput);
-                    
-                    if (hashParams.refresh_token) {
-                        const refreshInput = document.createElement('input');
-                        refreshInput.type = 'hidden';
-                        refreshInput.name = 'refresh_token';
-                        refreshInput.value = hashParams.refresh_token;
-                        form.appendChild(refreshInput);
-                    }
-                    
-                    if (hashParams.expires_in) {
-                        const expiresInput = document.createElement('input');
-                        expiresInput.type = 'hidden';
-                        expiresInput.name = 'expires_in';
-                        expiresInput.value = hashParams.expires_in;
-                        form.appendChild(expiresInput);
-                    }
-                    
-                    if (hashParams.provider_token) {
-                        const providerInput = document.createElement('input');
-                        providerInput.type = 'hidden';
-                        providerInput.name = 'provider_token';
-                        providerInput.value = hashParams.provider_token;
-                        form.appendChild(providerInput);
-                    }
-                    
-                    // Add the form to the document and submit it
-                    document.body.appendChild(form);
-                    console.log('Submitting form to process token...');
-                    form.submit();
+                    console.log('Access token found, redirecting to dashboard...');
+                    document.getElementById('status-message').textContent = 'Access token found, redirecting to dashboard...';
+
+                    // Redirect to the dashboard with the access token as a query parameter
+                    window.location.href = '/auth/dashboard?access_token=' + encodeURIComponent(hashParams.access_token);
                 } else {
                     console.error('No access token found in hash params');
+                    document.getElementById('status-message').textContent = 'No access token found, redirecting to login...';
                     window.location.href = '/auth/login?error=no_access_token';
                 }
             } catch (error) {
                 console.error('Error processing hash fragment:', error);
+                document.getElementById('status-message').textContent = 'Error processing authentication, redirecting to login...';
                 window.location.href = '/auth/login?error=processing_error';
             }
         } else {
-            console.log('No access token in URL fragment, checking for other authentication methods');
-            // No access token in URL fragment, let the server handle it
-            // The server will check for other authentication methods
+            console.log('No access token in URL fragment');
+            document.getElementById('status-message').textContent = 'No access token found, redirecting to login...';
+            window.location.href = '/auth/login?error=no_access_token';
         }
+    }
+
+    // Call the function immediately
+    processAccessToken();
+
+    // Also call it when the page is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded, processing access token again...');
+        processAccessToken();
     });
 </script>
 {% endblock %}
