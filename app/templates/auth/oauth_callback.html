@@ -77,6 +77,14 @@
             form.action = '/auth/process-token';
             form.style.display = 'none';
 
+            // Add CSRF token - this is needed for Flask-WTF
+            const csrfToken = "{{ csrf_token() }}";
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
             // Add token data
             const tokenInput = document.createElement('input');
             tokenInput.type = 'hidden';
