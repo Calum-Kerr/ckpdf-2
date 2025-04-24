@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}RevisePDF - PDF Processing Tools{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimize your PDF files.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimise your PDF files.{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}PDF tools, compress PDF, convert PDF, edit PDF, merge PDF, split PDF, OCR PDF, watermark PDF, PDF to image, image to PDF, PDF editor online, free PDF tools{% endblock %}">
     <meta name="author" content="RevisePDF">
     <meta name="robots" content="index, follow">
@@ -43,7 +43,7 @@
         "name": "RevisePDF",
         "url": "https://www.revisepdf.com",
         "logo": "https://www.revisepdf.com{{ url_for('static', filename='img/revisepdf-logo.png') }}",
-        "description": "RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimize your PDF files.",
+        "description": "RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimise your PDF files.",
         "address": {
             "@type": "PostalAddress",
             "addressLocality": "Edinburgh",
@@ -380,7 +380,7 @@
 
         footer a {
             color: var(--secondary-color);
-            text-decoration: none;
+            text-decoration: underline;
             margin: 0 10px;
             transition: opacity 0.3s ease;
             font-size: 13px;
@@ -389,6 +389,7 @@
         footer a:hover {
             opacity: 0.8;
             text-decoration: underline;
+            color: var(--secondary-color);
         }
 
         footer p {
@@ -623,30 +624,35 @@
 <footer class="py-4 mt-5 text-white">
     <div class="container">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <h5>RevisePDF</h5>
                 <p>A comprehensive suite of PDF processing tools.</p>
                 <p><small>Edinburgh, Scotland</small></p>
                 <p><small>Email: <a href="mailto:calum@revisepdf.com" class="text-white">calum@revisepdf.com</a></small></p>
-                <p class="mt-2"><a href="{{ url_for('main.blog') }}" class="text-white">PDF Blog</a> - Tips & Tutorials</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <h5>PDF Blog</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{{ url_for('main.blog') }}" class="text-white">All Articles</a></li>
+                    <li><a href="{{ url_for('main.blog_post', slug='best-pdf-tools-for-students') }}" class="text-white">PDF Tools for Students</a></li>
+                    <li><a href="{{ url_for('main.blog_post', slug='how-to-compress-pdf-without-losing-quality') }}" class="text-white">PDF Compression Guide</a></li>
+                    <li><a href="{{ url_for('main.blog_post', slug='ocr-technology-explained') }}" class="text-white">OCR Technology</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
                 <h5>Legal</h5>
                 <ul class="list-unstyled">
                     <li><a href="{{ url_for('main.privacy_policy') }}" class="text-white">Privacy Policy</a></li>
                     <li><a href="{{ url_for('main.terms_of_service') }}" class="text-white">Terms of Service</a></li>
                     <li><a href="{{ url_for('main.cookie_policy') }}" class="text-white">Cookie Policy</a></li>
                     <li><a href="{{ url_for('main.gdpr_compliance') }}" class="text-white">GDPR Compliance</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h5>Compliance</h5>
-                <ul class="list-unstyled">
                     <li><a href="{{ url_for('main.accessibility_statement') }}" class="text-white">Accessibility Statement</a></li>
                     <li><a href="{{ url_for('main.data_protection') }}" class="text-white">Data Protection</a></li>
                     <li><a href="{{ url_for('main.security_information') }}" class="text-white">Security Information</a></li>
                 </ul>
-                <h5 class="mt-3">Account</h5>
+            </div>
+            <div class="col-md-3">
+                <h5>Account</h5>
                 <ul class="list-unstyled">
                     {% if session.get('user') %}
                         <li><a href="{{ url_for('auth.dashboard') }}" class="text-white">My Account</a></li>
