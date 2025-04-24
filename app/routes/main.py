@@ -122,7 +122,7 @@ def robots():
     """
     return send_from_directory(current_app.root_path + '/../', 'robots.txt')
 
-@main_bp.route('/google1234567890abcdef.html')
+@main_bp.route('/google6520a768170937d3.html')
 def google_verification():
     """
     Serve the Google Search Console verification file.
@@ -130,7 +130,7 @@ def google_verification():
     Returns:
         The Google verification file.
     """
-    return send_from_directory(current_app.static_folder, 'google1234567890abcdef.html')
+    return send_from_directory(current_app.static_folder, 'google6520a768170937d3.html')
 
 @main_bp.route('/blog')
 def blog():
