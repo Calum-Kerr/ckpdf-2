@@ -136,6 +136,24 @@
         const hashParams = parseHashParams();
         debugInfo.textContent += '\nHash params: ' + JSON.stringify(hashParams, null, 2);
 
+        // Check for URL parameters that might indicate a Google OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        debugInfo.textContent += '\nURL params: ' + JSON.stringify(Object.fromEntries(urlParams.entries()), null, 2);
+
+        // Check for code parameter which indicates OAuth authorization code flow
+        const code = urlParams.get('code');
+        if (code) {
+            debugInfo.textContent += '\nAuthorization code found: ' + code.substring(0, 10) + '...';
+            statusMessage.textContent = 'Authorization code found. This should be handled server-side. Redirecting to dashboard...';
+
+            // In this case, the server should have already processed the code and set up the session
+            // We can just redirect to the dashboard
+            setTimeout(() => {
+                window.location.href = '/auth/dashboard';
+            }, 2000);
+            return;
+        }
+
         if (hashParams.access_token) {
             console.log('Access token found in URL fragment');
             debugInfo.textContent += '\nAccess token found: ' + hashParams.access_token.substring(0, 10) + '...';
@@ -172,10 +190,34 @@
         } else {
             console.log('No access token in URL fragment');
             debugInfo.textContent += '\nNo access token found in URL fragment';
-            statusMessage.textContent = 'No access token found. Please try logging in again.';
 
-            // Show the no token info section
-            noTokenInfo.style.display = 'block';
+            // Check if we're already logged in
+            fetch('/auth/check-auth', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                debugInfo.textContent += '\nAuth check response: ' + JSON.stringify(data);
+                if (data.authenticated) {
+                    statusMessage.textContent = 'You are already logged in. Redirecting to dashboard...';
+                    setTimeout(() => {
+                        window.location.href = '/auth/dashboard';
+                    }, 1000);
+                } else {
+                    statusMessage.textContent = 'No access token found. Please try logging in again.';
+                    // Show the no token info section
+                    noTokenInfo.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                debugInfo.textContent += '\nError checking auth status: ' + error.message;
+                statusMessage.textContent = 'No access token found. Please try logging in again.';
+                // Show the no token info section
+                noTokenInfo.style.display = 'block';
+            });
         }
     });
 </script>

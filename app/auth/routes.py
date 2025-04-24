@@ -357,6 +357,42 @@ def oauth_callback():
         flash(f"Authentication error: {error}. {error_description}", "danger")
         return redirect(url_for('auth.login'))
 
+    # Check for code parameter (authorization code flow)
+    code = request.args.get('code')
+    if code:
+        logger.info(f"Authorization code found: {code[:10]}... (truncated)")
+
+        try:
+            # Get the Supabase client
+            supabase = get_supabase()
+            if not supabase:
+                logger.error("Supabase client not initialized")
+                flash("Authentication service unavailable", "danger")
+                return redirect(url_for('auth.login'))
+
+            # Exchange the code for a session
+            # This is handled automatically by Supabase when using their OAuth flow
+            # The session should already be set up at this point
+
+            # Check if we're already authenticated
+            if 'user' in session:
+                logger.info(f"User already authenticated: {session['user'].get('email')}")
+                return redirect(url_for('auth.dashboard'))
+
+            # If not authenticated yet, render the callback page which will check auth status
+            logger.info("User not authenticated yet, rendering callback page")
+
+            # Generate a nonce for CSP
+            if not hasattr(request, 'csp_nonce'):
+                request.csp_nonce = base64.b64encode(os.urandom(16)).decode('utf-8')
+
+            return render_template('auth/oauth_callback.html')
+
+        except Exception as e:
+            logger.error(f"Error processing authorization code: {str(e)}")
+            flash(f"Authentication failed: {str(e)}", "danger")
+            return redirect(url_for('auth.login'))
+
     # Check for access token in query parameters (some OAuth providers might use this)
     access_token = request.args.get('access_token')
     if access_token:
@@ -660,6 +696,32 @@ def test_oauth_callback():
 
     # Redirect to the test URL
     return redirect(test_url)
+
+
+@auth_bp.route('/check-auth', methods=['GET'])
+def check_auth():
+    """
+    Check if the user is authenticated.
+
+    Returns:
+        JSON response with authentication status.
+    """
+    is_authenticated = 'user' in session
+    user_data = None
+
+    if is_authenticated:
+        user_data = {
+            'email': session['user'].get('email'),
+            'id': session['user'].get('id')
+        }
+        logger.info(f"User is authenticated: {user_data['email']}")
+    else:
+        logger.info("User is not authenticated")
+
+    return jsonify({
+        'authenticated': is_authenticated,
+        'user': user_data
+    })
 
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
