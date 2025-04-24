@@ -11,15 +11,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentStrengthText = document.getElementById('current-strength-text');
     const newStrengthText = document.getElementById('new-strength-text') || document.getElementById('strength-text');
     const confirmStrengthText = document.getElementById('confirm-strength-text');
+    const passwordMatchText = document.getElementById('password-match-text');
 
-    // Get strength indicator for new password
+    // Get strength indicators for all password fields
+    const currentStrengthIndicator = document.getElementById('current-password-strength');
     const newStrengthIndicator = document.getElementById('new-password-strength') || document.getElementById('password-strength');
+    const confirmStrengthIndicator = document.getElementById('confirm-password-strength');
 
     // Setup event listeners for all password fields
     if (currentPasswordInput && currentStrengthText) {
         currentPasswordInput.addEventListener('input', function() {
             const strength = checkPasswordStrength(currentPasswordInput.value);
             updateStrengthText(currentStrengthText, strength);
+
+            // Update progress bar if it exists
+            if (currentStrengthIndicator) {
+                updateStrengthIndicator(currentStrengthIndicator, strength);
+            }
         });
     }
 
@@ -32,6 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (newStrengthIndicator) {
                 updateStrengthIndicator(newStrengthIndicator, strength);
             }
+
+            // Check if passwords match
+            if (confirmPasswordInput && passwordMatchText) {
+                checkPasswordsMatch(newPasswordInput.value, confirmPasswordInput.value, passwordMatchText);
+            }
         });
     }
 
@@ -39,6 +52,16 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmPasswordInput.addEventListener('input', function() {
             const strength = checkPasswordStrength(confirmPasswordInput.value);
             updateStrengthText(confirmStrengthText, strength);
+
+            // Update progress bar if it exists
+            if (confirmStrengthIndicator) {
+                updateStrengthIndicator(confirmStrengthIndicator, strength);
+            }
+
+            // Check if passwords match
+            if (newPasswordInput && passwordMatchText) {
+                checkPasswordsMatch(newPasswordInput.value, confirmPasswordInput.value, passwordMatchText);
+            }
         });
     }
 
@@ -120,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Set color based on strength
         let color;
+        let width = (strength / 4) * 100; // Convert strength to percentage
 
         switch (strength) {
             case 0:
@@ -140,5 +164,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         indicator.classList.add(color);
+        indicator.style.width = width + '%';
+        indicator.setAttribute('aria-valuenow', width);
+    }
+
+    /**
+     * Check if passwords match and update the match text
+     * @param {string} password1 - The first password
+     * @param {string} password2 - The second password
+     * @param {HTMLElement} matchText - The element to update with match status
+     */
+    function checkPasswordsMatch(password1, password2, matchText) {
+        if (!password1 || !password2) {
+            matchText.textContent = '';
+            matchText.className = 'text-muted';
+            return;
+        }
+
+        if (password1 === password2) {
+            matchText.textContent = 'Passwords match ✓';
+            matchText.className = 'text-success';
+        } else {
+            matchText.textContent = 'Passwords do not match ✗';
+            matchText.className = 'text-danger';
+        }
     }
 });

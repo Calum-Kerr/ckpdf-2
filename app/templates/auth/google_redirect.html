@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Redirecting to Google Login{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Redirecting to Google Login</h3>
+                </div>
+                <div class="card-body">
+                    <p>You are being redirected to Google for authentication. Please wait...</p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                    </div>
+                    <p class="mt-3 text-muted">If you are not redirected automatically, please click the button below:</p>
+                    <a href="{{ oauth_url }}" class="btn btn-primary">Continue to Google Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Redirect after a short delay
+    setTimeout(function() {
+        window.location.href = "{{ oauth_url }}";
+    }, 1500);
+</script>
+{% endblock %}

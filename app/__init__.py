@@ -51,6 +51,9 @@ def create_app(test_config=None):
         # Supabase configuration
         SUPABASE_URL=os.environ.get('SUPABASE_URL', ''),
         SUPABASE_KEY=os.environ.get('SUPABASE_KEY', ''),
+        # Google OAuth configuration
+        GOOGLE_CLIENT_ID=os.environ.get('GOOGLE_CLIENT_ID', ''),
+        GOOGLE_CLIENT_SECRET=os.environ.get('GOOGLE_CLIENT_SECRET', ''),
     )
 
     if test_config is None:
@@ -79,12 +82,13 @@ def create_app(test_config=None):
     # Initialize Talisman for HTTPS and security headers
     csp = {
         'default-src': '\'self\'',
-        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
-        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
-        'img-src': ['\'self\'', 'data:'],
-        'font-src': ['\'self\'', 'https://cdnjs.cloudflare.com'],
-        'connect-src': '\'self\'',
+        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://accounts.google.com'],
+        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://accounts.google.com'],
+        'img-src': ['\'self\'', 'data:', 'https://accounts.google.com', 'https://*.googleusercontent.com', 'https://upload.wikimedia.org'],
+        'font-src': ['\'self\'', 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
+        'connect-src': ['\'self\'', 'https://accounts.google.com', 'https://oauth2.googleapis.com', 'https://*.supabase.co'],
         'object-src': '\'none\'',
+        'frame-src': ['\'self\'', 'https://accounts.google.com'],
     }
 
     talisman.init_app(

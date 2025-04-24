@@ -37,6 +37,14 @@ class Config:
     # Temporary directory
     TEMP_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'temp')
 
+    # Supabase settings
+    SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
+    SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+
+    # Google OAuth settings
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+
 
 class DevelopmentConfig(Config):
     """Configuration for development environment."""
