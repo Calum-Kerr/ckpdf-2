@@ -45,6 +45,9 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
     GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 
+    # Site URL for OAuth callbacks
+    SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:5002')
+
 
 class DevelopmentConfig(Config):
     """Configuration for development environment."""

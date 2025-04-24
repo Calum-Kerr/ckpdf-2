@@ -192,6 +192,10 @@ def google_login():
         try:
             # For production, specify the redirect_to parameter explicitly
             # This ensures Supabase redirects back to our application
+            site_url = current_app.config.get('SITE_URL', 'http://127.0.0.1:5002')
+            redirect_url = f"{site_url}/auth/oauth-callback"
+            logger.info(f"Using redirect URL: {redirect_url}")
+
             oauth_data = {
                 'provider': 'google',
                 'redirect_to': redirect_url  # Specify the redirect URL for production
