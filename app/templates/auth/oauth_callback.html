@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Processing Authentication{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success">
+                    <h4 class="mb-0 text-white">Processing Authentication</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="spinner-border text-success mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p>Please wait while we complete your authentication...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('OAuth callback page loaded');
+        
+        // Check if there's an access token in the URL fragment
+        if (window.location.hash && window.location.hash.includes('access_token=')) {
+            console.log('Access token found in URL fragment');
+            
+            try {
+                // Parse the hash fragment
+                const hashParams = {};
+                window.location.hash.substring(1).split('&').forEach(pair => {
+                    if (pair && pair.includes('=')) {
+                        const [key, value] = pair.split('=');
+                        hashParams[key] = decodeURIComponent(value);
+                    }
+                });
+                
+                console.log('Hash params keys:', Object.keys(hashParams));
+                
+                // Check if we have an access token
+                if (hashParams.access_token) {
+                    console.log('Processing access token...');
+                    
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/auth/process-token';
+                    form.style.display = 'none';
+                    
+                    // Add token data
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = 'access_token';
+                    tokenInput.value = hashParams.access_token;
+                    form.appendChild(tokenInput);
+                    
+                    if (hashParams.refresh_token) {
+                        const refreshInput = document.createElement('input');
+                        refreshInput.type = 'hidden';
+                        refreshInput.name = 'refresh_token';
+                        refreshInput.value = hashParams.refresh_token;
+                        form.appendChild(refreshInput);
+                    }
+                    
+                    if (hashParams.expires_in) {
+                        const expiresInput = document.createElement('input');
+                        expiresInput.type = 'hidden';
+                        expiresInput.name = 'expires_in';
+                        expiresInput.value = hashParams.expires_in;
+                        form.appendChild(expiresInput);
+                    }
+                    
+                    if (hashParams.provider_token) {
+                        const providerInput = document.createElement('input');
+                        providerInput.type = 'hidden';
+                        providerInput.name = 'provider_token';
+                        providerInput.value = hashParams.provider_token;
+                        form.appendChild(providerInput);
+                    }
+                    
+                    // Add the form to the document and submit it
+                    document.body.appendChild(form);
+                    console.log('Submitting form to process token...');
+                    form.submit();
+                } else {
+                    console.error('No access token found in hash params');
+                    window.location.href = '/auth/login?error=no_access_token';
+                }
+            } catch (error) {
+                console.error('Error processing hash fragment:', error);
+                window.location.href = '/auth/login?error=processing_error';
+            }
+        } else {
+            console.log('No access token in URL fragment, checking for other authentication methods');
+            // No access token in URL fragment, let the server handle it
+            // The server will check for other authentication methods
+        }
+    });
+</script>
+{% endblock %}
