@@ -5,7 +5,6 @@ This package provides authentication features using Supabase.
 
 import os
 import logging
-from flask import Flask
 
 # Configure logging
 logging.basicConfig(
@@ -37,6 +36,14 @@ def init_app(app):
     # Apply file size validation to all routes
     from .middleware import apply_file_size_validation
     apply_file_size_validation(app)
+
+    # Disable CSRF protection for the auth blueprint
+    csrf = app.extensions.get('csrf', None)
+    if csrf:
+        # Import here to avoid circular imports
+        from .routes import auth_bp
+        csrf.exempt(auth_bp)
+        logger.info("CSRF protection disabled for auth blueprint")
 
     # Log initialization
     logger.info("Authentication features initialized")

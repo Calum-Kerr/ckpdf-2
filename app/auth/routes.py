@@ -496,7 +496,6 @@ def change_password():
     return render_template('auth/change_password.html', form=form)
 
 @auth_bp.route('/process-token', methods=['POST'])
-@csrf_exempt
 def process_token():
     """
     Process the access token received from the OAuth provider.
