@@ -71,8 +71,11 @@
                 <div class="card-body">
                     <p class="text-muted">These links are for debugging OAuth issues:</p>
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('auth.oauth_callback') }}" class="btn btn-sm btn-outline-secondary">
+                        <a href="{{ url_for('auth.oauth_callback') }}" class="btn btn-sm btn-outline-secondary mb-2">
                             Test OAuth Callback Page
+                        </a>
+                        <a href="{{ url_for('auth.test_oauth_callback') }}" class="btn btn-sm btn-outline-secondary">
+                            Test OAuth Callback with Test Token
                         </a>
                     </div>
                 </div>

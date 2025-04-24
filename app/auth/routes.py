@@ -533,6 +533,27 @@ def process_token():
         return redirect(url_for('auth.login'))
 
 
+@auth_bp.route('/test-oauth-callback')
+@csrf_exempt
+def test_oauth_callback():
+    """
+    Test route for OAuth callback.
+
+    This route simulates the OAuth callback with a test token.
+
+    Returns:
+        Redirect to the OAuth callback page with a test token.
+    """
+    # Create a test URL with a fragment containing a test token
+    test_url = url_for('auth.oauth_callback', _external=True) + '#access_token=test_token&token_type=bearer&expires_in=3600'
+
+    # Log the test URL
+    logger.info(f"Test OAuth callback URL: {test_url}")
+
+    # Redirect to the test URL
+    return redirect(test_url)
+
+
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
 @login_required
 @csrf_exempt
