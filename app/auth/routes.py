@@ -184,17 +184,21 @@ def google_login():
         logger.info(f"Using redirect URL: {redirect_url}")
 
         # Log Supabase configuration for debugging
-        logger.debug(f"Supabase URL: {current_app.config.get('SUPABASE_URL', 'Not configured')}")
-        logger.debug(f"Google Client ID: {current_app.config.get('GOOGLE_CLIENT_ID', 'Not configured')}")
+        logger.info(f"Supabase URL: {current_app.config.get('SUPABASE_URL', 'Not configured')}")
+        logger.info(f"Google Client ID: {current_app.config.get('GOOGLE_CLIENT_ID', 'Not configured')}")
+        logger.info(f"Site URL: {current_app.config.get('SITE_URL', 'Not configured')}")
 
         # Use the Supabase sign_in_with_oauth method to get the OAuth URL
         try:
-            # Try without specifying the redirect_to parameter
-            # This will use Supabase's default callback URL which is already registered with Google
+            # For production, specify the redirect_to parameter explicitly
+            # This ensures Supabase redirects back to our application
             oauth_data = {
-                'provider': 'google'
-                # 'redirect_to': redirect_url  # Comment this out to use Supabase's default callback
+                'provider': 'google',
+                'redirect_to': redirect_url  # Specify the redirect URL for production
             }
+
+            # Log the OAuth data for debugging
+            logger.info(f"OAuth data: {oauth_data}")
             oauth_response = supabase.auth.sign_in_with_oauth(oauth_data)
 
             if not oauth_response or not hasattr(oauth_response, 'url'):
