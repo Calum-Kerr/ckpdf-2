@@ -233,9 +233,21 @@ a:hover {
 
 /* Alerts */
 .alert-primary {
-    background-color: var(--primary-light);
-    border-color: var(--primary-light);
-    color: var(--primary);
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+/* Definition alert - special case for the OCR blog post */
+.blog-post .alert-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff !important;
+}
+
+.blog-post .alert-primary strong {
+    color: #fff !important;
+    font-weight: bold;
 }
 
 /* Cards */
@@ -365,6 +377,24 @@ a[href*="profile"].btn.btn-success {
     color: var(--primary) !important;
 }
 
+/* Table styles for better contrast */
+.table-primary {
+    background-color: var(--primary) !important;
+}
+
+.table-primary th,
+.table-primary td,
+.table-primary tr,
+.table-primary * {
+    color: #fff !important;
+}
+
+thead.table-primary th {
+    background-color: var(--primary) !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
 .nav-pills .nav-link:hover {
     background-color: var(--primary-light) !important;
     color: var(--primary) !important;
@@ -447,7 +477,21 @@ a[href*="profile"].btn.btn-success {
 [style*="background-color: #238287"],
 [style*="background:#238287"],
 [style*="background: #238287"],
-[style*="background-color:#238287"] {
+[style*="background-color:#238287"],
+.bg-primary,
+.alert-primary,
+.table-primary,
+.card-header.bg-primary,
+.btn-primary,
+.btn-success,
+div[class*="bg-primary"],
+section[class*="bg-primary"],
+article[class*="bg-primary"],
+header[class*="bg-primary"],
+footer[class*="bg-primary"],
+aside[class*="bg-primary"],
+nav[class*="bg-primary"],
+.navbar-dark {
     color: #fff !important;
 }
 
@@ -468,7 +512,26 @@ a[href*="profile"].btn.btn-success {
 [style*="background: #238287"] h3,
 [style*="background: #238287"] h4,
 [style*="background: #238287"] h5,
-[style*="background: #238287"] h6 {
+[style*="background: #238287"] h6,
+.bg-primary h1,
+.bg-primary h2,
+.bg-primary h3,
+.bg-primary h4,
+.bg-primary h5,
+.bg-primary h6,
+.bg-primary p,
+.bg-primary span,
+.bg-primary div,
+.bg-primary a,
+.bg-primary li,
+.bg-primary td,
+.bg-primary th,
+.bg-primary label,
+.bg-primary small,
+.bg-primary strong,
+.bg-primary em,
+.bg-primary i,
+.bg-primary b {
     color: #fff !important;
 }
 
