@@ -8,6 +8,7 @@ import logging
 import datetime
 import urllib.parse
 import os
+import base64
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -327,6 +328,10 @@ def oauth_callback():
         logger.error(f"OAuth error description: {error_description}")
         flash(f"Authentication error: {error}. {error_description}", "danger")
         return redirect(url_for('auth.login'))
+
+    # Generate a nonce for CSP
+    if not hasattr(request, 'csp_nonce'):
+        request.csp_nonce = base64.b64encode(os.urandom(16)).decode('utf-8')
 
     # Render the OAuth callback template
     # This template contains JavaScript to handle the access token in the URL fragment
