@@ -598,51 +598,86 @@
 
 <!-- Handle OAuth Redirect -->
 <script>
-    // Check if there's an access token in the URL fragment
-    if (window.location.hash && window.location.hash.includes('access_token=')) {
-        console.log('Access token found in URL fragment');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if there's an access token in the URL fragment
+        if (window.location.hash && window.location.hash.includes('access_token=')) {
+            console.log('Access token found in URL fragment');
 
-        // Parse the hash fragment
-        const hashParams = {};
-        window.location.hash.substring(1).split('&').forEach(pair => {
-            const [key, value] = pair.split('=');
-            hashParams[key] = decodeURIComponent(value);
-        });
+            try {
+                // Parse the hash fragment
+                const hashParams = {};
+                window.location.hash.substring(1).split('&').forEach(pair => {
+                    if (pair && pair.includes('=')) {
+                        const [key, value] = pair.split('=');
+                        hashParams[key] = decodeURIComponent(value);
+                    }
+                });
 
-        // Check if we have an access token
-        if (hashParams.access_token) {
-            console.log('Processing access token...');
+                console.log('Hash params keys:', Object.keys(hashParams));
 
-            // Send the token to the server to create a session
-            fetch('/auth/process-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    access_token: hashParams.access_token,
-                    refresh_token: hashParams.refresh_token || null,
-                    expires_in: hashParams.expires_in || null,
-                    provider_token: hashParams.provider_token || null
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Clear the hash fragment and redirect to the dashboard
-                    window.location.href = '/auth/dashboard';
+                // Check if we have an access token
+                if (hashParams.access_token) {
+                    console.log('Processing access token...');
+
+                    // Create a form and submit it (more reliable than fetch in some browsers)
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/auth/process-token';
+                    form.style.display = 'none';
+
+                    // Add CSRF token if available
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (csrfToken) {
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = 'csrf_token';
+                        csrfInput.value = csrfToken;
+                        form.appendChild(csrfInput);
+                    }
+
+                    // Add token data
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = 'access_token';
+                    tokenInput.value = hashParams.access_token;
+                    form.appendChild(tokenInput);
+
+                    if (hashParams.refresh_token) {
+                        const refreshInput = document.createElement('input');
+                        refreshInput.type = 'hidden';
+                        refreshInput.name = 'refresh_token';
+                        refreshInput.value = hashParams.refresh_token;
+                        form.appendChild(refreshInput);
+                    }
+
+                    if (hashParams.expires_in) {
+                        const expiresInput = document.createElement('input');
+                        expiresInput.type = 'hidden';
+                        expiresInput.name = 'expires_in';
+                        expiresInput.value = hashParams.expires_in;
+                        form.appendChild(expiresInput);
+                    }
+
+                    if (hashParams.provider_token) {
+                        const providerInput = document.createElement('input');
+                        providerInput.type = 'hidden';
+                        providerInput.name = 'provider_token';
+                        providerInput.value = hashParams.provider_token;
+                        form.appendChild(providerInput);
+                    }
+
+                    // Add the form to the document and submit it
+                    document.body.appendChild(form);
+                    console.log('Submitting form to process token...');
+                    form.submit();
                 } else {
-                    console.error('Failed to process token');
-                    // Redirect to login page with error
-                    window.location.href = '/auth/login?error=token_processing_failed';
+                    console.error('No access token found in hash params');
                 }
-            })
-            .catch(error => {
-                console.error('Error processing token:', error);
-                // Redirect to login page with error
-                window.location.href = '/auth/login?error=token_processing_failed';
-            });
+            } catch (error) {
+                console.error('Error processing hash fragment:', error);
+            }
         }
-    }
+    });
 </script>
 
 {% block extra_js %}{% endblock %}

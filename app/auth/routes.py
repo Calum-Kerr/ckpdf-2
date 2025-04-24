@@ -619,26 +619,41 @@ def process_token():
     is found in the URL fragment after OAuth authentication.
 
     Returns:
-        JSON response indicating success or failure.
+        Redirect to dashboard on success, or to login page on failure.
     """
     try:
-        # Get the token data from the request
-        token_data = request.json
+        logger.info(f"Process token endpoint called with method: {request.method}")
+        logger.info(f"Request content type: {request.content_type}")
+        logger.info(f"Form data: {request.form}")
+        logger.info(f"JSON data: {request.get_json(silent=True)}")
+
+        # Get the token data from the request (either form data or JSON)
+        if request.content_type and 'application/json' in request.content_type:
+            token_data = request.json
+        else:
+            token_data = request.form
+
         logger.info(f"Processing token data: {token_data.keys() if token_data else 'No token data'}")
 
         if not token_data or 'access_token' not in token_data:
             logger.error("No access token provided")
-            return jsonify({"error": "No access token provided"}), 400
+            flash("Authentication failed: No access token provided", "danger")
+            return redirect(url_for('auth.login'))
 
         # Get the Supabase client
         supabase = get_supabase()
         if not supabase:
             logger.error("Supabase client not initialized")
-            return jsonify({"error": "Authentication service unavailable"}), 500
+            flash("Authentication service unavailable", "danger")
+            return redirect(url_for('auth.login'))
 
         try:
             # Get the user data from the token
-            user = supabase.auth.get_user(token_data['access_token'])
+            access_token = token_data['access_token']
+            logger.info(f"Using access token: {access_token[:10]}... (truncated)")
+
+            user = supabase.auth.get_user(access_token)
+            logger.info(f"User data retrieved: {user}")
 
             if user and hasattr(user, 'user'):
                 user_data = user.user
@@ -647,7 +662,7 @@ def process_token():
                 session['user'] = {
                     'id': user_data.id,
                     'email': user_data.email,
-                    'access_token': token_data['access_token'],
+                    'access_token': access_token,
                     'refresh_token': token_data.get('refresh_token')
                 }
 
@@ -655,16 +670,20 @@ def process_token():
                 get_user_profile(user_data.id)
 
                 logger.info(f"Successfully authenticated user: {user_data.email}")
-                return jsonify({"success": True}), 200
+                flash("You have successfully logged in!", "success")
+                return redirect(url_for('auth.dashboard'))
             else:
                 logger.error("Invalid user data from token")
-                return jsonify({"error": "Invalid user data"}), 400
+                flash("Authentication failed: Invalid user data", "danger")
+                return redirect(url_for('auth.login'))
         except Exception as e:
             logger.error(f"Error processing token: {str(e)}")
-            return jsonify({"error": str(e)}), 400
+            flash(f"Authentication failed: {str(e)}", "danger")
+            return redirect(url_for('auth.login'))
     except Exception as e:
         logger.error(f"Error in process_token: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        flash(f"Authentication failed: {str(e)}", "danger")
+        return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
