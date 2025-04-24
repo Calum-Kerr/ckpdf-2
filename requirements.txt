@@ -28,6 +28,7 @@ PyJWT==2.8.0  # For secure token handling
 python-dotenv==1.0.0  # For environment variables
 requests==2.31.0  # For HTTP requests
 pytest==7.4.0  # For testing
+email_validator==2.1.1  # For email validation
 
 # Authentication
 supabase==2.3.0  # For Supabase integration
