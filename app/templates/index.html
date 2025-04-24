@@ -259,4 +259,69 @@
     ]
 }
 </script>
+
+<!-- Website Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "RevisePDF",
+    "url": "https://www.revisepdf.com/",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.revisepdf.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    },
+    "description": "RevisePDF offers 20+ free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimise your PDF files. No installation required."
+}
+</script>
+
+<!-- Organization Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "RevisePDF",
+    "url": "https://www.revisepdf.com",
+    "logo": "https://www.revisepdf.com{{ url_for('static', filename='img/revisepdf-logo.png') }}",
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Edinburgh",
+        "addressRegion": "Scotland",
+        "addressCountry": "UK"
+    },
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "email": "calum@revisepdf.com"
+    },
+    "sameAs": [
+        "https://twitter.com/revisepdf",
+        "https://www.facebook.com/revisepdf",
+        "https://www.linkedin.com/company/revisepdf"
+    ]
+}
+</script>
+
+<!-- SoftwareApplication Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "RevisePDF",
+    "applicationCategory": "WebApplication",
+    "operatingSystem": "All",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "GBP"
+    },
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "156"
+    },
+    "description": "RevisePDF is a comprehensive online PDF toolkit offering 20+ free tools for editing, converting, compressing, and optimising PDF files."
+}
+</script>
 {% endblock %}

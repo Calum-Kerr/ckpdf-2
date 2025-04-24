@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}OCR PDF - RevisePDF{% endblock %}
+{% block title %}OCR PDF - Make Scanned Documents Searchable | RevisePDF{% endblock %}
+
+{% block meta_description %}Convert scanned PDFs into searchable documents with our free OCR tool. Extract text from images, enable copy-paste, and make your PDFs accessible.{% endblock %}
+
+{% block meta_keywords %}OCR PDF, PDF OCR, searchable PDF, extract text from PDF, scanned PDF to searchable, optical character recognition, PDF text extraction{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -128,4 +132,77 @@
         </div>
     </div>
 </div>
+
+<!-- Tool Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "RevisePDF OCR Tool",
+    "applicationCategory": "WebApplication",
+    "operatingSystem": "All",
+    "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "GBP"
+    },
+    "description": "Convert scanned PDFs into searchable documents with our free OCR tool. Extract text from images, enable copy-paste, and make your PDFs accessible.",
+    "featureList": [
+        "Convert scanned documents to searchable PDFs",
+        "Extract text from images in PDF files",
+        "Enable text selection and copying in scanned documents",
+        "Improve accessibility for screen readers",
+        "Support for multiple languages"
+    ]
+}
+</script>
+
+<!-- HowTo Structured Data -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Make a PDF Searchable with OCR",
+    "description": "Convert a scanned PDF into a searchable document using Optical Character Recognition (OCR).",
+    "totalTime": "PT2M",
+    "tool": {
+        "@type": "HowToTool",
+        "name": "RevisePDF OCR Tool"
+    },
+    "supply": {
+        "@type": "HowToSupply",
+        "name": "Scanned PDF document"
+    },
+    "step": [
+        {
+            "@type": "HowToStep",
+            "name": "Upload your PDF",
+            "text": "Click the 'Choose File' button and select the scanned PDF you want to make searchable.",
+            "image": "https://www.revisepdf.com/static/img/ocr-step1.jpg",
+            "url": "https://www.revisepdf.com/optimize/ocr"
+        },
+        {
+            "@type": "HowToStep",
+            "name": "Select language",
+            "text": "Choose the language that matches the text in your document for better OCR results.",
+            "image": "https://www.revisepdf.com/static/img/ocr-step2.jpg",
+            "url": "https://www.revisepdf.com/optimize/ocr"
+        },
+        {
+            "@type": "HowToStep",
+            "name": "Process the document",
+            "text": "Click the 'Apply OCR' button to start the OCR process.",
+            "image": "https://www.revisepdf.com/static/img/ocr-step3.jpg",
+            "url": "https://www.revisepdf.com/optimize/ocr"
+        },
+        {
+            "@type": "HowToStep",
+            "name": "Download the searchable PDF",
+            "text": "Once processing is complete, click the 'Download OCR'd PDF' button to save your searchable document.",
+            "image": "https://www.revisepdf.com/static/img/ocr-step4.jpg",
+            "url": "https://www.revisepdf.com/optimize/ocr"
+        }
+    ]
+}
+</script>
 {% endblock %}

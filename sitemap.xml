@@ -205,7 +205,7 @@
   <!-- Blog Pages -->
   <url>
     <loc>https://www.revisepdf.com/blog</loc>
-    <lastmod>2025-04-14</lastmod>
+    <lastmod>2025-04-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -229,13 +229,13 @@
   </url>
   <url>
     <loc>https://www.revisepdf.com/blog/secure-pdf-handling-best-practices</loc>
-    <lastmod>2025-03-28</lastmod>
+    <lastmod>2025-04-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.revisepdf.com/blog/convert-images-to-pdf-guide</loc>
-    <lastmod>2025-03-20</lastmod>
+    <lastmod>2025-04-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
