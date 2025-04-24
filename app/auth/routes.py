@@ -296,6 +296,7 @@ def auth_callback():
 
 
 @auth_bp.route('/oauth-callback')
+@auth_bp.route('/auth/oauth-callback')  # Add this route to match the redirect URL
 @csrf_exempt
 def oauth_callback():
     """
