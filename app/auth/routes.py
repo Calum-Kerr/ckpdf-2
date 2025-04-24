@@ -505,7 +505,7 @@ def process_token():
     is found in the URL fragment after OAuth authentication.
 
     Returns:
-        Redirect to dashboard on success, or to login page on failure.
+        JSON response with redirect URL on success, or error message on failure.
     """
     try:
         logger.info(f"Process token endpoint called with method: {request.method}")
@@ -523,15 +523,21 @@ def process_token():
 
         if not token_data or 'access_token' not in token_data:
             logger.error("No access token provided")
-            flash("Authentication failed: No access token provided", "danger")
-            return redirect(url_for('auth.login'))
+            return jsonify({
+                'success': False,
+                'message': 'Authentication failed: No access token provided',
+                'redirect_url': url_for('auth.login')
+            }), 400
 
         # Get the Supabase client
         supabase = get_supabase()
         if not supabase:
             logger.error("Supabase client not initialized")
-            flash("Authentication service unavailable", "danger")
-            return redirect(url_for('auth.login'))
+            return jsonify({
+                'success': False,
+                'message': 'Authentication service unavailable',
+                'redirect_url': url_for('auth.login')
+            }), 500
 
         # Handle test token for development/testing
         access_token = token_data['access_token']
@@ -544,8 +550,11 @@ def process_token():
                 'access_token': 'test_token',
                 'is_test_user': True
             }
-            flash("Logged in with test account", "success")
-            return redirect(url_for('auth.dashboard'))
+            return jsonify({
+                'success': True,
+                'message': 'Logged in with test account',
+                'redirect_url': url_for('auth.dashboard')
+            })
 
         try:
             # Get the user data from the token
@@ -587,20 +596,32 @@ def process_token():
                 get_user_profile(user_data.id)
 
                 logger.info(f"Successfully authenticated user: {user_data.email}")
-                flash("You have successfully logged in!", "success")
-                return redirect(url_for('auth.dashboard'))
+                return jsonify({
+                    'success': True,
+                    'message': 'You have successfully logged in!',
+                    'redirect_url': url_for('auth.dashboard')
+                })
             else:
                 logger.error("Invalid user data from token")
-                flash("Authentication failed: Invalid user data", "danger")
-                return redirect(url_for('auth.login'))
+                return jsonify({
+                    'success': False,
+                    'message': 'Authentication failed: Invalid user data',
+                    'redirect_url': url_for('auth.login')
+                }), 400
         except Exception as e:
             logger.error(f"Error processing token: {str(e)}")
-            flash(f"Authentication failed: {str(e)}", "danger")
-            return redirect(url_for('auth.login'))
+            return jsonify({
+                'success': False,
+                'message': f'Authentication failed: {str(e)}',
+                'redirect_url': url_for('auth.login')
+            }), 400
     except Exception as e:
         logger.error(f"Error in process_token: {str(e)}")
-        flash(f"Authentication failed: {str(e)}", "danger")
-        return redirect(url_for('auth.login'))
+        return jsonify({
+            'success': False,
+            'message': f'Authentication failed: {str(e)}',
+            'redirect_url': url_for('auth.login')
+        }), 500
 
 
 @auth_bp.route('/test-oauth-callback')

@@ -71,48 +71,53 @@
             console.log('Authenticating with token...');
             statusMessage.textContent = 'Authenticating with token...';
 
-            // Create a form and submit it
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/auth/process-token';
-            form.style.display = 'none';
+            // Create data object
+            const data = {
+                access_token: token
+            };
 
-            // Add token data
-            const tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = 'access_token';
-            tokenInput.value = token;
-            form.appendChild(tokenInput);
-
-            // Add additional token data if available
             if (refreshToken) {
-                const refreshInput = document.createElement('input');
-                refreshInput.type = 'hidden';
-                refreshInput.name = 'refresh_token';
-                refreshInput.value = refreshToken;
-                form.appendChild(refreshInput);
+                data.refresh_token = refreshToken;
             }
 
             if (expiresIn) {
-                const expiresInput = document.createElement('input');
-                expiresInput.type = 'hidden';
-                expiresInput.name = 'expires_in';
-                expiresInput.value = expiresIn;
-                form.appendChild(expiresInput);
+                data.expires_in = expiresIn;
             }
 
             if (providerToken) {
-                const providerInput = document.createElement('input');
-                providerInput.type = 'hidden';
-                providerInput.name = 'provider_token';
-                providerInput.value = providerToken;
-                form.appendChild(providerInput);
+                data.provider_token = providerToken;
             }
 
-            // Add the form to the document and submit it
-            document.body.appendChild(form);
-            console.log('Submitting form to process token...');
-            form.submit();
+            // Use fetch API to send the token directly
+            fetch('/auth/process-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // If the server redirected us, follow the redirect
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Authentication failed: ' + response.status);
+                }
+            })
+            .then(data => {
+                if (data && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    statusMessage.textContent = 'Authentication successful, but no redirect URL provided.';
+                }
+            })
+            .catch(error => {
+                console.error('Error during authentication:', error);
+                debugInfo.textContent += '\nError during authentication: ' + error.message;
+                statusMessage.textContent = 'Error during authentication. Please try the manual authentication button below.';
+            });
         }
 
         // Check if there's an access token in the URL fragment
