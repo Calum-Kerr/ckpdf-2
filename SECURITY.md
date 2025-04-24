@@ -6,9 +6,9 @@ This document provides an overview of the security measures implemented in the R
 
 The RevisePDF application implements a multi-layered security approach:
 
-1. **Input Validation and Sanitization**
+1. **Input Validation and Sanitisation**
 2. **Secure File Processing**
-3. **Authentication and Authorization**
+3. **Authentication and Authorisation**
 4. **Data Protection**
 5. **Server-Side Security**
 6. **Client-Side Security**
@@ -16,11 +16,11 @@ The RevisePDF application implements a multi-layered security approach:
 
 ## Security Modules
 
-### File Validation and Sanitization
+### File Validation and Sanitisation
 
 - Strict file type validation using magic numbers
 - File size limits
-- PDF sanitization to remove potentially harmful elements
+- PDF sanitisation to remove potentially harmful elements
 - Secure filename generation
 
 ### Server Protection
@@ -37,7 +37,7 @@ The RevisePDF application implements a multi-layered security approach:
 - Secure temporary storage
 - Privacy-focused data handling
 
-### Authentication and Authorization
+### Authentication and Authorisation
 
 - CSRF protection
 - API token authentication
@@ -55,7 +55,7 @@ The RevisePDF application implements a multi-layered security approach:
 ### Client-Side Security
 
 - Form protection
-- Input sanitization
+- Input sanitisation
 - Clickjacking prevention
 - Basic DevTools protection
 - Link protection
@@ -86,8 +86,8 @@ The application uses the following security configuration:
 When developing new features or making changes to the application, follow these security best practices:
 
 1. **Validate all user inputs** - Never trust user input
-2. **Use parameterized queries** - Prevent SQL injection
-3. **Sanitize output** - Prevent XSS attacks
+2. **Use parameterised queries** - Prevent SQL injection
+3. **Sanitise output** - Prevent XSS attacks
 4. **Implement proper authentication** - Protect sensitive operations
 5. **Use HTTPS** - Encrypt data in transit
 6. **Implement proper error handling** - Don't expose sensitive information
@@ -110,11 +110,10 @@ In case of a security incident:
 
 For security-related issues, contact:
 
-- Security Team: security@revisepdf.com
 - Lead Developer: calum@revisepdf.com
 
 ## Security Updates
 
 This document should be updated whenever significant security changes are made to the application.
 
-Last updated: 2025-04-14
+Last updated: 2025-04-24
