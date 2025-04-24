@@ -232,6 +232,11 @@ def google_login():
     Returns:
         Redirect to Google OAuth login page.
     """
+    # Check if we're already authenticated
+    if 'user' in session:
+        logger.info(f"User already authenticated: {session['user'].get('email')}")
+        return redirect(url_for('auth.dashboard'))
+
     supabase = get_supabase()
     if not supabase:
         logger.warning("Supabase client not initialized. Cannot use Google login.")
