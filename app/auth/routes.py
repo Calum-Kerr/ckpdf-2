@@ -3,7 +3,7 @@ Authentication routes for the application.
 This module contains routes for authentication features.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify
 import logging
 import datetime
 import urllib.parse
@@ -608,6 +608,64 @@ def change_password():
                     flash(f"{field}: {error}", 'danger')
 
     return render_template('auth/change_password.html', form=form)
+
+@auth_bp.route('/process-token', methods=['POST'])
+@csrf_exempt
+def process_token():
+    """
+    Process the access token received from the OAuth provider.
+
+    This endpoint is called by the client-side JavaScript when an access token
+    is found in the URL fragment after OAuth authentication.
+
+    Returns:
+        JSON response indicating success or failure.
+    """
+    try:
+        # Get the token data from the request
+        token_data = request.json
+        logger.info(f"Processing token data: {token_data.keys() if token_data else 'No token data'}")
+
+        if not token_data or 'access_token' not in token_data:
+            logger.error("No access token provided")
+            return jsonify({"error": "No access token provided"}), 400
+
+        # Get the Supabase client
+        supabase = get_supabase()
+        if not supabase:
+            logger.error("Supabase client not initialized")
+            return jsonify({"error": "Authentication service unavailable"}), 500
+
+        try:
+            # Get the user data from the token
+            user = supabase.auth.get_user(token_data['access_token'])
+
+            if user and hasattr(user, 'user'):
+                user_data = user.user
+
+                # Store the session in Flask session
+                session['user'] = {
+                    'id': user_data.id,
+                    'email': user_data.email,
+                    'access_token': token_data['access_token'],
+                    'refresh_token': token_data.get('refresh_token')
+                }
+
+                # Check if the user has a profile, create one if not
+                get_user_profile(user_data.id)
+
+                logger.info(f"Successfully authenticated user: {user_data.email}")
+                return jsonify({"success": True}), 200
+            else:
+                logger.error("Invalid user data from token")
+                return jsonify({"error": "Invalid user data"}), 400
+        except Exception as e:
+            logger.error(f"Error processing token: {str(e)}")
+            return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        logger.error(f"Error in process_token: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 
 @auth_bp.route('/profile/create', methods=['GET', 'POST'])
 @login_required

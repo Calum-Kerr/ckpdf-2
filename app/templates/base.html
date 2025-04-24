@@ -596,6 +596,55 @@
 <!-- Mega Menu JS -->
 <script src="{{ url_for('static', filename='js/mega-menu.js') }}"></script>
 
+<!-- Handle OAuth Redirect -->
+<script>
+    // Check if there's an access token in the URL fragment
+    if (window.location.hash && window.location.hash.includes('access_token=')) {
+        console.log('Access token found in URL fragment');
+
+        // Parse the hash fragment
+        const hashParams = {};
+        window.location.hash.substring(1).split('&').forEach(pair => {
+            const [key, value] = pair.split('=');
+            hashParams[key] = decodeURIComponent(value);
+        });
+
+        // Check if we have an access token
+        if (hashParams.access_token) {
+            console.log('Processing access token...');
+
+            // Send the token to the server to create a session
+            fetch('/auth/process-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    access_token: hashParams.access_token,
+                    refresh_token: hashParams.refresh_token || null,
+                    expires_in: hashParams.expires_in || null,
+                    provider_token: hashParams.provider_token || null
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Clear the hash fragment and redirect to the dashboard
+                    window.location.href = '/auth/dashboard';
+                } else {
+                    console.error('Failed to process token');
+                    // Redirect to login page with error
+                    window.location.href = '/auth/login?error=token_processing_failed';
+                }
+            })
+            .catch(error => {
+                console.error('Error processing token:', error);
+                // Redirect to login page with error
+                window.location.href = '/auth/login?error=token_processing_failed';
+            });
+        }
+    }
+</script>
+
 {% block extra_js %}{% endblock %}
 </body>
 </html>
