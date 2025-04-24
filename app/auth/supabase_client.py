@@ -53,6 +53,10 @@ def init_supabase():
         redirect_url = f"{site_url}/auth/oauth-callback"
         logger.info(f"Setting redirect URL for Supabase auth: {redirect_url}")
 
+        # Log Supabase configuration
+        logger.info(f"Initializing Supabase client with URL: {SUPABASE_URL[:20]}... (truncated)")
+        logger.info(f"Supabase key length: {len(SUPABASE_KEY)} characters")
+
         # Use the most basic initialization possible
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         logger.info("Supabase client initialized successfully with basic initialization.")

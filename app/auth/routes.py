@@ -275,6 +275,12 @@ def oauth_callback():
     logger.info(f"OAuth callback received from: {request.referrer}")
     logger.info(f"OAuth callback full URL: {request.url}")
     logger.info(f"OAuth callback headers: {dict(request.headers)}")
+    logger.info(f"OAuth callback query parameters: {request.args}")
+    logger.info(f"OAuth callback form data: {request.form}")
+
+    # Log environment information
+    logger.info(f"SITE_URL: {os.environ.get('SITE_URL', 'Not set in environment')}")
+    logger.info(f"DYNO: {os.environ.get('DYNO', 'Not running on Heroku')}")
 
     # Check if we have the expected redirect URL in session
     expected_redirect_url = session.get('expected_redirect_url')
