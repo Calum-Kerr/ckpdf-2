@@ -57,8 +57,17 @@ def convert_pdf_to_images(input_path, output_dir, image_format='png', dpi=300, p
             raise PDFProcessingError(f"Invalid image format: {image_format}. Valid formats: {', '.join(valid_formats)}")
         
         # Normalize image format
-        if image_format.lower() == 'jpeg':
+        image_format = image_format.lower()
+        if image_format == 'jpeg':
             image_format = 'jpg'
+        
+        # Map format to PIL format string
+        format_map = {
+            'png': 'PNG',
+            'jpg': 'JPEG',
+            'tiff': 'TIFF'
+        }
+        pil_format = format_map[image_format]
         
         # Validate DPI
         try:
@@ -107,9 +116,6 @@ def convert_pdf_to_images(input_path, output_dir, image_format='png', dpi=300, p
             # 72 DPI is the base resolution in PyMuPDF
             zoom = dpi / 72
             
-            # Get the page dimensions
-            rect = page.rect
-            
             # Create a matrix for rendering at the specified DPI
             mat = fitz.Matrix(zoom, zoom)
             
@@ -120,14 +126,17 @@ def convert_pdf_to_images(input_path, output_dir, image_format='png', dpi=300, p
             output_filename = f"{base_filename}_page_{page_num}.{image_format}"
             output_path = os.path.join(output_dir, output_filename)
             
-            # Save the pixmap as an image
-            if image_format.lower() == 'png':
-                pix.save(output_path)
-            else:
-                # For other formats, convert using PIL
-                img_data = pix.tobytes("ppm")  # Convert to PPM format
-                img = Image.open(io.BytesIO(img_data))
-                img.save(output_path, format=image_format.upper())
+            # Convert pixmap to PIL Image and save
+            img_data = pix.tobytes("ppm")  # Convert to PPM format
+            img = Image.open(io.BytesIO(img_data))
+            
+            # Save with format-specific options
+            if pil_format == 'JPEG':
+                img.save(output_path, format=pil_format, quality=95)
+            elif pil_format == 'PNG':
+                img.save(output_path, format=pil_format)
+            elif pil_format == 'TIFF':
+                img.save(output_path, format=pil_format, compression='tiff_lzw')
             
             # Add to output files list
             output_files.append(output_path)
