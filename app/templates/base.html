@@ -17,7 +17,11 @@
     <meta name="description" content="{% block meta_description %}RevisePDF offers free online PDF tools to compress, convert, edit, merge, split, add OCR, watermark, and optimise your PDF files.{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}PDF tools, compress PDF, convert PDF, edit PDF, merge PDF, split PDF, OCR PDF, watermark PDF, PDF to image, image to PDF, PDF editor online, free PDF tools{% endblock %}">
     <meta name="author" content="RevisePDF">
+    {% if request.path.startswith('/upload') or request.path.startswith('/upload-pdf') or request.path.startswith('/protect') or request.path.startswith('/security/protect') %}
+    <meta name="robots" content="noindex, nofollow">
+    {% else %}
     <meta name="robots" content="index, follow">
+    {% endif %}
     <link rel="canonical" href="{% block canonical_url %}https://www.revisepdf.com{{ request.path }}{% endblock %}">
 
     <!-- Open Graph / Facebook -->

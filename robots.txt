@@ -4,6 +4,10 @@ Disallow: /auth/
 Disallow: /instance/
 Disallow: /uploads/
 Disallow: /temp/
+Disallow: /upload-pdf/
+Disallow: /upload/
+Disallow: /security/protect/
+Disallow: /protect/
 
 # Allow all bots to access the sitemap
 Sitemap: https://www.revisepdf.com/sitemap.xml
