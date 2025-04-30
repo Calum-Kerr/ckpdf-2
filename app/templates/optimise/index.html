@@ -20,32 +20,44 @@
     <div class="row justify-content-center mt-5">
         <!-- Compress PDF -->
         <div class="col-md-4 text-center mb-5">
-            <div class="tool-icon-circle">
-                <img src="{{ url_for('static', filename='svg-files-for-icons/compress.svg') }}" alt="Compress PDF">
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon-circle">
+                        <img src="{{ url_for('static', filename='svg-files-for-icons/compress.svg') }}" alt="Compress PDF">
+                    </div>
+                    <h5 class="mt-3 mb-2">Compress PDF</h5>
+                    <p class="tool-description mb-3">Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.</p>
+                    <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary tool-button">Compress PDF</a>
+                </div>
             </div>
-            <h5 class="mt-3 mb-2">Compress PDF</h5>
-            <p class="tool-description mb-3">Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.</p>
-            <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary tool-button">Compress PDF</a>
         </div>
 
         <!-- Repair PDF -->
         <div class="col-md-4 text-center mb-5">
-            <div class="tool-icon-circle">
-                <img src="{{ url_for('static', filename='svg-files-for-icons/repair.svg') }}" alt="Repair PDF">
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon-circle">
+                        <img src="{{ url_for('static', filename='svg-files-for-icons/repair.svg') }}" alt="Repair PDF">
+                    </div>
+                    <h5 class="mt-3 mb-2">Repair PDF</h5>
+                    <p class="tool-description mb-3">Fix corrupted or damaged PDF files to make them readable again.</p>
+                    <a href="{{ url_for('optimize.repair') }}" class="btn btn-primary tool-button">Repair PDF</a>
+                </div>
             </div>
-            <h5 class="mt-3 mb-2">Repair PDF</h5>
-            <p class="tool-description mb-3">Fix corrupted or damaged PDF files to make them readable again.</p>
-            <a href="{{ url_for('optimize.repair') }}" class="btn btn-primary tool-button">Repair PDF</a>
         </div>
 
         <!-- OCR PDF -->
         <div class="col-md-4 text-center mb-5">
-            <div class="tool-icon-circle">
-                <img src="{{ url_for('static', filename='svg-files-for-icons/ocr.svg') }}" alt="OCR PDF">
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon-circle">
+                        <img src="{{ url_for('static', filename='svg-files-for-icons/ocr.svg') }}" alt="OCR PDF">
+                    </div>
+                    <h5 class="mt-3 mb-2">OCR PDF</h5>
+                    <p class="tool-description mb-3">Extract text from scanned PDFs using Optical Character Recognition.</p>
+                    <a href="{{ url_for('optimize.ocr') }}" class="btn btn-primary tool-button">OCR PDF</a>
+                </div>
             </div>
-            <h5 class="mt-3 mb-2">OCR PDF</h5>
-            <p class="tool-description mb-3">Extract text from scanned PDFs using Optical Character Recognition.</p>
-            <a href="{{ url_for('optimize.ocr') }}" class="btn btn-primary tool-button">OCR PDF</a>
         </div>
     </div>
 
@@ -56,29 +68,35 @@
         <div class="row mt-4">
             <!-- Easier Sharing -->
             <div class="col-md-4 text-center mb-4">
-                <div class="feature-icon-circle">
-                    <i class="fas fa-cloud-upload-alt"></i>
+                <div class="feature-item">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h5 class="mt-3 mb-2">Easier Sharing</h5>
+                    <p class="feature-description">Smaller files are easier to email and upload to websites.</p>
                 </div>
-                <h5 class="mt-3 mb-2">Easier Sharing</h5>
-                <p class="feature-description">Smaller files are easier to email and upload to websites.</p>
             </div>
 
             <!-- Save Storage Space -->
             <div class="col-md-4 text-center mb-4">
-                <div class="feature-icon-circle">
-                    <i class="fas fa-hdd"></i>
+                <div class="feature-item">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                    <h5 class="mt-3 mb-2">Save Storage Space</h5>
+                    <p class="feature-description">Optimised PDFs take up less space on your device.</p>
                 </div>
-                <h5 class="mt-3 mb-2">Save Storage Space</h5>
-                <p class="feature-description">Optimised PDFs take up less space on your device.</p>
             </div>
 
             <!-- Faster Loading -->
             <div class="col-md-4 text-center mb-4">
-                <div class="feature-icon-circle">
-                    <i class="fas fa-tachometer-alt"></i>
+                <div class="feature-item">
+                    <div class="feature-icon-circle">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h5 class="mt-3 mb-2">Faster Loading</h5>
+                    <p class="feature-description">Optimised PDFs load faster in browsers and PDF readers.</p>
                 </div>
-                <h5 class="mt-3 mb-2">Faster Loading</h5>
-                <p class="feature-description">Optimised PDFs load faster in browsers and PDF readers.</p>
             </div>
         </div>
     </div>

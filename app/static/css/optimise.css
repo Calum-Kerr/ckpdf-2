@@ -5,6 +5,25 @@
     background-color: #238287 !important;
 }
 
+/* Tool card styling */
+.tool-card {
+    border: none;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.tool-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    height: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: white;
+}
+
 /* Tool icon circle */
 .tool-icon-circle {
     width: 50px;
@@ -37,6 +56,19 @@
     height: 3px;
     background-color: #238287;
     margin: 0.5rem auto 0;
+}
+
+/* Feature item styling */
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-radius: 8px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    height: 100%;
 }
 
 /* Feature icon circle */
@@ -78,6 +110,7 @@
     border-color: #238287;
     padding: 0.375rem 1.5rem;
     font-size: 0.9rem;
+    margin-top: auto;
 }
 
 /* Why optimise section */
