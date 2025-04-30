@@ -8,16 +8,18 @@
 /* Tool card styling */
 .tool-card {
     border: none;
-    box-shadow: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
+    margin-bottom: 1rem;
 }
 
 .tool-card-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     text-align: center;
-    padding: 1.5rem 1rem;
+    padding: 2rem 1.5rem;
     height: 100%;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -26,17 +28,21 @@
 
 /* Tool icon circle */
 .tool-icon-circle {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    margin: 0 auto 1rem;
+    background-color: rgba(35, 130, 135, 0.1);
+    border-radius: 50%;
+    padding: 12px;
 }
 
 .tool-icon-circle img {
     width: 100%;
     height: 100%;
+    object-fit: contain;
 }
 
 /* Section title with underline */
@@ -64,60 +70,73 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 1.5rem 1rem;
+    padding: 2rem 1.5rem;
     border-radius: 8px;
     background-color: white;
     border: 1px solid #e0e0e0;
     height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* Feature icon circle */
 .feature-icon-circle {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background-color: #238287;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    margin: 0 auto 1rem;
 }
 
 .feature-icon-circle i {
     color: white;
-    font-size: 1rem;
+    font-size: 1.25rem;
 }
 
 /* Tool description text */
 .tool-description {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #6c757d;
     max-width: 250px;
-    margin: 0 auto;
+    margin: 0 auto 1.5rem;
+    line-height: 1.5;
 }
 
 /* Feature description text */
 .feature-description {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #6c757d;
     max-width: 250px;
     margin: 0 auto;
+    line-height: 1.5;
 }
 
 /* Tool button */
 .tool-button {
     background-color: #238287;
     border-color: #238287;
-    padding: 0.375rem 1.5rem;
+    padding: 0.5rem 1.75rem;
     font-size: 0.9rem;
     margin-top: auto;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tool-button:hover {
+    background-color: #1c6a6e;
+    border-color: #1c6a6e;
+    transform: translateY(-2px);
 }
 
 /* Why optimise section */
 .why-optimise-section {
-    margin-top: 2rem;
+    margin-top: 3rem;
     margin-bottom: 3rem;
     padding-top: 1rem;
+    position: relative;
 }
 
 /* Container padding */
@@ -127,6 +146,24 @@
 
 /* Adjust heading sizes */
 h5 {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Add spacing between rows */
+.row {
+    margin-bottom: 1.5rem;
+}
+
+/* Add hover effects to cards */
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
