@@ -96,6 +96,26 @@ When developing new features or making changes to the application, follow these 
 9. **Implement proper logging** - Track security events
 10. **Conduct regular security reviews** - Identify and fix vulnerabilities
 
+### API Key Management
+
+This project uses Supabase for authentication and database operations. To ensure the security of your application, please follow these additional best practices:
+
+1. **Never commit API keys to the repository**
+   - Always use environment variables for sensitive information
+   - The `.env` file is included in `.gitignore` to prevent accidental commits
+
+2. **Required Environment Variables**
+   - `SUPABASE_URL`: Your Supabase project URL
+   - `SUPABASE_KEY`: Your Supabase anon key (public)
+   - `SUPABASE_SERVICE_KEY`: Your Supabase service role key (private)
+   - `GOOGLE_CLIENT_ID`: Your Google OAuth client ID
+   - `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret
+
+3. **Service Role Key Security**
+   - Only use the service role key on the server side, never in client-side code
+   - Only use the service role key when absolutely necessary
+   - Regularly rotate the service role key, especially after team member changes
+
 ## Security Incident Response
 
 In case of a security incident:
@@ -116,4 +136,4 @@ For security-related issues, contact:
 
 This document should be updated whenever significant security changes are made to the application.
 
-Last updated: 2025-04-24
+Last updated: 2025-05-06
