@@ -906,3 +906,56 @@ def reset_password(email, new_password):
     except Exception as e:
         logger.error(f"Password reset failed with unexpected error: {str(e)}")
         return False
+
+
+def create_user_profile(user_id, email=None):
+    """
+    Create a user profile in the database.
+
+    Args:
+        user_id (str): The user ID.
+        email (str, optional): The user's email. Defaults to None.
+
+    Returns:
+        dict: The created profile if successful, None otherwise.
+    """
+    if not email:
+        email = 'unknown@example.com'
+
+    # Get the current time as creation date
+    creation_date = datetime.datetime.now().isoformat()
+
+    # Try to create the profile in Supabase
+    supabase = get_supabase()
+    if supabase:
+        try:
+            # Create user profile in the database
+            response = supabase.table('user_profiles').insert({
+                'user_id': user_id,
+                'email': email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': creation_date
+            }).execute()
+
+            if response.data and len(response.data) > 0:
+                logger.info(f"User profile created for: {email}")
+                return response.data[0]
+            else:
+                logger.error(f"Failed to create user profile for: {email}")
+                return None
+        except Exception as e:
+            logger.error(f"Error creating user profile in Supabase: {str(e)}")
+
+    # If Supabase fails or is not available, create a demo profile
+    demo_profiles[user_id] = {
+        'user_id': user_id,
+        'email': email,
+        'account_type': 'free',
+        'storage_used': 0,
+        'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+        'created_at': creation_date
+    }
+    logger.info(f"Created demo profile for user: {email}")
+    return demo_profiles[user_id]

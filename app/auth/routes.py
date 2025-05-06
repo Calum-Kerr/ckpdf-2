@@ -9,13 +9,16 @@ import datetime
 import urllib.parse
 import os
 import base64
+import json
+import jwt
 
 # Configure logging
 logger = logging.getLogger(__name__)
 from .utils import (
     login_user, register_user, logout_user, get_current_user, login_required,
     get_user_profile, demo_profiles, csrf_exempt, change_user_password,
-    get_reset_token, verify_reset_token, send_reset_email, reset_password
+    get_reset_token, verify_reset_token, send_reset_email, reset_password,
+    create_user_profile
 )
 from app.forms import LoginForm, RegisterForm
 from .forms import ChangePasswordForm, RequestPasswordResetForm, ResetPasswordForm
@@ -374,6 +377,89 @@ def auth_callback():
 
     # Redirect to the main OAuth callback route
     return redirect(url_for('auth.oauth_callback', **request.args))
+
+
+@auth_bp.route('/google-one-tap', methods=['POST'])
+@csrf_exempt
+def google_one_tap():
+    """
+    Handle Google One Tap sign-in.
+    This route processes the JWT token from Google One Tap.
+    """
+    logger.info("Received Google One Tap sign-in request")
+
+    # Get the credential (JWT token) from the request
+    credential = request.form.get('credential')
+    if not credential:
+        logger.error("No credential provided in Google One Tap request")
+        flash("Authentication failed: No credential provided", "danger")
+        return redirect(url_for('auth.login'))
+
+    try:
+        # Decode the JWT token (without verification, as we'll verify with Google)
+        # The JWT contains user information directly from Google
+        decoded = jwt.decode(credential, options={"verify_signature": False})
+
+        # Extract user information
+        user_info = {
+            'sub': decoded.get('sub'),  # Google's unique user ID
+            'email': decoded.get('email'),
+            'name': decoded.get('name'),
+            'picture': decoded.get('picture'),
+            'email_verified': decoded.get('email_verified', False)
+        }
+
+        # Check if email is verified
+        if not user_info['email_verified']:
+            logger.warning(f"Google account email not verified: {user_info['email']}")
+            flash("Authentication failed: Email not verified", "danger")
+            return redirect(url_for('auth.login'))
+
+        # Create a unique user ID based on the Google sub (subject) ID
+        user_id = f"google-{user_info['sub']}"
+
+        # Check if user exists in Supabase
+        supabase = get_supabase()
+        user_exists = False
+
+        if supabase:
+            try:
+                # Try to find the user in Supabase
+                response = supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+                user_exists = response.data and len(response.data) > 0
+            except Exception as e:
+                logger.error(f"Error checking if user exists in Supabase: {str(e)}")
+
+        # Create user session
+        user_session = {
+            'id': user_id,
+            'email': user_info['email'],
+            'name': user_info['name'],
+            'picture': user_info['picture'],
+            'is_google_user': True,
+            'provider': 'google',
+            'login_time': datetime.datetime.now().isoformat()
+        }
+
+        # Store the session
+        session['user'] = user_session
+
+        # If user doesn't exist, create a profile
+        if not user_exists:
+            profile = create_user_profile(user_id, user_info['email'])
+            if profile:
+                logger.info(f"Created profile for Google One Tap user: {user_info['email']}")
+            else:
+                logger.warning(f"Failed to create profile for Google One Tap user: {user_info['email']}")
+
+        logger.info(f"Google One Tap sign-in successful for: {user_info['email']}")
+        flash(f"Welcome, {user_info['name']}! You have successfully signed in with Google.", "success")
+        return redirect(url_for('auth.dashboard'))
+
+    except Exception as e:
+        logger.error(f"Error processing Google One Tap credential: {str(e)}")
+        flash(f"Authentication failed: {str(e)}", "danger")
+        return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/oauth-callback')

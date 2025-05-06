@@ -1566,5 +1566,53 @@
 </script>
 
 {% block extra_js %}{% endblock %}
+
+<!-- Google One Tap Sign-in -->
+{% if not session.get('user') %}
+<script src="https://accounts.google.com/gsi/client" async defer nonce="{{ csp_nonce() }}"></script>
+<script nonce="{{ csp_nonce() }}">
+    window.onload = function() {
+        google.accounts.id.initialize({
+            client_id: '{{ config.GOOGLE_CLIENT_ID }}',
+            callback: handleCredentialResponse,
+            auto_select: true,
+            cancel_on_tap_outside: true
+        });
+        google.accounts.id.prompt();
+    };
+
+    function handleCredentialResponse(response) {
+        // Send the credential to your server
+        if (response && response.credential) {
+            // Create a form to submit the credential
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url_for("auth.google_one_tap") }}';
+            form.style.display = 'none';
+
+            // Add CSRF token if available
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrf_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            // Add credential
+            const credentialInput = document.createElement('input');
+            credentialInput.type = 'hidden';
+            credentialInput.name = 'credential';
+            credentialInput.value = response.credential;
+            form.appendChild(credentialInput);
+
+            // Add the form to the document and submit it
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endif %}
 </body>
 </html>
