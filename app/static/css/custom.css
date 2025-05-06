@@ -156,6 +156,50 @@ a:hover {
     font-weight: 600;
 }
 
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.title-brand {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.title-brand:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+.tools-container {
+    display: flex;
+    align-items: center;
+}
+
+.tools-dropdown-btn {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.tools-dropdown-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-decoration: none;
+}
+
+.tools-text {
+    font-weight: 500;
+}
+
 .navbar-dark .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 0.85);
     font-weight: 500;
@@ -290,9 +334,19 @@ a:hover {
     background-color: var(--primary) !important;
 }
 
-.footer {
+footer {
     background-color: var(--primary);
-    color: #fff;
+    color: #fff !important;
+}
+
+footer a,
+footer a:hover,
+footer h5,
+footer p,
+footer small,
+footer ul li,
+footer .text-white {
+    color: #fff !important;
 }
 
 /* Fix for button hover styles */

@@ -3,107 +3,111 @@
 {% block title %}Optimise PDF - RevisePDF{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="mb-4">Optimise PDF Tools</h1>
+<!-- Header Section -->
+<div class="bg-primary py-4 mb-4 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-2">Optimise PDF Tools</h1>
+        <p class="mb-0 mx-auto" style="max-width: 700px;">Enhance Your PDF Documents by reducing file size, repairing damage, and adding text recognition.</p>
+    </div>
+</div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Enhance Your PDF Documents</h2>
+<div class="container mb-5">
+    <!-- Tools Grid -->
+    <div class="tool-grid">
+        <!-- Compress PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <i class="fas fa-compress-alt" style="color: var(--primary-color);"></i>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Our optimisation tools help you improve your PDF documents by reducing file size,
-                        repairing damaged files, and adding text recognition capabilities.
-                    </p>
+                <div class="tool-content">
+                    <h5>Compress PDF</h5>
+                    <p>Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.</p>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary">Compress PDF</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repair PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <i class="fas fa-tools" style="color: var(--primary-color);"></i>
+                </div>
+                <div class="tool-content">
+                    <h5>Repair PDF</h5>
+                    <p>Fix corrupted or damaged PDF files to make them readable again.</p>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('optimize.repair') }}" class="btn btn-primary">Repair PDF</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- OCR PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <i class="fas fa-font" style="color: var(--primary-color);"></i>
+                </div>
+                <div class="tool-content">
+                    <h5>OCR PDF</h5>
+                    <p>Extract text from scanned PDFs using Optical Character Recognition.</p>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('optimize.ocr') }}" class="btn btn-primary">OCR PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Optimise Section -->
+    <div class="mt-5">
+        <h3 class="section-title text-center mb-4">Why Optimise Your PDFs?</h3>
+        <div class="features-grid">
+            <!-- Easier Sharing -->
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Easier Sharing</h5>
+                    <p>Smaller files are easier to email and upload to websites.</p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-compress-alt fa-3x text-primary mb-3"></i>
-                            <h3 class="card-title">Compress PDF</h3>
-                            <p class="card-text">
-                                Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.
-                            </p>
-                            <a href="{{ url_for('optimize.compress') }}" class="btn btn-primary">Compress PDF</a>
-                        </div>
-                    </div>
+            <!-- Save Storage Space -->
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-hdd"></i>
                 </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-tools fa-3x text-success mb-3"></i>
-                            <h3 class="card-title">Repair PDF</h3>
-                            <p class="card-text">
-                                Fix corrupted or damaged PDF files to make them readable again.
-                            </p>
-                            <a href="{{ url_for('optimize.repair') }}" class="btn btn-success">Repair PDF</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-font fa-3x text-info mb-3"></i>
-                            <h3 class="card-title">OCR PDF</h3>
-                            <p class="card-text">
-                                Extract text from scanned PDFs using Optical Character Recognition.
-                            </p>
-                            <a href="{{ url_for('optimize.ocr') }}" class="btn btn-info">OCR PDF</a>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Save Storage Space</h5>
+                    <p>Optimised PDFs take up less space on your device.</p>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Why Optimise Your PDFs?</h3>
+            <!-- Faster Loading -->
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-tachometer-alt"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-cloud-upload-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Easier Sharing</h5>
-                                    <p class="mb-0">Smaller files are easier to email and upload to websites.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-hdd text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Save Storage Space</h5>
-                                    <p class="mb-0">Optimised PDFs take up less space on your device.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-tachometer-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Faster Loading</h5>
-                                    <p class="mb-0">Optimised PDFs load faster in browsers and PDF readers.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-search text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Searchable Content</h5>
-                                    <p class="mb-0">OCR makes scanned documents searchable and selectable.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Faster Loading</h5>
+                    <p>Optimised PDFs load faster in browsers and PDF readers.</p>
+                </div>
+            </div>
+
+            <!-- Searchable Content -->
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Searchable Content</h5>
+                    <p>OCR makes scanned documents searchable and selectable.</p>
                 </div>
             </div>
         </div>

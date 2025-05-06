@@ -31,6 +31,7 @@ from tools.edit.page_numbers import add_page_numbers, get_position_name, get_fon
 from tools.edit.watermark import add_watermark, get_position_name as get_watermark_position_name
 from tools.edit.content import add_text_to_pdf, add_image_to_pdf, remove_content_from_pdf, get_pdf_dimensions, get_pdf_preview, get_available_fonts, extract_text_with_attributes, replace_text_preserving_attributes, get_all_text_with_positions
 from tools.edit.text_editor import extract_text_blocks, replace_text_in_pdf, get_pdf_dimensions as get_text_editor_pdf_dimensions, get_pdf_preview as get_text_editor_pdf_preview
+from tools.edit.wysiwyg_editor import modify_pdf_text
 from tools.edit.signature import add_signature_to_pdf, add_signature_from_data_url, get_pdf_dimensions as get_signature_pdf_dimensions, get_pdf_preview as get_signature_pdf_preview
 from tools.security.protect import protect_pdf, check_pdf_encryption
 from tools.security.unlock import unlock_pdf, is_pdf_encrypted
@@ -855,6 +856,134 @@ def remove_content():
     except Exception as e:
         flash(f'Error removing content: {str(e)}', 'danger')
         return redirect(url_for('edit.content', filename=filename, page=page_number))
+
+@edit_bp.route('/wysiwyg-editor', methods=['GET', 'POST'])
+def wysiwyg_editor():
+    """Render the WYSIWYG editor page and handle form submission."""
+    form = ContentEditForm()
+    pdf_uploaded = False
+    filename = None
+    output_filename = None
+    current_page = 1
+    total_pages = 1
+    pdf_url = None
+
+    # Check if we're viewing an already uploaded PDF
+    if request.args.get('filename'):
+        filename = request.args.get('filename')
+        pdf_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+        if os.path.exists(pdf_path):
+            pdf_uploaded = True
+
+            # Get the page number from the query string
+            page_str = request.args.get('page', '1')
+            try:
+                current_page = int(page_str)
+                if current_page < 1:
+                    current_page = 1
+            except ValueError:
+                current_page = 1
+
+            try:
+                # Get total pages
+                import fitz
+                doc = fitz.open(pdf_path)
+                total_pages = doc.page_count
+                doc.close()
+
+                # Create a URL for the PDF
+                pdf_url = url_for('edit.serve_pdf', filename=filename)
+
+                # Set output filename
+                if not request.args.get('output'):
+                    output_filename = get_unique_filename('edited_' + filename)
+                else:
+                    output_filename = request.args.get('output')
+            except Exception as e:
+                flash(f'Error processing PDF: {str(e)}', 'danger')
+                pdf_uploaded = False
+
+    # Handle form submission
+    if form.validate_on_submit():
+        try:
+            # Save the uploaded file
+            input_file = form.file.data
+            filename = get_unique_filename(secure_filename(input_file.filename))
+            input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+            # Save the file
+            input_file.save(input_path)
+
+            # Redirect to the same page with the filename in the query string
+            return redirect(url_for('edit.wysiwyg_editor', filename=filename))
+
+        except Exception as e:
+            flash(f'Error uploading PDF: {str(e)}', 'danger')
+
+    return render_template('edit/wysiwyg_editor.html', form=form, pdf_uploaded=pdf_uploaded,
+                           filename=filename, output_filename=output_filename,
+                           current_page=current_page, total_pages=total_pages, pdf_url=pdf_url)
+
+@edit_bp.route('/serve-pdf/<filename>')
+def serve_pdf(filename):
+    """Serve a PDF file for viewing in the browser."""
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+
+@edit_bp.route('/save-wysiwyg-edits', methods=['POST'])
+def save_wysiwyg_edits():
+    """Save edits made in the WYSIWYG editor."""
+    # Get form data
+    filename = request.form.get('filename')
+    modifications_json = request.form.get('modifications')
+
+    try:
+        # Parse modifications
+        import json
+        modifications = json.loads(modifications_json)
+
+        # Log the received data for debugging
+        current_app.logger.info(f"Received update request for file: {filename}")
+        current_app.logger.info(f"Number of modifications: {len(modifications)}")
+
+        # Get input path
+        input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
+        # Check if the input file exists
+        if not os.path.exists(input_path):
+            current_app.logger.error(f"Input file not found: {input_path}")
+            return jsonify({'error': f"Input file not found: {filename}"}), 404
+
+        # Check if there's already an output file
+        output_filename = request.args.get('output')
+        if not output_filename:
+            output_filename = get_unique_filename('edited_' + filename)
+
+        output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], output_filename)
+        current_app.logger.info(f"Output path: {output_path}")
+
+        # If the output file already exists, use it as the input
+        if os.path.exists(output_path):
+            current_app.logger.info(f"Using existing output file as input: {output_path}")
+            input_path = output_path
+
+        # Apply modifications to the PDF
+        result = modify_pdf_text(input_path, output_path, modifications)
+        current_app.logger.info(f"Text modification result: {result}")
+
+        # Add output filename to result
+        result['output_filename'] = output_filename
+
+        # Return the result as JSON
+        return jsonify(result)
+
+    except json.JSONDecodeError as json_error:
+        current_app.logger.error(f"Invalid JSON data: {str(json_error)}")
+        return jsonify({'error': f"Invalid JSON data: {str(json_error)}"}), 400
+
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @edit_bp.route('/download-edited/<filename>')
 def download_edited(filename):

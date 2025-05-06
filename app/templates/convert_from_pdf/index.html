@@ -2,121 +2,152 @@
 
 {% block title %}Convert from PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/convert_from_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="mb-4">Convert from PDF Tools</h1>
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert from PDF Tools</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Transform PDF documents into other formats for different uses and applications.</p>
+    </div>
+</div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Transform Your PDFs into Other Formats</h2>
+<div id="all-tools" class="container mb-5">
+    <div class="text-center">
+        <h3 class="section-title mb-5">All Convert from PDF Tools</h3>
+    </div>
+    <div class="tool-grid">
+        <!-- PDF to Images -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="28" width="112" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M28 112L56 84L84 112" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M84 84L112 56L140 84" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="56" cy="56" r="8" stroke="white" stroke-width="4"/>
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Our conversion tools help you transform PDF documents into other formats
-                        for different uses and applications.
-                    </p>
+                <div class="tool-content">
+                    <h5>PDF to Images</h5>
+                    <p>Convert PDF pages to high-quality images in various formats</p>
+                </div>
+                <a href="{{ url_for('convert_from_pdf.pdf_to_image') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- PDF to Panoramic -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="56" width="112" height="56" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M28 84L56 70L84 84L112 70L140 84" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>PDF to Panoramic</h5>
+                    <p>Create panoramic images from PDF pages by stitching them together</p>
+                </div>
+                <a href="{{ url_for('convert_from_pdf.pdf_to_panoramic') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- PDF to PDF/A -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="28" width="70" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <rect x="70" y="28" width="70" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M70 56H140" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M70 84H140" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M70 112H140" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M28 56H98" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M28 84H98" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M28 112H98" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>PDF to PDF/A</h5>
+                    <p>Convert standard PDFs to PDF/A format for long-term archiving</p>
+                </div>
+                <a href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- PDF to Text -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="28" width="112" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M56 56H112" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M56 84H112" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M56 112H84" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>PDF to Text</h5>
+                    <p>Extract all text content from a PDF document</p>
+                </div>
+                <a href="{{ url_for('convert_from_pdf.pdf_to_text') }}" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="features-section text-center">
+        <h3 class="section-title text-center mb-5">Why Convert from PDF?</h3>
+        <div class="features-grid">
+            <!-- Easier Editing -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Easier Editing</h5>
+                    <p>Edit content in more accessible formats.</p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-images fa-3x text-primary mb-3"></i>
-                            <h3 class="card-title">PDF to Images</h3>
-                            <p class="card-text">
-                                Convert PDF pages to high-quality images in various formats.
-                            </p>
-                            <a href="{{ url_for('convert_from_pdf.pdf_to_image') }}" class="btn btn-primary">Convert to Images</a>
-                        </div>
-                    </div>
+            <!-- Broader Compatibility -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-share-alt"></i>
                 </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-panorama fa-3x text-success mb-3"></i>
-                            <h3 class="card-title">PDF to Panoramic</h3>
-                            <p class="card-text">
-                                Create panoramic images from PDF pages by stitching them together.
-                            </p>
-                            <a href="{{ url_for('convert_from_pdf.pdf_to_panoramic') }}" class="btn btn-success">Create Panoramic</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-file-archive fa-3x text-info mb-3"></i>
-                            <h3 class="card-title">PDF to PDF/A</h3>
-                            <p class="card-text">
-                                Convert standard PDFs to PDF/A format for long-term archiving.
-                            </p>
-                            <a href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}" class="btn btn-info">Convert to PDF/A</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
-                            <h3 class="card-title">PDF to Text</h3>
-                            <p class="card-text">
-                                Extract all text content from a PDF document.
-                            </p>
-                            <a href="{{ url_for('convert_from_pdf.pdf_to_text') }}" class="btn btn-warning">Extract Text</a>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Broader Compatibility</h5>
+                    <p>Use PDF content in applications that don't support PDFs.</p>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Why Convert from PDF?</h3>
+            <!-- Long-term Preservation -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-archive"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-edit text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Easier Editing</h5>
-                                    <p class="mb-0">Edit content in more accessible formats.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-share-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Broader Compatibility</h5>
-                                    <p class="mb-0">Use PDF content in applications that don't support PDFs.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-archive text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Long-term Preservation</h5>
-                                    <p class="mb-0">Archive documents in standardized formats.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-search text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Content Extraction</h5>
-                                    <p class="mb-0">Extract text and images for other uses.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Long-term Preservation</h5>
+                    <p>Archive documents in standardized formats.</p>
+                </div>
+            </div>
+
+            <!-- Content Extraction -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Content Extraction</h5>
+                    <p>Extract text and images for other uses.</p>
                 </div>
             </div>
         </div>

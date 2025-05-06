@@ -2,121 +2,153 @@
 
 {% block title %}Organise PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/organise.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="mb-4">Organise PDF Tools</h1>
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Organise PDF Tools</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Arrange, combine, and manipulate PDF documents to create exactly what you need for your workflow.</p>
+    </div>
+</div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Manage and Organise Your PDF Documents</h2>
+<div id="all-tools" class="container mb-5">
+    <div class="text-center">
+        <h3 class="section-title mb-5">All Organise Tools</h3>
+    </div>
+    <div class="tool-grid">
+        <!-- Merge PDFs -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="28" width="50" height="70" rx="5" stroke="white" stroke-width="4"/>
+                        <rect x="90" y="28" width="50" height="70" rx="5" stroke="white" stroke-width="4"/>
+                        <rect x="59" y="70" width="50" height="70" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M53 63L78 88L103 63" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Our organisation tools help you arrange, combine, and manipulate PDF documents
-                        to create exactly what you need for your workflow.
-                    </p>
+                <div class="tool-content">
+                    <h5>Merge PDFs</h5>
+                    <p>Combine multiple PDF files into a single document</p>
+                </div>
+                <a href="{{ url_for('organize.merge') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Split PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="59" y="28" width="50" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M59 84H109" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M28 84L48 64M28 84L48 104M28 84H59" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M140 84L120 64M140 84L120 104M140 84H109" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Split PDF</h5>
+                    <p>Divide a PDF document into multiple smaller PDFs</p>
+                </div>
+                <a href="{{ url_for('organize.split') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Extract Pages -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="28" y="28" width="70" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <rect x="70" y="60" width="70" height="50" rx="5" stroke="white" stroke-width="4"/>
+                        <path d="M70 85L140 85" stroke="white" stroke-width="4" stroke-dasharray="8 8"/>
+                        <path d="M105 40L105 60" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M105 110L105 130" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M105 40L125 60M105 40L85 60" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M105 130L125 110M105 130L85 110" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Extract Pages</h5>
+                    <p>Extract specific pages from a PDF document</p>
+                </div>
+                <a href="{{ url_for('organize.extract') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Rotate Pages -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <rect x="59" y="28" width="50" height="70" rx="5" transform="rotate(15 59 28)" stroke="white" stroke-width="4"/>
+                        <rect x="28" y="70" width="50" height="70" rx="5" stroke="white" stroke-width="4"/>
+                        <rect x="90" y="70" width="50" height="70" rx="5" transform="rotate(-15 90 70)" stroke="white" stroke-width="4"/>
+                        <path d="M84 28C84 28 104 38 104 58M104 58L94 48M104 58L114 48" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Rotate Pages</h5>
+                    <p>Rotate pages in a PDF document to the correct orientation</p>
+                </div>
+                <a href="{{ url_for('organize.rotate') }}" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="features-section text-center">
+        <h3 class="section-title text-center mb-5">Why Organise Your PDFs?</h3>
+        <div class="features-grid">
+            <!-- Streamline Workflows -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Streamline Workflows</h5>
+                    <p>Organise documents to match your specific needs.</p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-object-group fa-3x text-primary mb-3"></i>
-                            <h3 class="card-title">Merge PDFs</h3>
-                            <p class="card-text">
-                                Combine multiple PDF files into a single document.
-                            </p>
-                            <a href="{{ url_for('organize.merge') }}" class="btn btn-primary">Merge PDFs</a>
-                        </div>
-                    </div>
+            <!-- Easier Sharing -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-share-alt"></i>
                 </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-cut fa-3x text-success mb-3"></i>
-                            <h3 class="card-title">Split PDF</h3>
-                            <p class="card-text">
-                                Divide a PDF document into multiple smaller PDFs.
-                            </p>
-                            <a href="{{ url_for('organize.split') }}" class="btn btn-success">Split PDF</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-copy fa-3x text-info mb-3"></i>
-                            <h3 class="card-title">Extract Pages</h3>
-                            <p class="card-text">
-                                Extract specific pages from a PDF document.
-                            </p>
-                            <a href="{{ url_for('organize.extract') }}" class="btn btn-info">Extract Pages</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-sync-alt fa-3x text-warning mb-3"></i>
-                            <h3 class="card-title">Rotate Pages</h3>
-                            <p class="card-text">
-                                Rotate pages in a PDF document to the correct orientation.
-                            </p>
-                            <a href="{{ url_for('organize.rotate') }}" class="btn btn-warning">Rotate Pages</a>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Easier Sharing</h5>
+                    <p>Share only the relevant parts of your documents.</p>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Why Organise Your PDFs?</h3>
+            <!-- Better Organisation -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-search"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-tasks text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Streamline Workflows</h5>
-                                    <p class="mb-0">Organise documents to match your specific needs.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-share-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Easier Sharing</h5>
-                                    <p class="mb-0">Share only the relevant parts of your documents.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-search text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Better Organisation</h5>
-                                    <p class="mb-0">Keep related content together and separate unrelated content.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-file-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Professional Documents</h5>
-                                    <p class="mb-0">Create polished, properly oriented documents.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Better Organisation</h5>
+                    <p>Keep related content together and separate unrelated content.</p>
+                </div>
+            </div>
+
+            <!-- Professional Documents -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Professional Documents</h5>
+                    <p>Create polished, properly oriented documents.</p>
                 </div>
             </div>
         </div>

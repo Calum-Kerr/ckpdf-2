@@ -91,3 +91,14 @@ uploads/
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific files
+team_contributions.csv
+revisepdf_vue_architecture.txt
+revisepdf_report.tex
+RevisePDF_Clean_Code.bas
+RevisePDF_Simple_Styled.bas
+RevisePDF_Styled_Presentation.bas
+RevisePDF_Demo_Slide.bas
+revisepdf_backend_infrastructure.txt
+devto_draft1_pdf_compression.md

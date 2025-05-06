@@ -1,4 +1,4 @@
-/* Optimise page specific styles */
+/* Edit page specific styles */
 
 /* Header section */
 .bg-primary {
@@ -125,6 +125,15 @@
     font-size: 0.9rem;
     color: #6c757d;
     margin-bottom: 0;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    vertical-align: middle;
 }
 
 /* Hover effects */

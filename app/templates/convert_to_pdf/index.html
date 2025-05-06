@@ -2,121 +2,147 @@
 
 {% block title %}Convert to PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/convert_to_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="mb-4">Convert to PDF Tools</h1>
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert to PDF Tools</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Transform different file formats into PDF documents, making them easier to share, view, and print across different devices and platforms.</p>
+    </div>
+</div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert Various Formats to PDF</h2>
+<div id="all-tools" class="container mb-5">
+    <div class="text-center">
+        <h3 class="section-title mb-5">All Convert Tools</h3>
+    </div>
+    <div class="tool-grid">
+        <!-- Image to PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 174" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="112" height="112" rx="25" fill="#873323"/>
+                        <path d="M168 143C168 156.807 156.807 168 143 168L80.9995 168C67.1924 168 55.9995 156.807 55.9995 143L55.9995 81C55.9995 67.1929 67.1924 56 80.9995 56L143 56C156.807 56 168 67.1929 168 81L168 143Z" fill="#C5D6E7"/>
+                        <path d="M97 98L129.909 155H64.091L97 98Z" fill="#2E8723"/>
+                        <path d="M134.5 105L160.914 150.75H108.086L134.5 105Z" fill="#36A927"/>
+                        <path d="M119 95C119 98.866 115.866 102 112 102C108.134 102 105 98.866 105 95C105 91.134 108.134 88 112 88C115.866 88 119 91.134 119 95Z" fill="#E39331"/>
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Our conversion tools allow you to transform different file formats into PDF documents,
-                        making them easier to share, view, and print across different devices and platforms.
-                    </p>
+                <div class="tool-content">
+                    <h5>Image to PDF</h5>
+                    <p>Convert JPG, PNG, and other image formats to PDF</p>
+                </div>
+                <a href="{{ url_for('convert_to_pdf.image_to_pdf') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Office to PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="112" height="112" rx="25" fill="#873323"/>
+                        <rect x="168" y="168" width="112" height="112" rx="25" transform="rotate(-180 168 168)" fill="#236987"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Office to PDF</h5>
+                    <p>Convert Word, Excel, and PowerPoint documents to PDF</p>
+                </div>
+                <a href="{{ url_for('convert_to_pdf.office_to_pdf') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- HTML to PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="112" height="112" rx="25" fill="#873323"/>
+                        <rect x="168" y="168" width="112" height="112" rx="25" transform="rotate(-180 168 168)" fill="url(#paint0_radial_200_64)"/>
+                        <defs>
+                        <radialGradient id="paint0_radial_200_64" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(224 224) rotate(90.0002) scale(130 292.529)">
+                        <stop stop-color="#F86C46"/>
+                        <stop offset="1" stop-color="#8C2002"/>
+                        </radialGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>HTML to PDF</h5>
+                    <p>Convert HTML files to PDF with support for CSS styling</p>
+                </div>
+                <a href="{{ url_for('convert_to_pdf.html_to_pdf') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- ZIP to PDF -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="112" height="112" rx="25" fill="#873323"/>
+                        <rect x="168" y="168" width="112" height="112" rx="25" transform="rotate(-180 168 168)" fill="#D4AD40"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>ZIP to PDF</h5>
+                    <p>Convert a ZIP file containing images to a PDF document</p>
+                </div>
+                <a href="{{ url_for('convert_to_pdf.zip_to_pdf') }}" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="features-section text-center">
+        <h3 class="section-title text-center mb-5">Why Convert to PDF?</h3>
+        <div class="features-grid">
+            <!-- Universal Compatibility -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-universal-access"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Universal Compatibility</h5>
+                    <p>PDFs can be viewed on virtually any device or platform.</p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-image fa-3x text-primary mb-3"></i>
-                            <h3 class="card-title">Image to PDF</h3>
-                            <p class="card-text">
-                                Convert JPG, PNG, and other image formats to PDF with customizable page settings.
-                            </p>
-                            <a href="{{ url_for('convert_to_pdf.image_to_pdf') }}" class="btn btn-primary">Convert Images</a>
-                        </div>
-                    </div>
+            <!-- Document Security -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-lock"></i>
                 </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-file-word fa-3x text-success mb-3"></i>
-                            <h3 class="card-title">Office to PDF</h3>
-                            <p class="card-text">
-                                Convert Word, Excel, and PowerPoint documents to PDF format.
-                            </p>
-                            <a href="{{ url_for('convert_to_pdf.office_to_pdf') }}" class="btn btn-success">Convert Office Files</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-code fa-3x text-info mb-3"></i>
-                            <h3 class="card-title">HTML to PDF</h3>
-                            <p class="card-text">
-                                Convert HTML files to PDF with support for CSS styling.
-                            </p>
-                            <a href="{{ url_for('convert_to_pdf.html_to_pdf') }}" class="btn btn-info">Convert HTML</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-file-archive fa-3x text-warning mb-3"></i>
-                            <h3 class="card-title">ZIP to PDF</h3>
-                            <p class="card-text">
-                                Convert a ZIP file containing images to a multi-page PDF document.
-                            </p>
-                            <a href="{{ url_for('convert_to_pdf.zip_to_pdf') }}" class="btn btn-warning">Convert ZIP</a>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Document Security</h5>
+                    <p>PDFs can be password-protected and encrypted.</p>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Why Convert to PDF?</h3>
+            <!-- Consistent Formatting -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-file-signature"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-universal-access text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Universal Compatibility</h5>
-                                    <p class="mb-0">PDFs can be viewed on virtually any device or platform.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-lock text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Document Security</h5>
-                                    <p class="mb-0">PDFs can be password-protected and encrypted.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-file-signature text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Consistent Formatting</h5>
-                                    <p class="mb-0">PDFs maintain their appearance across different systems.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-compress-arrows-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Compact File Size</h5>
-                                    <p class="mb-0">PDFs can be optimized for smaller file sizes.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Consistent Formatting</h5>
+                    <p>PDFs maintain their appearance across different systems.</p>
+                </div>
+            </div>
+
+            <!-- Compact File Size -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Compact File Size</h5>
+                    <p>PDFs can be optimized for smaller file sizes.</p>
                 </div>
             </div>
         </div>

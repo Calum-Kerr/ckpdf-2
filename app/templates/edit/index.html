@@ -2,121 +2,178 @@
 
 {% block title %}Edit PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h1 class="mb-4">Edit PDF Tools</h1>
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Edit PDF Tools</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Enhance and modify your PDF documents without needing specialized software.</p>
+    </div>
+</div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Enhance and Modify Your PDF Documents</h2>
+<div id="all-tools" class="container mb-5">
+    <div class="text-center">
+        <h3 class="section-title mb-5">All Edit Tools</h3>
+    </div>
+    <div class="tool-grid">
+        <!-- Add Page Numbers -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <path d="M99.084 28.5V51.3359H121.5V133.5H46.5V28.5H99.084Z" stroke="white" stroke-width="5"/>
+                        <path d="M100 27.5168L122 50.5168" stroke="white" stroke-width="5"/>
+                        <path d="M65.5 70.5H102.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M65.5 85.5H102.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M65.5 100.5H102.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M65.5 115.5H102.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M65.5 55.5H102.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+                        <circle cx="122" cy="129" r="15" fill="white"/>
+                        <path d="M122.5 121.5V136.5" stroke="#238287" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M115 129H130" stroke="#238287" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Our editing tools help you add professional touches and make changes to your PDF documents
-                        without needing specialized software.
-                    </p>
+                <div class="tool-content">
+                    <h5>Add Page Numbers</h5>
+                    <p>Add customizable page numbers to your PDF document</p>
+                </div>
+                <a href="{{ url_for('edit.page_numbers') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Add Watermark -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <path d="M99.084 28.5V51.3359H121.5V133.5H46.5V28.5H99.084Z" stroke="white" stroke-width="5"/>
+                        <path d="M100 27.5168L122 50.5168" stroke="white" stroke-width="5"/>
+                        <path opacity="0.5" d="M65.4629 91.0665L65.7159 74.5637L67.8288 73.9976L68.2037 80.2867L67.8007 97.5576L65.7028 98.1198L65.4629 91.0665ZM56.8414 76.9416L64.3406 91.0437L67.2423 97.7073L65.1595 98.2653L53.9437 77.7181L56.8414 76.9416ZM77.4973 87.5022L76.8693 71.5752L79.7822 70.7947L80.3577 94.193L78.2749 94.7511L77.4973 87.5022ZM68.1458 73.9126L76.4956 88.1103L79.8144 94.3386L77.7165 94.9007L68.898 80.1007L66.063 74.4707L68.1458 73.9126ZM83.9326 69.6826L86.755 68.9263L98.7544 84.9122L101.138 65.0723L103.976 64.3121L100.929 88.6809L98.7254 89.2714L83.9326 69.6826ZM83.012 69.9292L85.5023 69.262L89.5009 82.555L91.7979 91.1276L88.9001 91.9041L83.012 69.9292ZM102.391 64.7367L104.881 64.0694L110.769 86.0442L107.872 86.8207L105.574 78.2481L102.391 64.7367Z" fill="white"/>
+                        <circle cx="122" cy="129" r="15" fill="white"/>
+                        <rect x="120" y="119" width="4" height="20" rx="2" fill="#238287"/>
+                        <rect x="112" y="127" width="20" height="4" rx="2" fill="#238287"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Add Watermark</h5>
+                    <p>Add text watermarks to your PDF document</p>
+                </div>
+                <a href="{{ url_for('edit.watermark') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Edit Text -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <line x1="119" y1="47.5" x2="42" y2="47.5" stroke="white" stroke-width="5"/>
+                        <line x1="44.1571" y1="45.0213" x2="43.4999" y2="122.021" stroke="white" stroke-width="5"/>
+                        <line x1="40.9884" y1="119.857" x2="117.99" y2="119.5" stroke="white" stroke-width="5"/>
+                        <path d="M117 74.5L116.999 122.007" stroke="white" stroke-width="5"/>
+                        <path d="M126.25 39.75C127.104 38.8964 128.117 38.2193 129.232 37.7573C130.347 37.2954 131.543 37.0576 132.75 37.0576C133.957 37.0576 135.152 37.2954 136.268 37.7573C137.383 38.2193 138.396 38.8964 139.25 39.75C140.104 40.6036 140.781 41.617 141.243 42.7322C141.705 43.8475 141.942 45.0428 141.942 46.25C141.942 47.4572 141.705 48.6525 141.243 49.7678C140.781 50.8831 140.104 51.8964 139.25 52.75L95.375 96.625L77.5 101.5L82.375 83.625L126.25 39.75Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Edit Text</h5>
+                    <p>Edit text directly on your PDF while preserving formatting</p>
+                </div>
+                <a href="{{ url_for('edit.text_editor') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- WYSIWYG Editor -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <path d="M126.25 39.75C127.104 38.8964 128.117 38.2193 129.232 37.7573C130.347 37.2954 131.543 37.0576 132.75 37.0576C133.957 37.0576 135.152 37.2954 136.268 37.7573C137.383 38.2193 138.396 38.8964 139.25 39.75C140.104 40.6036 140.781 41.617 141.243 42.7322C141.705 43.8475 141.942 45.0428 141.942 46.25C141.942 47.4572 141.705 48.6525 141.243 49.7678C140.781 50.8831 140.104 51.8964 139.25 52.75L95.375 96.625L77.5 101.5L82.375 83.625L126.25 39.75Z" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="28" y="28" width="90" height="112" rx="5" stroke="white" stroke-width="4"/>
+                        <line x1="42" y1="52" x2="104" y2="52" stroke="white" stroke-width="4"/>
+                        <line x1="42" y1="76" x2="104" y2="76" stroke="white" stroke-width="4"/>
+                        <line x1="42" y1="100" x2="104" y2="100" stroke="white" stroke-width="4"/>
+                        <line x1="42" y1="124" x2="70" y2="124" stroke="white" stroke-width="4"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>WYSIWYG Editor <span class="badge bg-danger">New!</span></h5>
+                    <p>Edit any text in your PDF with our advanced editor</p>
+                </div>
+                <a href="{{ url_for('edit.wysiwyg_editor') }}" class="stretched-link"></a>
+            </div>
+        </div>
+
+        <!-- Add Signature -->
+        <div class="tool-card">
+            <div class="tool-card-inner">
+                <div class="tool-icon">
+                    <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="168" height="168" rx="25" fill="#238287"/>
+                        <path d="M52.4663 114.46L63.2029 67.1859L87.5098 61.9817L103.978 78.0105L99.4332 102.449L52.4663 114.46ZM52.4663 114.46L76.7851 89.4748M107.272 81.2162L84.2161 58.776L93.8334 48.895L116.889 71.3353L107.272 81.2162ZM81.2302 78.3181C84.8197 78.2696 87.7689 81.1401 87.8175 84.7296C87.866 88.3192 84.9955 91.2684 81.406 91.317C77.8164 91.3655 74.8672 88.495 74.8187 84.9055C74.7701 81.3159 77.6406 78.3667 81.2302 78.3181Z" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="tool-content">
+                    <h5>Add Signature</h5>
+                    <p>Add a signature to your PDF document</p>
+                </div>
+                <a href="{{ url_for('edit.signature') }}" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="features-section text-center">
+        <h3 class="section-title text-center mb-5">Why Edit Your PDFs?</h3>
+        <div class="features-grid">
+            <!-- Professional Appearance -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Professional Appearance</h5>
+                    <p>Add finishing touches for a polished look.</p>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-list-ol fa-3x text-primary mb-3"></i>
-                            <h3 class="card-title">Add Page Numbers</h3>
-                            <p class="card-text">
-                                Add customizable page numbers to your PDF document.
-                            </p>
-                            <a href="{{ url_for('edit.page_numbers') }}" class="btn btn-primary">Add Page Numbers</a>
-                        </div>
-                    </div>
+            <!-- Document Protection -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-stamp fa-3x text-success mb-3"></i>
-                            <h3 class="card-title">Add Watermark</h3>
-                            <p class="card-text">
-                                Add text watermarks to your PDF document.
-                            </p>
-                            <a href="{{ url_for('edit.watermark') }}" class="btn btn-success">Add Watermark</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-edit fa-3x text-info mb-3"></i>
-                            <h3 class="card-title">Edit Text</h3>
-                            <p class="card-text">
-                                Edit text directly on your PDF in editable text boxes while preserving formatting and layout.
-                            </p>
-                            <a href="{{ url_for('edit.text_editor') }}" class="btn btn-info">Edit Text</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-file-signature fa-3x text-warning mb-3"></i>
-                            <h3 class="card-title">Add Signature</h3>
-                            <p class="card-text">
-                                Add a signature to your PDF document.
-                            </p>
-                            <a href="{{ url_for('edit.signature') }}" class="btn btn-warning">Add Signature</a>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Document Protection</h5>
+                    <p>Add watermarks to indicate ownership or status.</p>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Why Edit Your PDFs?</h3>
+            <!-- Better Navigation -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-search"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-tasks text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Professional Appearance</h5>
-                                    <p class="mb-0">Add finishing touches for a polished look.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-shield-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Document Protection</h5>
-                                    <p class="mb-0">Add watermarks to indicate ownership or status.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-search text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Better Navigation</h5>
-                                    <p class="mb-0">Page numbers make it easier to reference specific content.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-file-alt text-primary fa-2x me-3"></i>
-                                <div>
-                                    <h5 class="mb-1">Quick Fixes</h5>
-                                    <p class="mb-0">Make minor edits without recreating the entire document.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="feature-content">
+                    <h5>Better Navigation</h5>
+                    <p>Page numbers make it easier to reference specific content.</p>
+                </div>
+            </div>
+
+            <!-- Quick Fixes -->
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Quick Fixes</h5>
+                    <p>Make minor edits without recreating the entire document.</p>
                 </div>
             </div>
         </div>

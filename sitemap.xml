@@ -178,13 +178,13 @@
 
   <!-- Security Tool Pages -->
   <url>
-    <loc>https://www.revisepdf.com/security/encrypt</loc>
+    <loc>https://www.revisepdf.com/security/protect</loc>
     <lastmod>2025-04-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.revisepdf.com/security/decrypt</loc>
+    <loc>https://www.revisepdf.com/security/unlock</loc>
     <lastmod>2025-04-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

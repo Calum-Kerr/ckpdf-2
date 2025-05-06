@@ -2,130 +2,254 @@
 
 {% block title %}OCR PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ocr.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">OCR PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Extract text from scanned PDFs using Optical Character Recognition (OCR). This makes your PDF searchable and allows you to select and copy text.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">OCR PDF</h2>
+    <form method="POST" enctype="multipart/form-data" id="ocr-form">
+        {{ form.csrf_token }}
+
+        {% if not result %}
+        <div class="tool-container">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Extract text from scanned PDFs using Optical Character Recognition (OCR).
-                        This makes your PDF searchable and allows you to select and copy text.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
-
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.language.label(class="form-label") }}
-                            {{ form.language(class="form-select") }}
-                            <div class="form-text">
-                                Select the language of the text in your PDF for better OCR results.
-                            </div>
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">OCR Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Pages Processed</h4>
-                            <p>{{ result.page_count }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Languages Used</h4>
-                            <ul>
-                                {% for lang_code in result.languages %}
-                                    <li>{{ get_language_name(lang_code) }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
+            <!-- Right side: OCR options -->
+            <div class="options-panel">
+                <h3 class="options-title">OCR Options</h3>
 
-                    <div class="alert {% if result.text_found %}alert-success{% elif result.tesseract_missing or result.error_occurred %}alert-danger{% else %}alert-warning{% endif %}">
-                        {% if result.text_found %}
-                            <i class="fas fa-check-circle me-2"></i> Text was successfully extracted and added to the PDF.
-                        {% elif result.tesseract_missing or result.error_occurred %}
-                            <i class="fas fa-exclamation-triangle me-2"></i> {{ result.message }}
-                        {% else %}
-                            <i class="fas fa-info-circle me-2"></i> No text was extracted. The PDF may already contain text or no recognizable text was found in the images.
-                        {% endif %}
-                    </div>
+                <div class="language-options">
+                    <p class="language-label">Select Language</p>
+                    <select id="language-select" class="language-select">
+                        <option value="eng">English</option>
+                        <option value="fra">French</option>
+                        <option value="deu">German</option>
+                        <option value="spa">Spanish</option>
+                        <option value="ita">Italian</option>
+                        <option value="por">Portuguese</option>
+                        <option value="rus">Russian</option>
+                        <option value="chi_sim">Chinese (Simplified)</option>
+                        <option value="chi_tra">Chinese (Traditional)</option>
+                        <option value="jpn">Japanese</option>
+                        <option value="kor">Korean</option>
+                    </select>
+                    <p class="language-help">Select the language of the text in your PDF for better OCR results.</p>
 
-                    <div class="d-grid">
-                        <a href="{{ url_for('optimize.download_ocr', filename=output_filename) }}" class="btn btn-success">Download OCR'd PDF</a>
-                    </div>
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.language(class="d-none") }}
                 </div>
+
+                <p class="options-text">
+                    Our OCR tool will:
+                </p>
+                <ul class="info-list">
+                    <li>Extract images from each page of your PDF</li>
+                    <li>Recognize text in the extracted images</li>
+                    <li>Add the recognized text as an invisible layer on top of the original PDF</li>
+                </ul>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Perform OCR</button>
             </div>
-            {% endif %}
+        </div>
+        {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF OCR</h3>
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">OCR Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Pages Processed</h4>
+                    <p class="result-value">{{ result.page_count }}</p>
                 </div>
-                <div class="card-body">
-                    <p>
-                        Optical Character Recognition (OCR) is the process of converting images of text into machine-readable text.
-                        When applied to PDFs, OCR makes scanned documents searchable and allows you to select and copy text.
-                    </p>
 
-                    <h4>How It Works</h4>
-                    <p>
-                        Our OCR tool uses a multi-step process:
-                    </p>
-                    <ol>
-                        <li>
-                            <strong>Image Extraction:</strong> We extract images from each page of your PDF.
-                        </li>
-                        <li>
-                            <strong>Text Recognition:</strong> We use advanced OCR technology to recognize text in the extracted images.
-                        </li>
-                        <li>
-                            <strong>Text Overlay:</strong> We add the recognized text as an invisible layer on top of the original PDF.
-                        </li>
-                    </ol>
-
-                    <h4>Benefits of OCR</h4>
-                    <ul>
-                        <li>Make scanned documents searchable</li>
-                        <li>Enable text selection and copying</li>
-                        <li>Improve accessibility for screen readers</li>
-                        <li>Prepare documents for text analysis</li>
+                <div class="result-card">
+                    <h4 class="result-card-title">Languages Used</h4>
+                    <ul class="language-list">
+                        {% for lang_code in result.languages %}
+                            <li>{{ get_language_name(lang_code) }}</li>
+                        {% endfor %}
                     </ul>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Important:</strong> OCR accuracy depends on the quality of the original document.<br><br>
-                        Clear, high-resolution scans will yield better results. For best results, choose the correct language that matches the text in your document.
-                    </div>
                 </div>
             </div>
+
+            <div class="status-alert {% if result.text_found %}status-success{% elif result.tesseract_missing or result.error_occurred %}status-danger{% else %}status-warning{% endif %}">
+                {% if result.text_found %}
+                    <i class="fas fa-check-circle me-2"></i> Text was successfully extracted and added to the PDF.
+                {% elif result.tesseract_missing or result.error_occurred %}
+                    <i class="fas fa-exclamation-triangle me-2"></i> {{ result.message }}
+                {% else %}
+                    <i class="fas fa-info-circle me-2"></i> No text was extracted. The PDF may already contain text or no recognizable text was found in the images.
+                {% endif %}
+            </div>
+
+            <a href="{{ url_for('optimize.download_ocr', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download OCR'd PDF
+            </a>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('optimize.ocr') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Process Another PDF
+            </a>
+        </div>
+        {% endif %}
+    </form>
+
+    <div class="info-container">
+        <h3 class="info-title">About PDF OCR</h3>
+
+        <p class="info-text">
+            Optical Character Recognition (OCR) is the process of converting images of text into machine-readable text.
+            When applied to PDFs, OCR makes scanned documents searchable and allows you to select and copy text.
+        </p>
+
+        <h4 class="info-subtitle">How It Works</h4>
+        <p class="info-text">
+            Our OCR tool uses a multi-step process:
+        </p>
+        <ol class="info-list">
+            <li>
+                <strong>Image Extraction:</strong> We extract images from each page of your PDF.
+            </li>
+            <li>
+                <strong>Text Recognition:</strong> We use advanced OCR technology to recognize text in the extracted images.
+            </li>
+            <li>
+                <strong>Text Overlay:</strong> We add the recognized text as an invisible layer on top of the original PDF.
+            </li>
+        </ol>
+
+        <h4 class="info-subtitle">Benefits of OCR</h4>
+        <ul class="info-list">
+            <li>Make scanned documents searchable</li>
+            <li>Enable text selection and copying</li>
+            <li>Improve accessibility for screen readers</li>
+            <li>Prepare documents for text analysis</li>
+        </ul>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Important:</strong> OCR accuracy depends on the quality of the original document. Clear, high-resolution scans will yield better results. For best results, choose the correct language that matches the text in your document.
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const languageSelect = document.getElementById('language-select');
+        const languageHidden = document.getElementById('language');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        fileRemove.addEventListener('click', function() {
+            fileInput.value = '';
+            filePreview.classList.add('d-none');
+            uploadArea.classList.remove('d-none');
+            submitBtn.disabled = true;
+        });
+
+        // Handle language selection
+        languageSelect.addEventListener('change', function() {
+            languageHidden.value = this.value;
+        });
+
+        // Initialize hidden language field
+        languageHidden.value = languageSelect.value;
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}

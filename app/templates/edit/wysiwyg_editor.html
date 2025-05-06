@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}WYSIWYG PDF Editor - RevisePDF{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- PDF.js library -->
+<script src="{{ url_for('static', filename='js/lib/pdf.min.js') }}" nonce="{{ csp_nonce() }}"></script>
+<script nonce="{{ csp_nonce() }}">
+    // Set worker path for PDF.js
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ url_for('static', filename='js/lib/pdf.worker.min.js') }}';
+        }
+    });
+</script>
+<!-- pdf-lib for PDF editing -->
+<script src="{{ url_for('static', filename='js/lib/pdf-lib.min.js') }}" nonce="{{ csp_nonce() }}"></script>
+<script src="{{ url_for('static', filename='js/lib/download.js') }}" nonce="{{ csp_nonce() }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">WYSIWYG PDF Editor</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Edit text directly in your PDF document with our advanced WYSIWYG editor. Select any text to edit it.
+                    </p>
+
+                    {% if not pdf_uploaded %}
+                    <form id="upload-form" method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+
+                        <div class="mb-3">
+                            {{ form.file.label(class="form-label") }}
+                            {{ form.file(class="form-control") }}
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.file.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Upload PDF</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if pdf_uploaded %}
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">PDF Editor</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="btn-group" role="group">
+                                <button id="prev-page" class="btn btn-outline-primary">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <button id="next-page" class="btn btn-outline-primary">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <input type="number" id="page-num" class="form-control" min="1" value="1">
+                                <span class="input-group-text">/ <span id="page-count">1</span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="btn-group" role="group">
+                                <button id="zoom-out" class="btn btn-outline-secondary">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <button id="zoom-in" class="btn btn-outline-secondary">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>How to edit:</strong>
+                        <ul class="mb-0">
+                            <li><strong>Single click</strong> on any text to select it and open the edit modal</li>
+                            <li><strong>Double click</strong> on text to edit directly in the document</li>
+                            <li>Press <strong>Enter</strong> to save or <strong>Escape</strong> to cancel direct edits</li>
+                            <li>Click <strong>Save Changes</strong> when you're done to apply all modifications to the PDF</li>
+                        </ul>
+                    </div>
+
+                    <div class="pdf-container border mb-3">
+                        <div id="pdf-viewer" class="position-relative">
+                            <canvas id="pdf-canvas"></canvas>
+                            <div id="text-layer" class="position-absolute top-0 left-0 w-100 h-100"></div>
+                            <div id="edit-layer" class="position-absolute top-0 left-0 w-100 h-100"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button id="save-changes" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                            <button id="download-pdf" class="btn btn-primary ms-2">
+                                <i class="fas fa-download me-2"></i> Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">About WYSIWYG PDF Editing</h3>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Our improved WYSIWYG PDF Editor allows you to:
+                    </p>
+
+                    <ul>
+                        <li>Edit text directly on the PDF as you see it</li>
+                        <li>Make changes to any text in the document with single or double-click</li>
+                        <li>Adjust font sizes for better readability</li>
+                        <li>See your changes in real-time</li>
+                        <li>Download the edited PDF immediately</li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> While our editor supports most PDF documents, some complex PDFs with special formatting or security features may have limited editability. For best results:
+                        <ul class="mb-0 mt-2">
+                            <li>Use PDFs with selectable text (not scanned documents)</li>
+                            <li>Save your changes frequently</li>
+                            <li>For scanned documents, try our OCR tool first to make text selectable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Text Editor Modal -->
+<div class="modal fade" id="textEditorModal" tabindex="-1" aria-labelledby="textEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="textEditorModalLabel">Edit Text</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="edit-text-content" class="form-label">Text Content</label>
+                    <textarea id="edit-text-content" class="form-control" rows="5"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="edit-font-size" class="form-label">Font Size</label>
+                    <input type="number" id="edit-font-size" class="form-control" min="8" max="72" value="12">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="apply-text-edit">Apply Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include PDF.js libraries with nonce -->
+<script src="{{ url_for('static', filename='js/lib/pdf.min.js') }}" nonce="{{ csp_nonce() }}"></script>
+<script nonce="{{ csp_nonce() }}">
+    // Set PDF.js worker path
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ url_for('static', filename='js/lib/pdf.worker.min.js') }}";
+    }
+</script>
+
+<!-- Include our custom WYSIWYG editor JavaScript -->
+<script src="{{ url_for('static', filename='js/wysiwyg-editor.js') }}" nonce="{{ csp_nonce() }}"></script>
+
+<!-- Hidden fields for JavaScript -->
+{% if pdf_uploaded %}
+<input type="hidden" id="pdf-url" value="{{ pdf_url }}">
+<input type="hidden" id="pdf-filename" value="{{ filename }}">
+{% if output_filename %}
+<input type="hidden" id="output-filename" value="{{ output_filename }}">
+{% endif %}
+{% endif %}
+
+<style nonce="{{ csp_nonce() }}">
+    .pdf-container {
+        overflow: auto;
+        max-height: 800px;
+        position: relative;
+    }
+
+    #pdf-viewer {
+        position: relative;
+        display: inline-block;
+    }
+
+    #text-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        opacity: 0.2;
+        line-height: 1.0;
+    }
+
+    #text-layer > div {
+        color: transparent;
+        position: absolute;
+        white-space: pre;
+        cursor: text;
+        transform-origin: 0% 0%;
+    }
+
+    #text-layer .highlight {
+        margin: -1px;
+        padding: 1px;
+        background-color: rgba(180, 0, 170, 0.2);
+        border-radius: 4px;
+    }
+
+    #text-layer .highlight.selected {
+        background-color: rgba(0, 100, 0, 0.2);
+    }
+
+    #edit-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .edit-box {
+        position: absolute;
+        border: 1px solid #238287;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2px;
+        pointer-events: auto;
+    }
+</style>
+{% endblock %}

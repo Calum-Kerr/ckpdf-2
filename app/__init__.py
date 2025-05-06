@@ -81,20 +81,84 @@ def create_app(test_config=None):
 
     # Initialize Talisman for HTTPS and security headers
     csp = {
-        'default-src': '\'self\'',
-        'script-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://accounts.google.com'],
-        'style-src': ['\'self\'', '\'unsafe-inline\'', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://accounts.google.com'],
-        'img-src': ['\'self\'', 'data:', 'https://accounts.google.com', 'https://*.googleusercontent.com', 'https://upload.wikimedia.org'],
-        'font-src': ['\'self\'', 'https://cdnjs.cloudflare.com', 'https://fonts.gstatic.com'],
-        'connect-src': ['\'self\'', 'https://accounts.google.com', 'https://oauth2.googleapis.com', 'https://*.supabase.co'],
-        'object-src': '\'none\'',
-        'frame-src': ['\'self\'', 'https://accounts.google.com'],
+        'default-src': ['\'self\''],
+        'script-src': [
+            '\'self\'',
+            # Remove unsafe-inline since we're using nonces
+            '\'unsafe-eval\'',
+            'https://cdn.jsdelivr.net',
+            'https://cdnjs.cloudflare.com',
+            'https://accounts.google.com',
+            'https://unpkg.com',
+            'https://*.unpkg.com',
+            'https://www.googletagmanager.com',
+            'https://www.google-analytics.com',
+            'https://ssl.google-analytics.com',
+            'https://tagmanager.google.com',
+            'https://region1.google-analytics.com'
+        ],
+        'style-src': [
+            '\'self\'',
+            # Remove unsafe-inline since we're using nonces
+            'https://cdn.jsdelivr.net',
+            'https://cdnjs.cloudflare.com',
+            'https://accounts.google.com',
+            'https://fonts.googleapis.com',
+            'https://unpkg.com',
+            'https://*.unpkg.com'
+        ],
+        'img-src': [
+            '\'self\'',
+            'data:',
+            'blob:',
+            'https://accounts.google.com',
+            'https://*.googleusercontent.com',
+            'https://upload.wikimedia.org',
+            'https://www.google-analytics.com',
+            'https://www.googletagmanager.com',
+            'https://stats.g.doubleclick.net',
+            'https://region1.google-analytics.com'
+        ],
+        'font-src': [
+            '\'self\'',
+            'data:',
+            'https://cdnjs.cloudflare.com',
+            'https://fonts.gstatic.com',
+            'https://fonts.googleapis.com',
+            'https://unpkg.com',
+            'https://*.unpkg.com'
+        ],
+        'connect-src': [
+            '\'self\'',
+            'https://accounts.google.com',
+            'https://oauth2.googleapis.com',
+            'https://*.supabase.co',
+            'https://unpkg.com',
+            'https://*.unpkg.com',
+            'https://www.google-analytics.com',
+            'https://stats.g.doubleclick.net',
+            'https://region1.google-analytics.com',
+            'https://*.google-analytics.com'
+        ],
+        'object-src': ['\'none\''],
+        'frame-src': [
+            '\'self\'',
+            'https://accounts.google.com',
+            'https://www.googletagmanager.com'
+        ],
+        'worker-src': [
+            '\'self\'',
+            'blob:',
+            'https://unpkg.com',
+            'https://*.unpkg.com',
+            'https://cdnjs.cloudflare.com'
+        ]
     }
 
     talisman.init_app(
         app,
         content_security_policy=csp,
-        content_security_policy_nonce_in=['script-src'],
+        content_security_policy_nonce_in=['script-src', 'style-src'],
         force_https=not app.debug,  # Don't force HTTPS in debug mode
         session_cookie_secure=app.config['SESSION_COOKIE_SECURE'],
         session_cookie_http_only=app.config['SESSION_COOKIE_HTTPONLY'],
@@ -102,6 +166,12 @@ def create_app(test_config=None):
         strict_transport_security_preload=True,
         referrer_policy='strict-origin-when-cross-origin'
     )
+
+    # Add a context processor to make the CSP nonce available in templates
+    @app.context_processor
+    def inject_csp_nonce():
+        from flask import request
+        return dict(csp_nonce=lambda: request.csp_nonce)
 
     # Initialize custom security features
     from app.security import init_app as init_security

@@ -2,122 +2,258 @@
 
 {% block title %}Compress PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/compress.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Compress PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Compress PDF</h2>
+    <form method="POST" enctype="multipart/form-data" id="compress-form">
+        {{ form.csrf_token }}
+
+        {% if not result %}
+        <div class="tool-container">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Reduce the size of your PDF for easier sharing, while maintaining acceptable quality.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
-
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.compression_level.label(class="form-label") }}
-                            {{ form.compression_level(class="form-select") }}
-                            <div class="form-text">
-                                <strong>Screen:</strong> Low quality, smallest file size (70-90% reduction)<br>
-                                <strong>eBook:</strong> Medium quality, good file size (50-70% reduction)<br>
-                                <strong>Printer:</strong> High quality, larger file size (30-50% reduction)<br>
-                                <strong>Prepress:</strong> High quality with color preservation (20-40% reduction)<br>
-                                <strong>Default:</strong> Standard compression settings (40-60% reduction)
-                            </div>
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Compression Results</h3>
+            <!-- Right side: Compression options -->
+            <div class="options-panel">
+                <h3 class="options-title">Compression Options</h3>
+
+                <div class="compression-options">
+                    <div class="compression-levels">
+                        <div class="compression-level" data-value="screen">
+                            <p class="level-name">Screen</p>
+                            <p class="level-description">Low quality, smallest file size</p>
+                            <p class="level-reduction">70-90% reduction</p>
+                        </div>
+
+                        <div class="compression-level selected" data-value="ebook">
+                            <p class="level-name">eBook</p>
+                            <p class="level-description">Medium quality, good file size</p>
+                            <p class="level-reduction">50-70% reduction</p>
+                        </div>
+
+                        <div class="compression-level" data-value="printer">
+                            <p class="level-name">Printer</p>
+                            <p class="level-description">High quality, larger file size</p>
+                            <p class="level-reduction">30-50% reduction</p>
+                        </div>
+
+                        <div class="compression-level" data-value="prepress">
+                            <p class="level-name">Prepress</p>
+                            <p class="level-description">High quality with color preservation</p>
+                            <p class="level-reduction">20-40% reduction</p>
+                        </div>
+
+                        <div class="compression-level" data-value="default">
+                            <p class="level-name">Default</p>
+                            <p class="level-description">Standard compression settings</p>
+                            <p class="level-reduction">40-60% reduction</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.compression_level(class="d-none") }}
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Original File</h4>
-                            <p>Size: {{ (result.input_size / 1024 / 1024)|round(2) }} MB</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Compressed File</h4>
-                            <p>Size: {{ (result.output_size / 1024 / 1024)|round(2) }} MB</p>
-                            <p>Reduction: {{ result.reduction_percent|round(2) }}%</p>
-                        </div>
-                    </div>
 
-                    <div class="progress mb-3">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ result.reduction_percent }}%;" aria-valuenow="{{ result.reduction_percent }}" aria-valuemin="0" aria-valuemax="100">{{ result.reduction_percent|round(2) }}%</div>
-                    </div>
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Compress PDF</button>
+            </div>
+        </div>
+        {% endif %}
 
-                    <div class="d-grid">
-                        <a href="{{ url_for('optimize.download_compressed', filename=output_filename) }}" class="btn btn-success">Download Compressed PDF</a>
-                    </div>
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Compression Results</h3>
+
+            <div class="comparison">
+                <div class="file-card">
+                    <h4 class="file-card-title">Original File</h4>
+                    <p class="file-card-size">{{ (result.input_size / 1024 / 1024)|round(2) }} MB</p>
+                </div>
+
+                <div class="file-card">
+                    <h4 class="file-card-title">Compressed File</h4>
+                    <p class="file-card-size">{{ (result.output_size / 1024 / 1024)|round(2) }} MB</p>
+                    <p>Reduction: {{ result.reduction_percent|round(2) }}%</p>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Compression</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF compression reduces the file size of your PDF documents while maintaining acceptable quality.
-                        This is useful for sharing documents via email, uploading to websites, or saving storage space.
-                    </p>
-
-                    <h4>How It Works</h4>
-                    <p>
-                        Our compression tool uses a high-quality PDF processing engine to optimise your PDF files.
-                        It works by:
-                    </p>
-                    <ul>
-                        <li>Downsampling images to reduce their resolution</li>
-                        <li>Applying compression algorithms to images and text</li>
-                        <li>Removing unnecessary metadata and embedded fonts</li>
-                        <li>Optimising the internal structure of the PDF</li>
-                    </ul>
-
-                    <h4>Choosing the Right Compression Level</h4>
-                    <p>
-                        Different compression levels are suitable for different purposes:
-                    </p>
-                    <ul>
-                        <li><strong>Screen:</strong> Best for documents that will only be viewed on screen</li>
-                        <li><strong>eBook:</strong> Good balance between quality and file size, suitable for most purposes</li>
-                        <li><strong>Printer:</strong> Better quality for documents that will be printed</li>
-                        <li><strong>Prepress:</strong> High quality with color preservation for professional printing</li>
-                    </ul>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        The actual compression ratio depends on the content of your PDF. Documents with many images will see greater reduction than text-only documents.
-                    </div>
+            <div class="reduction-bar">
+                <div class="reduction-progress" style="width: {{ result.reduction_percent }}%;">
+                    {{ result.reduction_percent|round(2) }}% smaller
                 </div>
             </div>
+
+            <a href="{{ url_for('optimize.download_compressed', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download Compressed PDF
+            </a>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('optimize.compress') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Compress Another PDF
+            </a>
+        </div>
+        {% endif %}
+    </form>
+
+    <div class="info-container">
+        <h3 class="info-title">About PDF Compression</h3>
+
+        <p class="info-text">
+            PDF compression reduces the file size of your PDF documents while maintaining acceptable quality.
+            This is useful for sharing documents via email, uploading to websites, or saving storage space.
+        </p>
+
+        <h4 class="info-subtitle">How It Works</h4>
+        <p class="info-text">
+            Our compression tool uses a high-quality PDF processing engine to optimise your PDF files.
+            It works by:
+        </p>
+        <ul class="info-list">
+            <li>Downsampling images to reduce their resolution</li>
+            <li>Applying compression algorithms to images and text</li>
+            <li>Removing unnecessary metadata and embedded fonts</li>
+            <li>Optimising the internal structure of the PDF</li>
+        </ul>
+
+        <h4 class="info-subtitle">Choosing the Right Compression Level</h4>
+        <p class="info-text">
+            Different compression levels are suitable for different purposes:
+        </p>
+        <ul class="info-list">
+            <li><strong>Screen:</strong> Best for documents that will only be viewed on screen</li>
+            <li><strong>eBook:</strong> Good balance between quality and file size, suitable for most purposes</li>
+            <li><strong>Printer:</strong> Better quality for documents that will be printed</li>
+            <li><strong>Prepress:</strong> High quality with color preservation for professional printing</li>
+        </ul>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle me-2"></i>
+            The actual compression ratio depends on the content of your PDF. Documents with many images will see greater reduction than text-only documents.
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const compressionLevels = document.querySelectorAll('.compression-level');
+        const compressionLevelSelect = document.getElementById('compression_level');
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        fileRemove.addEventListener('click', function() {
+            fileInput.value = '';
+            filePreview.classList.add('d-none');
+            uploadArea.classList.remove('d-none');
+            submitBtn.disabled = true;
+        });
+
+        // Handle compression level selection
+        compressionLevels.forEach(function(level) {
+            level.addEventListener('click', function() {
+                // Remove selected class from all levels
+                compressionLevels.forEach(function(l) {
+                    l.classList.remove('selected');
+                });
+
+                // Add selected class to clicked level
+                this.classList.add('selected');
+
+                // Update hidden select field
+                compressionLevelSelect.value = this.dataset.value;
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}
