@@ -2,110 +2,111 @@
 
 {% block title %}Edit PDF Text - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/text_editor.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Edit PDF Text</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Edit text directly in your PDF document. Changes are applied while preserving the original layout.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Edit PDF Text</h2>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Edit text directly in your PDF document. Changes are applied while preserving the original layout.
-                    </p>
+    {% if not pdf_uploaded %}
+    <div class="tool-container">
+        <div class="upload-section">
+            <form id="upload-form" method="POST" enctype="multipart/form-data">
+                {{ form.csrf_token }}
 
-                    {% if not pdf_uploaded %}
-                    <form id="upload-form" method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
-
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Upload PDF</button>
-                        </div>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
-
-            {% if pdf_uploaded %}
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">PDF Text Editor</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>How to edit:</strong> Click on any text box to edit its content. When you're done, click "Save Changes" to apply all edits to the PDF.
-                            </div>
-
-                            <div class="pdf-editor-container position-relative border mb-3">
-                                <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid w-100" alt="PDF Preview">
-                                <div id="text-blocks-overlay" class="text-blocks-overlay"></div>
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-3">
-                                <div>
-                                    <button id="prev-page" class="btn btn-outline-secondary" {% if current_page <= 1 %}disabled{% endif %}>
-                                        <i class="fas fa-chevron-left"></i> Previous
-                                    </button>
-                                    <button id="next-page" class="btn btn-outline-secondary" {% if current_page >= total_pages %}disabled{% endif %}>
-                                        Next <i class="fas fa-chevron-right"></i>
-                                    </button>
-                                </div>
-                                <div>
-                                    <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
-                                </div>
-                            </div>
-
-                            <div class="d-grid">
-                                <button id="save-changes" class="btn btn-success mb-3">Save Changes</button>
-                                {% if output_filename %}
-                                <a href="{{ url_for('edit.download_edited', filename=output_filename) }}" class="btn btn-primary mb-3">Download Edited PDF</a>
-                                {% endif %}
-                                <a href="{{ url_for('edit.text_editor') }}" class="btn btn-outline-secondary">Start Over</a>
-                            </div>
-                        </div>
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
                     </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
+
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="submit-btn mt-4" id="submit-btn">Open in Editor</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if pdf_uploaded %}
+    <div class="editor-panel">
+        <h3 class="editor-title">Edit PDF Text</h3>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>How to edit:</strong> Click on any text box to edit its content. When you're done, click "Save Changes" to apply all edits to the PDF.
+        </div>
+
+        <div class="pdf-editor-container">
+            <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid w-100" alt="PDF Preview">
+            <div id="text-blocks-overlay" class="text-blocks-overlay"></div>
+        </div>
+
+        <div class="navigation-controls">
+            <div class="page-navigation">
+                <button id="prev-page" class="nav-btn" {% if current_page <= 1 %}disabled{% endif %}>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
+                <button id="next-page" class="nav-btn" {% if current_page >= total_pages %}disabled{% endif %}>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="save-changes" class="action-btn save-btn">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+            {% if output_filename %}
+            <a href="{{ url_for('edit.download_edited', filename=output_filename) }}" class="action-btn download-btn">
+                <i class="fas fa-download"></i> Download Edited PDF
+            </a>
             {% endif %}
+            <a href="{{ url_for('edit.text_editor') }}" class="action-btn reset-btn">
+                <i class="fas fa-redo"></i> Start Over
+            </a>
+        </div>
+    </div>
+    {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Text Editing</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Our PDF Text Editor allows you to:
-                    </p>
+    <div class="info-container mt-4">
+        <h3 class="info-title">About PDF Text Editing</h3>
 
-                    <ul>
-                        <li>Edit text directly on the PDF page</li>
-                        <li>Preserve the original formatting and layout</li>
-                        <li>Make quick corrections to text content</li>
-                        <li>Update information in existing PDF documents</li>
-                    </ul>
+        <p class="info-text">
+            Our PDF Text Editor allows you to:
+        </p>
 
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note:</strong> While our editor preserves most formatting, some complex layouts or special fonts might not be perfectly preserved. For extensive document redesign, consider using a dedicated PDF editor.
-                    </div>
-                </div>
-            </div>
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Edit text directly on the PDF page</li>
+            <li><i class="fas fa-check-circle"></i> Preserve the original formatting and layout</li>
+            <li><i class="fas fa-check-circle"></i> Make quick corrections to text content</li>
+            <li><i class="fas fa-check-circle"></i> Update information in existing PDF documents</li>
+        </ul>
+
+        <div class="warning-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Note:</strong> While our editor preserves most formatting, some complex layouts or special fonts might not be perfectly preserved. For extensive document redesign, consider using a dedicated PDF editor.
         </div>
     </div>
 </div>
@@ -114,9 +115,9 @@
 <div class="modal fade" id="textEditorModal" tabindex="-1" aria-labelledby="textEditorModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="textEditorModalLabel">Edit Text</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -134,9 +135,86 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
-        // Variables
+        // File upload handling
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Check if elements exist (they won't if we're in editor mode)
+        if (uploadArea) {
+            // Initially disable the submit button until a file is selected
+            if (submitBtn) submitBtn.disabled = true;
+
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    showFilePreview(this.files[0]);
+                }
+            });
+
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    showFilePreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Handle file remove
+            if (fileRemove) {
+                fileRemove.addEventListener('click', function() {
+                    fileInput.value = '';
+                    filePreview.classList.add('d-none');
+                    uploadArea.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                });
+            }
+
+            // Show file preview
+            function showFilePreview(file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file.');
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                filePreview.classList.remove('d-none');
+                uploadArea.classList.add('d-none');
+                submitBtn.disabled = false;
+            }
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
+        // PDF Editor functionality
         const pdfPreview = document.getElementById('pdf-preview');
         const textBlocksOverlay = document.getElementById('text-blocks-overlay');
         const saveChangesBtn = document.getElementById('save-changes');
@@ -363,41 +441,4 @@
         }
     });
 </script>
-
-<style>
-    .pdf-editor-container {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .text-blocks-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
-    .editable-text-block {
-        position: absolute;
-        border: 1px dashed transparent;
-        background-color: rgba(255, 255, 255, 0.7); /* More opaque background to hide original text */
-        cursor: text;
-        pointer-events: auto;
-        overflow: hidden;
-        transition: background-color 0.2s, border-color 0.2s;
-        padding: 2px;
-        line-height: 1.2;
-        /* Make text more visible */
-        color: #000;
-        font-family: Arial, sans-serif;
-    }
-
-    .editable-text-block:hover {
-        border-color: #238287;
-        background-color: rgba(35, 130, 135, 0.2);
-        box-shadow: 0 0 5px rgba(35, 130, 135, 0.5);
-    }
-</style>
 {% endblock %}
