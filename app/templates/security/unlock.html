@@ -2,134 +2,225 @@
 
 {% block title %}Unlock PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/unlock.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Unlock PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Remove password protection from your PDF document.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Unlock PDF</h2>
+    <div class="security-container">
+        {% if not result %}
+        <form method="POST" enctype="multipart/form-data" id="unlock-form">
+            {{ form.csrf_token }}
+
+            <div class="upload-section">
+                <h3 class="upload-title">Upload PDF to Unlock</h3>
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Remove password protection from your PDF document.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
-
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control") }}
-                            <div class="form-text">
-                                Enter the password required to open or edit the PDF.
-                            </div>
-                            {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.password.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
+
+                <div class="password-field">
+                    <label for="password">Password</label>
+                    {{ form.password(class="form-control", placeholder="Enter PDF password") }}
+                    <div class="form-text">
+                        Enter the password required to open or edit the PDF.
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Unlock PDF</button>
             </div>
+        </form>
+        {% endif %}
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Unlock Results</h3>
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Unlock Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Input PDF</h4>
+                    <p>Total Pages: {{ result.input_page_count }}</p>
+                    <p>Encryption: {{ result.encryption_method }}</p>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input PDF</h4>
-                            <p>Total Pages: {{ result.input_page_count }}</p>
-                            <p>Encryption: {{ result.encryption_method }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Permissions Removed</h4>
-                            <ul class="list-group mb-3">
-                                {% for perm_name, perm_value in result.permissions.items() %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        {{ perm_name|capitalize }}
-                                        <span class="badge {% if perm_value %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
-                                            {% if perm_value %}Was Allowed{% else %}Was Denied{% endif %}
-                                        </span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Success!</strong> The PDF has been successfully unlocked. All restrictions have been removed.
-                    </div>
-
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('security.download_unlocked', filename=output_filename) }}" class="btn btn-success">Download Unlocked PDF</a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Unlocking</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF unlocking allows you to:
-                    </p>
-
-                    <ul>
-                        <li>Remove password protection from PDF files</li>
-                        <li>Enable editing, printing, and copying of protected content</li>
-                        <li>Access documents when you have the password but don't want to enter it repeatedly</li>
-                        <li>Create copies of your own protected documents without restrictions</li>
+                <div class="result-card">
+                    <h4 class="result-card-title">Permissions Removed</h4>
+                    <ul class="status-list">
+                        {% for perm_name, perm_value in result.permissions.items() %}
+                            <li class="status-item">
+                                <span class="status-name">{{ perm_name|capitalize }}</span>
+                                <span class="status-badge {% if perm_value %}status-badge-success{% else %}status-badge-danger{% endif %}">
+                                    {% if perm_value %}Was Allowed{% else %}Was Denied{% endif %}
+                                </span>
+                            </li>
+                        {% endfor %}
                     </ul>
-
-                    <h4>How It Works</h4>
-                    <p>
-                        Our unlock tool:
-                    </p>
-                    <ol>
-                        <li>Verifies that the PDF is password-protected</li>
-                        <li>Uses the password you provide to authenticate and access the document</li>
-                        <li>Creates a new copy of the PDF without any encryption or restrictions</li>
-                        <li>Preserves all content, formatting, and quality of the original document</li>
-                    </ol>
-
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Important:</strong> You must have the correct password to unlock a PDF. This tool cannot bypass or crack passwords. It is intended for legitimate use on documents you have permission to access.
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Some PDFs may have additional security features beyond password protection. This tool removes standard PDF encryption but may not affect all types of document restrictions.
-                    </div>
                 </div>
+            </div>
+
+            <div class="success-alert">
+                <i class="fas fa-check-circle"></i>
+                <strong>Success!</strong> The PDF has been successfully unlocked. All restrictions have been removed.
+            </div>
+
+            <a href="{{ url_for('security.download_unlocked', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download Unlocked PDF
+            </a>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('security.unlock') }}" class="btn btn-outline-primary">
+                <i class="fas fa-unlock-alt me-2"></i> Unlock Another PDF
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="info-container">
+            <h3 class="info-title">About PDF Unlocking</h3>
+
+            <p class="info-text">
+                PDF unlocking allows you to:
+            </p>
+
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Remove password protection from PDF files</li>
+                <li><i class="fas fa-check-circle"></i> Enable editing, printing, and copying of protected content</li>
+                <li><i class="fas fa-check-circle"></i> Access documents when you have the password but don't want to enter it repeatedly</li>
+                <li><i class="fas fa-check-circle"></i> Create copies of your own protected documents without restrictions</li>
+            </ul>
+
+            <h4 class="info-subtitle">How It Works</h4>
+            <p class="info-text">
+                Our unlock tool:
+            </p>
+            <ol class="steps-list">
+                <li>Verifies that the PDF is password-protected</li>
+                <li>Uses the password you provide to authenticate and access the document</li>
+                <li>Creates a new copy of the PDF without any encryption or restrictions</li>
+                <li>Preserves all content, formatting, and quality of the original document</li>
+            </ol>
+
+            <div class="warning-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Important:</strong> You must have the correct password to unlock a PDF. This tool cannot bypass or crack passwords. It is intended for legitimate use on documents you have permission to access.
+            </div>
+
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Some PDFs may have additional security features beyond password protection. This tool removes standard PDF encryption but may not affect all types of document restrictions.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+                submitBtn.disabled = true;
+            });
+        }
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}
