@@ -356,6 +356,15 @@ footer .text-white {
     color: white !important;
 }
 
+/* Ensure login and register buttons are always visible */
+.btn-primary,
+.btn-success,
+.btn[style*="background-color: #238287"] {
+    background-color: var(--primary) !important;
+    border-color: var(--primary-border) !important;
+    color: white !important;
+}
+
 /* Ensure all primary buttons have white text */
 .btn-primary,
 .btn-primary:hover,
