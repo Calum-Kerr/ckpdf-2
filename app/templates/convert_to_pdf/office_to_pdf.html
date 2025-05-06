@@ -2,104 +2,104 @@
 
 {% block title %}Convert Office to PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/office_to_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert Office Documents to PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Transform Microsoft Office documents (Word, Excel, PowerPoint) into PDF format for better compatibility and sharing.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert Office Documents to PDF</h2>
+    <div class="tool-container">
+        <!-- Left side: Upload area -->
+        <div class="upload-section">
+            <div class="upload-area" id="upload-area">
+                <input type="file" id="file-input" class="upload-input" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx" disabled>
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert Microsoft Office documents (Word, Excel, PowerPoint) to PDF format.
-                    </p>
+                <p class="upload-text">Drag and drop your Office document here or click to browse</p>
+                <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+        </div>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Coming Soon!</strong> This feature is currently under development and will be available soon.
-                    </div>
+        <!-- Right side: Conversion options -->
+        <div class="options-panel">
+            <h3 class="options-title">Conversion Options</h3>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Select Office Document</label>
-                            <input type="file" id="file" name="file" class="form-control" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx" disabled>
-                            <div class="form-text">
-                                Supported formats: DOC, DOCX, XLS, XLSX, PPT, PPTX
-                            </div>
-                        </div>
+            <p class="options-text">
+                This feature is currently under development and will be available soon. When completed, you'll be able to convert various Microsoft Office documents to PDF format with just a few clicks.
+            </p>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="format-badges">
+                <span class="format-badge">DOC/DOCX</span>
+                <span class="format-badge">XLS/XLSX</span>
+                <span class="format-badge">PPT/PPTX</span>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About Office to PDF Conversion</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Converting Office documents to PDF offers several advantages:
-                    </p>
+            <button type="submit" class="submit-btn" disabled>Convert to PDF</button>
+        </div>
+    </div>
 
-                    <ul>
-                        <li>Ensures consistent formatting across different devices and platforms</li>
-                        <li>Creates smaller file sizes for easier sharing</li>
-                        <li>Preserves document layout, fonts, and images</li>
-                        <li>Makes documents viewable without Microsoft Office</li>
-                        <li>Provides better security and prevents unwanted editing</li>
-                    </ul>
+    <div class="info-container">
+        <h3 class="info-title">About Office to PDF Conversion</h3>
 
-                    <h4>Supported Document Types</h4>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Word Documents</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>DOC (Word 97-2003)</li>
-                                        <li>DOCX (Word 2007+)</li>
-                                        <li>Preserves text, images, tables, and formatting</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Excel Spreadsheets</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>XLS (Excel 97-2003)</li>
-                                        <li>XLSX (Excel 2007+)</li>
-                                        <li>Preserves cells, formulas, charts, and formatting</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">PowerPoint Presentations</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>PPT (PowerPoint 97-2003)</li>
-                                        <li>PPTX (PowerPoint 2007+)</li>
-                                        <li>Preserves slides, animations, and formatting</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <p class="info-text">
+            Converting Office documents to PDF offers several advantages:
+        </p>
+
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Ensures consistent formatting across different devices and platforms</li>
+            <li><i class="fas fa-check-circle"></i> Creates smaller file sizes for easier sharing</li>
+            <li><i class="fas fa-check-circle"></i> Preserves document layout, fonts, and images</li>
+            <li><i class="fas fa-check-circle"></i> Makes documents viewable without Microsoft Office</li>
+            <li><i class="fas fa-check-circle"></i> Provides better security and prevents unwanted editing</li>
+        </ul>
+
+        <h4 class="info-subtitle">Supported Document Types</h4>
+        <div class="document-types-grid">
+            <div class="document-type-card">
+                <div class="document-type-header">
+                    <h5>Word Documents</h5>
                 </div>
+                <ul class="document-type-list">
+                    <li>DOC (Word 97-2003)</li>
+                    <li>DOCX (Word 2007+)</li>
+                    <li>Preserves text, images, tables, and formatting</li>
+                </ul>
             </div>
+
+            <div class="document-type-card">
+                <div class="document-type-header">
+                    <h5>Excel Spreadsheets</h5>
+                </div>
+                <ul class="document-type-list">
+                    <li>XLS (Excel 97-2003)</li>
+                    <li>XLSX (Excel 2007+)</li>
+                    <li>Preserves cells, formulas, charts, and formatting</li>
+                </ul>
+            </div>
+
+            <div class="document-type-card">
+                <div class="document-type-header">
+                    <h5>PowerPoint Presentations</h5>
+                </div>
+                <ul class="document-type-list">
+                    <li>PPT (PowerPoint 97-2003)</li>
+                    <li>PPTX (PowerPoint 2007+)</li>
+                    <li>Preserves slides, animations, and formatting</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Coming Soon:</strong> We're working hard to bring you this feature. Check back soon for updates!
         </div>
     </div>
 </div>

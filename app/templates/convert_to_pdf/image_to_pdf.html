@@ -2,157 +2,332 @@
 
 {% block title %}Image to PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/image_to_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert Image to PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Convert JPG, PNG, and other image formats to PDF with customizable page settings.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert Image to PDF</h2>
+    <form method="POST" enctype="multipart/form-data" id="image-to-pdf-form">
+        {{ form.csrf_token }}
+
+        {% if not result %}
+        <div class="tool-container">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff,.tif">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your image here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert JPG, PNG, and other image formats to PDF with customizable page settings.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-image"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+            <!-- Right side: Conversion options -->
+            <div class="options-panel">
+                <h3 class="options-title">Conversion Options</h3>
+
+                <div class="page-size-options">
+                    <p class="option-label">Page Size</p>
+                    <div class="page-size-grid">
+                        <div class="page-size-option" data-value="a4">
+                            <p class="page-size-name">A4</p>
+                            <p class="page-size-dim">210mm × 297mm</p>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.page_size.label(class="form-label") }}
-                                {{ form.page_size(class="form-select") }}
-                                <div class="form-text">
-                                    Select "Original Image Size" to keep the exact dimensions of your image.
-                                </div>
+                        <div class="page-size-option" data-value="letter">
+                            <p class="page-size-name">Letter</p>
+                            <p class="page-size-dim">8.5in × 11in</p>
+                        </div>
+
+                        <div class="page-size-option" data-value="legal">
+                            <p class="page-size-name">Legal</p>
+                            <p class="page-size-dim">8.5in × 14in</p>
+                        </div>
+
+                        <div class="page-size-option" data-value="a3">
+                            <p class="page-size-name">A3</p>
+                            <p class="page-size-dim">297mm × 420mm</p>
+                        </div>
+
+                        <div class="page-size-option" data-value="a5">
+                            <p class="page-size-name">A5</p>
+                            <p class="page-size-dim">148mm × 210mm</p>
+                        </div>
+
+                        <div class="page-size-option selected" data-value="original">
+                            <p class="page-size-name">Original Size</p>
+                            <p class="page-size-dim">Image dimensions</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.page_size(class="d-none") }}
+                </div>
+
+                <div class="orientation-options">
+                    <p class="option-label">Orientation</p>
+                    <div class="orientation-grid">
+                        <div class="orientation-option selected" data-value="portrait">
+                            <div class="orientation-icon">
+                                <i class="fas fa-file-alt"></i>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.orientation.label(class="form-label") }}
-                                {{ form.orientation(class="form-select") }}
-                                <div class="form-text">
-                                    Orientation only applies to standard page sizes, not original size.
-                                </div>
+                            <p class="orientation-name">Portrait</p>
+                        </div>
+
+                        <div class="orientation-option" data-value="landscape">
+                            <div class="orientation-icon">
+                                <i class="fas fa-file-alt fa-rotate-90"></i>
                             </div>
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Conversion Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Original Image</h4>
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Width
-                                    <span class="badge bg-primary rounded-pill">{{ result.image_width }} px</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Height
-                                    <span class="badge bg-primary rounded-pill">{{ result.image_height }} px</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>PDF Document</h4>
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Page Size
-                                    <span class="badge bg-primary rounded-pill">{{ result.page_size|upper }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Orientation
-                                    <span class="badge bg-primary rounded-pill">{{ result.orientation|title }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Width
-                                    <span class="badge bg-primary rounded-pill">{{ result.pdf_width|round|int }} pt</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Height
-                                    <span class="badge bg-primary rounded-pill">{{ result.pdf_height|round|int }} pt</span>
-                                </li>
-                            </ul>
+                            <p class="orientation-name">Landscape</p>
                         </div>
                     </div>
 
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('convert_to_pdf.download_pdf', filename=output_filename) }}" class="btn btn-success">Download PDF</a>
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.orientation(class="d-none") }}
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Convert to PDF</button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Conversion Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Original Image</h4>
+                    <div class="result-details">
+                        <div class="result-item">
+                            <span class="result-label">Width</span>
+                            <span class="result-value">{{ result.image_width }} px</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Height</span>
+                            <span class="result-value">{{ result.image_height }} px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4 class="result-card-title">PDF Document</h4>
+                    <div class="result-details">
+                        <div class="result-item">
+                            <span class="result-label">Page Size</span>
+                            <span class="result-value">{{ result.page_size|upper }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Orientation</span>
+                            <span class="result-value">{{ result.orientation|title }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Width</span>
+                            <span class="result-value">{{ result.pdf_width|round|int }} pt</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Height</span>
+                            <span class="result-value">{{ result.pdf_height|round|int }} pt</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About Image to PDF Conversion</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Converting images to PDF format offers several advantages:
-                    </p>
+            <a href="{{ url_for('convert_to_pdf.download_pdf', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download PDF
+            </a>
+        </div>
 
-                    <ul>
-                        <li>Create professional-looking documents from images</li>
-                        <li>Combine multiple images into a single document (with our Merge tool)</li>
-                        <li>Make images easier to share and print</li>
-                        <li>Preserve image quality in a document format</li>
-                    </ul>
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('convert_to_pdf.image_to_pdf') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Convert Another Image
+            </a>
+        </div>
+        {% endif %}
+    </form>
 
-                    <h4>Supported Image Formats</h4>
-                    <p>
-                        Our tool supports the following image formats:
-                    </p>
-                    <ul>
-                        <li>JPEG/JPG</li>
-                        <li>PNG</li>
-                        <li>GIF</li>
-                        <li>BMP</li>
-                        <li>TIFF/TIF</li>
-                    </ul>
+    <div class="info-container">
+        <h3 class="info-title">About Image to PDF Conversion</h3>
 
-                    <h4>Page Size Options</h4>
-                    <p>
-                        You can choose from standard page sizes or keep the original dimensions of your image:
-                    </p>
-                    <ul>
-                        <li><strong>A4:</strong> 210mm × 297mm (8.27in × 11.69in) - Standard in most countries</li>
-                        <li><strong>Letter:</strong> 8.5in × 11in (215.9mm × 279.4mm) - Standard in US and Canada</li>
-                        <li><strong>Legal:</strong> 8.5in × 14in (215.9mm × 355.6mm) - For legal documents</li>
-                        <li><strong>A3:</strong> 297mm × 420mm (11.69in × 16.54in) - Larger format</li>
-                        <li><strong>A5:</strong> 148mm × 210mm (5.83in × 8.27in) - Smaller format</li>
-                        <li><strong>Original Image Size:</strong> Maintains the exact dimensions of your image</li>
-                    </ul>
+        <p class="info-text">
+            Converting images to PDF format offers several advantages:
+        </p>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        When using standard page sizes, your image will be scaled to fit the page while maintaining its aspect ratio.
-                        For the highest quality, use "Original Image Size" if you want to preserve the exact dimensions of your image.
-                    </div>
-                </div>
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Create professional-looking documents from images</li>
+            <li><i class="fas fa-check-circle"></i> Combine multiple images into a single document</li>
+            <li><i class="fas fa-check-circle"></i> Make images easier to share and print</li>
+            <li><i class="fas fa-check-circle"></i> Preserve image quality in a document format</li>
+        </ul>
+
+        <h4 class="info-subtitle">Supported Image Formats</h4>
+        <div class="format-badges">
+            <span class="format-badge">JPEG/JPG</span>
+            <span class="format-badge">PNG</span>
+            <span class="format-badge">GIF</span>
+            <span class="format-badge">BMP</span>
+            <span class="format-badge">TIFF/TIF</span>
+        </div>
+
+        <h4 class="info-subtitle">Page Size Options</h4>
+        <div class="page-size-info">
+            <div class="page-size-item">
+                <span class="page-size-name">A4</span>
+                <span class="page-size-dim">210mm × 297mm</span>
+                <span class="page-size-desc">Standard in most countries</span>
             </div>
+            <div class="page-size-item">
+                <span class="page-size-name">Letter</span>
+                <span class="page-size-dim">8.5in × 11in</span>
+                <span class="page-size-desc">Standard in US and Canada</span>
+            </div>
+            <div class="page-size-item">
+                <span class="page-size-name">Original Size</span>
+                <span class="page-size-desc">Maintains exact dimensions of your image</span>
+            </div>
+        </div>
+
+        <div class="info-tip">
+            <i class="fas fa-info-circle"></i>
+            When using standard page sizes, your image will be scaled to fit while maintaining its aspect ratio.
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const pageSizeOptions = document.querySelectorAll('.page-size-option');
+        const pageSizeSelect = document.getElementById('page_size');
+        const orientationOptions = document.querySelectorAll('.orientation-option');
+        const orientationSelect = document.getElementById('orientation');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        fileRemove.addEventListener('click', function() {
+            fileInput.value = '';
+            filePreview.classList.add('d-none');
+            uploadArea.classList.remove('d-none');
+            submitBtn.disabled = true;
+        });
+
+        // Handle page size selection
+        pageSizeOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                pageSizeOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                pageSizeSelect.value = this.dataset.value;
+            });
+        });
+
+        // Handle orientation selection
+        orientationOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                orientationOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                orientationSelect.value = this.dataset.value;
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/tiff'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, GIF, BMP, or TIFF).');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}

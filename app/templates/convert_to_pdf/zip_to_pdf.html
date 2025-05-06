@@ -2,128 +2,137 @@
 
 {% block title %}Convert ZIP to PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/zip_to_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert ZIP to PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Transform a ZIP archive containing images or documents into a single PDF file for easier sharing and viewing.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert ZIP to PDF</h2>
+    <div class="tool-container">
+        <!-- Left side: Upload area -->
+        <div class="upload-section">
+            <div class="upload-area" id="upload-area">
+                <input type="file" id="file-input" class="upload-input" accept=".zip" disabled>
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert a ZIP archive containing images or documents to a single PDF file.
-                    </p>
+                <p class="upload-text">Drag and drop your ZIP file here or click to browse</p>
+                <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+        </div>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Coming Soon!</strong> This feature is currently under development and will be available soon.
-                    </div>
+        <!-- Right side: Conversion options -->
+        <div class="options-panel">
+            <h3 class="options-title">Conversion Options</h3>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="zip-file" class="form-label">Select ZIP File</label>
-                            <input type="file" id="zip-file" name="file" class="form-control" accept=".zip" disabled>
-                            <div class="form-text">
-                                Upload a ZIP file containing images or documents to convert to PDF.
-                            </div>
-                        </div>
+            <p class="options-text">
+                This feature is currently under development and will be available soon. When completed, you'll be able to convert ZIP archives containing various file types into PDF documents.
+            </p>
 
-                        <div class="mb-3">
-                            <label class="form-label">Conversion Options</label>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="conversion_type" id="convert_all" value="all" checked disabled>
-                                <label class="form-check-label" for="convert_all">
-                                    Convert all files to a single PDF
-                                </label>
-                            </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="conversion_type" id="convert_separate" value="separate" disabled>
-                                <label class="form-check-label" for="convert_separate">
-                                    Convert each file to a separate PDF
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
-                        </div>
-                    </form>
+            <div class="mb-3">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="conversion_type" id="convert_all" value="all" checked disabled>
+                    <label class="form-check-label" for="convert_all">
+                        Convert all files to a single PDF
+                    </label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="conversion_type" id="convert_separate" value="separate" disabled>
+                    <label class="form-check-label" for="convert_separate">
+                        Convert each file to a separate PDF
+                    </label>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About ZIP to PDF Conversion</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Converting ZIP archives to PDF allows you to:
-                    </p>
-
-                    <ul>
-                        <li>Combine multiple files from a ZIP archive into a single PDF document</li>
-                        <li>Organize collections of images into a structured document</li>
-                        <li>Create presentation-ready documents from batches of files</li>
-                        <li>Share multiple files as a single, easy-to-view document</li>
-                    </ul>
-
-                    <h4>Supported File Types</h4>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Images</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>JPG/JPEG</li>
-                                        <li>PNG</li>
-                                        <li>GIF</li>
-                                        <li>BMP</li>
-                                        <li>TIFF</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Documents</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>PDF</li>
-                                        <li>TXT</li>
-                                        <li>HTML</li>
-                                        <li>Markdown</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Office Files</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>DOC/DOCX</li>
-                                        <li>XLS/XLSX</li>
-                                        <li>PPT/PPTX</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-warning mt-3">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note:</strong> Files in the ZIP archive will be processed in alphabetical order. For best results, name your files in the order you want them to appear in the PDF.
-                    </div>
-                </div>
+            <div class="format-badges">
+                <span class="format-badge">JPG/JPEG</span>
+                <span class="format-badge">PNG</span>
+                <span class="format-badge">PDF</span>
+                <span class="format-badge">DOCX</span>
+                <span class="format-badge">XLSX</span>
             </div>
+
+            <button type="submit" class="submit-btn" disabled>Convert to PDF</button>
+        </div>
+    </div>
+
+    <div class="info-container">
+        <h3 class="info-title">About ZIP to PDF Conversion</h3>
+
+        <p class="info-text">
+            Converting ZIP archives to PDF allows you to:
+        </p>
+
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Combine multiple files from a ZIP archive into a single PDF document</li>
+            <li><i class="fas fa-check-circle"></i> Organize collections of images into a structured document</li>
+            <li><i class="fas fa-check-circle"></i> Create presentation-ready documents from batches of files</li>
+            <li><i class="fas fa-check-circle"></i> Share multiple files as a single, easy-to-view document</li>
+        </ul>
+
+        <h4 class="info-subtitle">Supported File Types</h4>
+        <div class="use-cases-grid">
+            <div class="use-case-card">
+                <div class="use-case-icon">
+                    <i class="fas fa-images"></i>
+                </div>
+                <h5 class="use-case-title">Images</h5>
+                <ul>
+                    <li>JPG/JPEG</li>
+                    <li>PNG</li>
+                    <li>GIF</li>
+                    <li>BMP</li>
+                    <li>TIFF</li>
+                </ul>
+            </div>
+
+            <div class="use-case-card">
+                <div class="use-case-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h5 class="use-case-title">Documents</h5>
+                <ul>
+                    <li>PDF</li>
+                    <li>TXT</li>
+                    <li>HTML</li>
+                    <li>Markdown</li>
+                </ul>
+            </div>
+
+            <div class="use-case-card">
+                <div class="use-case-icon">
+                    <i class="fas fa-file-word"></i>
+                </div>
+                <h5 class="use-case-title">Office Files</h5>
+                <ul>
+                    <li>DOC/DOCX</li>
+                    <li>XLS/XLSX</li>
+                    <li>PPT/PPTX</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Note:</strong> Files in the ZIP archive will be processed in alphabetical order. For best results, name your files in the order you want them to appear in the PDF.
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        // This is a placeholder for future JavaScript functionality
+        // when the feature is implemented
+    });
+</script>
 {% endblock %}

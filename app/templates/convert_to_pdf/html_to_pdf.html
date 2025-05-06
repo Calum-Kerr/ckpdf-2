@@ -2,131 +2,151 @@
 
 {% block title %}Convert HTML to PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/html_to_pdf.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert HTML to PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Transform HTML files or web pages into PDF format for better sharing and archiving.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert HTML to PDF</h2>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert HTML files or web pages to PDF format.
-                    </p>
+    <div class="tool-container">
+        <!-- Left side: Options tabs -->
+        <div class="options-panel">
+            <h3 class="options-title">Conversion Options</h3>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Coming Soon!</strong> This feature is currently under development and will be available soon.
+            <div class="tab-navigation">
+                <button class="tab-button active" id="file-tab">Upload HTML File</button>
+                <button class="tab-button" id="url-tab">Convert Web Page</button>
+            </div>
+
+            <div class="tab-content active" id="file-content">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="file-input" class="upload-input" accept=".html,.htm" disabled>
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
                     </div>
-
-                    <ul class="nav nav-tabs" id="htmlSourceTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-panel" type="button" role="tab" aria-controls="file-panel" aria-selected="true">HTML File</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-panel" type="button" role="tab" aria-controls="url-panel" aria-selected="false">Web URL</button>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content p-3 border border-top-0 rounded-bottom mb-4" id="htmlSourceTabContent">
-                        <!-- HTML File Tab -->
-                        <div class="tab-pane fade show active" id="file-panel" role="tabpanel" aria-labelledby="file-tab">
-                            <form method="POST" enctype="multipart/form-data">
-                                <div class="mb-3">
-                                    <label for="html-file" class="form-label">Select HTML File</label>
-                                    <input type="file" id="html-file" name="file" class="form-control" accept=".html,.htm" disabled>
-                                    <div class="form-text">
-                                        Upload an HTML file to convert to PDF.
-                                    </div>
-                                </div>
-
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Web URL Tab -->
-                        <div class="tab-pane fade" id="url-panel" role="tabpanel" aria-labelledby="url-tab">
-                            <form method="POST">
-                                <div class="mb-3">
-                                    <label for="web-url" class="form-label">Enter Web URL</label>
-                                    <input type="url" id="web-url" name="url" class="form-control" placeholder="https://example.com" disabled>
-                                    <div class="form-text">
-                                        Enter the URL of a web page to convert to PDF.
-                                    </div>
-                                </div>
-
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary" disabled>Convert to PDF</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <p class="upload-text">Drag and drop your HTML file here or click to browse</p>
+                    <span class="coming-soon-badge">Coming Soon</span>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About HTML to PDF Conversion</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Converting HTML to PDF allows you to:
-                    </p>
-
-                    <ul>
-                        <li>Create permanent copies of web pages</li>
-                        <li>Save web content for offline viewing</li>
-                        <li>Archive online articles, reports, or documentation</li>
-                        <li>Generate professional-looking documents from HTML templates</li>
-                        <li>Share web content in a format that preserves layout and formatting</li>
-                    </ul>
-
-                    <h4>Conversion Features</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">HTML File Conversion</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Upload local HTML files:</p>
-                                    <ul>
-                                        <li>Convert single HTML pages</li>
-                                        <li>Include CSS styling</li>
-                                        <li>Preserve images and formatting</li>
-                                        <li>Support for HTML5 elements</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Web URL Conversion</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Convert online web pages:</p>
-                                    <ul>
-                                        <li>Capture complete web pages</li>
-                                        <li>Preserve layout and styling</li>
-                                        <li>Include images and media</li>
-                                        <li>Support for responsive designs</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+            <div class="tab-content" id="url-content">
+                <div class="url-input-area">
+                    <div class="url-input-icon">
+                        <i class="fas fa-globe"></i>
                     </div>
-
-                    <div class="alert alert-warning mt-3">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note:</strong> Some complex web pages with advanced JavaScript functionality may not convert perfectly. For best results, use simple HTML pages with standard CSS styling.
-                    </div>
+                    <p class="url-input-text">Enter the URL of the web page you want to convert</p>
+                    <input type="url" class="url-input-field" placeholder="https://example.com" disabled>
+                    <span class="coming-soon-badge">Coming Soon</span>
                 </div>
+            </div>
+
+            <button type="submit" class="submit-btn" disabled>Convert to PDF</button>
+        </div>
+
+        <!-- Right side: Information -->
+        <div class="options-panel">
+            <h3 class="options-title">About This Tool</h3>
+
+            <p class="options-text">
+                This feature is currently under development and will be available soon. When completed, you'll be able to convert HTML files and web pages to PDF format with just a few clicks.
+            </p>
+
+            <p class="options-text">
+                Converting HTML to PDF allows you to:
+            </p>
+
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Create permanent copies of web pages</li>
+                <li><i class="fas fa-check-circle"></i> Save web content for offline viewing</li>
+                <li><i class="fas fa-check-circle"></i> Archive online articles and resources</li>
+                <li><i class="fas fa-check-circle"></i> Share web content in a standardized format</li>
+            </ul>
+
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <strong>Coming Soon:</strong> We're working hard to bring you this feature. Check back soon for updates!
             </div>
         </div>
     </div>
+
+    <div class="info-container">
+        <h3 class="info-title">Features of HTML to PDF Conversion</h3>
+
+        <div class="feature-cards-grid">
+            <div class="feature-card">
+                <div class="feature-card-header">
+                    <h5>HTML File Conversion</h5>
+                </div>
+                <ul class="feature-card-list">
+                    <li>Convert single HTML pages</li>
+                    <li>Include CSS styling</li>
+                    <li>Preserve images and formatting</li>
+                    <li>Support for HTML5 elements</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-card-header">
+                    <h5>Web URL Conversion</h5>
+                </div>
+                <ul class="feature-card-list">
+                    <li>Capture complete web pages</li>
+                    <li>Preserve layout and styling</li>
+                    <li>Include images and media</li>
+                    <li>Support for responsive designs</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-card-header">
+                    <h5>Customization</h5>
+                </div>
+                <ul class="feature-card-list">
+                    <li>Adjust page size and margins</li>
+                    <li>Set header and footer options</li>
+                    <li>Control image quality</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Note:</strong> Some complex web pages with advanced JavaScript functionality may not convert perfectly. For best results, use simple HTML pages with standard CSS styling.
+        </div>
+    </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileTab = document.getElementById('file-tab');
+        const urlTab = document.getElementById('url-tab');
+        const fileContent = document.getElementById('file-content');
+        const urlContent = document.getElementById('url-content');
+
+        // Handle tab switching
+        fileTab.addEventListener('click', function() {
+            fileTab.classList.add('active');
+            urlTab.classList.remove('active');
+            fileContent.classList.add('active');
+            urlContent.classList.remove('active');
+        });
+
+        urlTab.addEventListener('click', function() {
+            urlTab.classList.add('active');
+            fileTab.classList.remove('active');
+            urlContent.classList.add('active');
+            fileContent.classList.remove('active');
+        });
+    });
+</script>
 {% endblock %}
