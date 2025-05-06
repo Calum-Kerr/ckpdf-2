@@ -1,0 +1,422 @@
+/**
+ * RevisePDF Dashboard Styles
+ */
+
+/* Dashboard Card Styles */
+.dashboard-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: none;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card .card-header {
+    background-color: #238287;
+    color: white;
+    padding: 1.25rem 1.5rem;
+    border-bottom: none;
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Beta Badge */
+.beta-badge {
+    background-color: #ffc107;
+    color: #212529;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Beta Mode Alert */
+.beta-alert {
+    background-color: #e6f3f3;
+    border-left: 4px solid #238287;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.beta-alert h4 {
+    color: #238287;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard Tabs */
+.dashboard-tabs {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-tab {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.dashboard-tab:hover {
+    color: #238287;
+}
+
+.dashboard-tab.active {
+    color: #238287;
+    border-bottom-color: #238287;
+}
+
+.dashboard-tab i {
+    margin-right: 0.5rem;
+}
+
+/* Dashboard Tab Content */
+.dashboard-tab-content {
+    display: none;
+}
+
+.dashboard-tab-content.active {
+    display: block;
+}
+
+/* Section Cards */
+.section-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeaea;
+    margin-bottom: 1.5rem;
+}
+
+.section-card .card-body {
+    padding: 1.25rem;
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: #238287;
+    font-weight: 600;
+}
+
+.section-header i {
+    margin-right: 0.5rem;
+    font-size: 1.25rem;
+}
+
+/* Profile Information */
+.profile-item {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.profile-item-label {
+    font-weight: 600;
+    width: 40%;
+    color: #555;
+}
+
+.profile-item-value {
+    width: 60%;
+}
+
+/* Account Type Badge */
+.account-type-badge {
+    background-color: #238287;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Storage Usage */
+.storage-progress {
+    height: 12px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    background-color: #eaeaea;
+}
+
+.storage-progress .progress-bar {
+    background-color: #238287;
+    border-radius: 50px;
+}
+
+.storage-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.storage-used {
+    font-weight: 600;
+    color: #238287;
+}
+
+.storage-limit {
+    font-weight: 600;
+}
+
+/* Unlimited Badge */
+.unlimited-badge {
+    background-color: #238287;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* File Size Limits Table */
+.limits-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.limits-table th {
+    background-color: #f5f5f5;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #444;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.limits-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eaeaea;
+    vertical-align: middle;
+}
+
+.limits-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Action Buttons */
+.action-button {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.action-button:last-child {
+    margin-bottom: 0;
+}
+
+.action-button.primary {
+    background-color: #238287;
+    color: white;
+    border: none;
+}
+
+.action-button.primary:hover {
+    background-color: #1a6569;
+    text-decoration: none;
+    color: white;
+}
+
+.action-button.secondary {
+    background-color: white;
+    color: #238287;
+    border: 2px solid #238287;
+}
+
+.action-button.secondary:hover {
+    background-color: rgba(35, 130, 135, 0.1);
+    text-decoration: none;
+    color: #238287;
+}
+
+/* Back Button */
+.back-button {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    background-color: white;
+    color: #238287;
+    border: 2px solid #238287;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: rgba(35, 130, 135, 0.1);
+    text-decoration: none;
+    color: #238287;
+}
+
+/* Beta Benefits */
+.benefit-card {
+    background-color: #e6f3f3;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.benefit-card strong {
+    color: #238287;
+    font-weight: 600;
+}
+
+/* Active Status */
+.status-active {
+    color: #238287;
+    font-size: 1.1rem;
+}
+
+/* Current Limit Badge */
+.current-limit-badge {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+/* Upgrade Button */
+.upgrade-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    background-color: #238287;
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    margin-top: 1rem;
+}
+
+.upgrade-button:hover {
+    background-color: #1a6569;
+    text-decoration: none;
+    color: white;
+}
+
+/* Stats Card */
+.stats-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid #eaeaea;
+    transition: all 0.2s ease;
+}
+
+.stats-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.stats-card-title {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #238287;
+}
+
+/* Recent Activity */
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    padding: 1rem;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(35, 130, 135, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: #238287;
+}
+
+.activity-content {
+    flex-grow: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #333;
+}
+
+.activity-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard-tab {
+        padding: 0.75rem 1rem;
+    }
+    
+    .profile-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .profile-item-label,
+    .profile-item-value {
+        width: 100%;
+    }
+    
+    .profile-item-label {
+        margin-bottom: 0.25rem;
+    }
+    
+    .storage-info {
+        flex-direction: column;
+    }
+    
+    .storage-limit {
+        margin-top: 0.25rem;
+    }
+}

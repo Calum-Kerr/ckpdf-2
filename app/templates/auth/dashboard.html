@@ -2,127 +2,275 @@
 
 {% block title %}My Account - RevisePDF{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v={{ range(1, 10000) | random }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-success">
-                    <h2 class="mb-0">My Account</h2>
+        <div class="col-lg-10 mx-auto">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="mb-0">My Account</h2>
+                        <span class="beta-badge">BETA</span>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                <button class="nav-link" id="v-pills-dashboard-tab" data-bs-toggle="pill" data-bs-target="#v-pills-dashboard" type="button" role="tab" aria-controls="v-pills-dashboard" aria-selected="true">Dashboard</button>
-                                <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">Profile</button>
-                                <button class="nav-link" id="v-pills-usage-tab" data-bs-toggle="pill" data-bs-target="#v-pills-usage" type="button" role="tab" aria-controls="v-pills-usage" aria-selected="false">Usage</button>
-                            </div>
+                    <div class="beta-alert">
+                        <h4><i class="fas fa-info-circle"></i> Beta Mode Active</h4>
+                        <p>Welcome, <strong>{{ user.email }}</strong>! RevisePDF is currently in beta testing. During this period, all features are <strong>unlimited</strong> for all users. Enjoy full access to all tools and features!</p>
+                    </div>
+
+                    <div class="dashboard-tabs">
+                        <div class="dashboard-tab active" data-tab="overview">
+                            <i class="fas fa-home"></i> Dashboard
                         </div>
-                        <div class="col-md-8">
-                            <div class="tab-content" id="v-pills-tabContent">
-                                <div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
-                                    <h3>Welcome, {{ user.email }}</h3>
-                                    <p>Account Type: <span class="badge bg-success">{{ profile.account_type|capitalize if profile else 'Free' }}</span></p>
+                        <div class="dashboard-tab" data-tab="profile">
+                            <i class="fas fa-user-circle"></i> Profile
+                        </div>
+                        <div class="dashboard-tab" data-tab="usage">
+                            <i class="fas fa-chart-bar"></i> Usage
+                        </div>
+                    </div>
 
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-success">
-                                            <h5 class="mb-0">Storage Usage</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            {% if profile %}
-                                                {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
-                                                <div class="progress mb-2">
-                                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ usage_percent }}%</div>
-                                                </div>
-                                                <p><strong>{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB</strong> used of <strong>{{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB</strong></p>
-                                            {% else %}
-                                                <div class="alert alert-info">
-                                                    <p>Your storage usage will be displayed here once you start using the tools.</p>
-                                                    <div class="progress mb-2">
-                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-                                                    </div>
-                                                    <p>0 MB used of 50 MB</p>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <div class="card">
-                                        <div class="card-header bg-success">
-                                            <h5 class="mb-0">File Size Limits</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            {% if profile and profile.account_type == 'free' %}
-                                                <p>Maximum file size: 10 MB</p>
-                                                <div class="mt-3">
-                                                    <a href="#" class="btn btn-success">Upgrade to Premium</a>
-                                                </div>
-                                            {% elif profile and profile.account_type == 'premium' %}
-                                                <p>Maximum file size: 100 MB</p>
-                                                <p>You're on our Premium plan!</p>
-                                            {% else %}
-                                                <p>Maximum file size: 10 MB</p>
-                                                <div class="mt-3">
-                                                    <a href="#" class="btn btn-success">Upgrade to Premium</a>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                                    <h3>Profile Information</h3>
-                                    <p>Email: {{ user.email }}</p>
-                                    <p>Account Type: <span class="badge bg-success">{{ profile.account_type|capitalize if profile else 'Free' }}</span></p>
-
-                                    <div class="mt-3">
-                                        <a href="{{ url_for('auth.profile') }}" class="btn btn-success">Edit Profile</a>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="v-pills-usage" role="tabpanel" aria-labelledby="v-pills-usage-tab">
+                    <!-- Dashboard Tab -->
+                    <div class="dashboard-tab-content active" id="overview-tab">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="section-header">
+                                    <i class="fas fa-chart-pie"></i>
                                     <h3>Usage Statistics</h3>
+                                </div>
 
-                                    <div class="card mb-3">
-                                        <div class="card-header bg-success">
-                                            <h5 class="mb-0">File Size Limits</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="stats-card">
+                                            <div class="stats-card-title">Account Type</div>
+                                            <div class="stats-card-value">
+                                                <span class="account-type-badge">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Account Type</th>
-                                                        <th>Maximum File Size</th>
-                                                        <th>Daily Quota</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Free</td>
-                                                        <td>10 MB</td>
-                                                        <td>50 MB</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Premium</td>
-                                                        <td>100 MB</td>
-                                                        <td>1 GB</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stats-card">
+                                            <div class="stats-card-title">File Size Limit</div>
+                                            <div class="stats-card-value">
+                                                <span class="unlimited-badge">Unlimited</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                            {% if profile and profile.account_type == 'free' %}
-                                                <div class="mt-3">
-                                                    <a href="#" class="btn btn-success">Upgrade to Premium</a>
-                                                </div>
-                                            {% endif %}
+                                <div class="section-card">
+                                    <div class="card-body">
+                                        <div class="benefit-card">
+                                            <strong>Beta Benefit:</strong> Unlimited storage during beta testing!
+                                        </div>
+
+                                        {% if profile %}
+                                            {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
+                                            <div class="storage-progress progress">
+                                                <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="storage-info">
+                                                <span class="storage-used">{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB used</span>
+                                                <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally {{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB)</span></span>
+                                            </div>
+                                        {% else %}
+                                            <div class="storage-progress progress">
+                                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="storage-info">
+                                                <span class="storage-used">0.0 MB used</span>
+                                                <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally 50 MB)</span></span>
+                                            </div>
+                                            <p class="text-muted small mt-2">Your storage usage will be displayed here once you start using the tools.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="section-header">
+                                    <i class="fas fa-bolt"></i>
+                                    <h3>Quick Actions</h3>
+                                </div>
+
+                                <div class="section-card">
+                                    <div class="card-body">
+                                        <a href="{{ url_for('auth.profile') }}" class="action-button secondary">
+                                            <i class="fas fa-user-circle me-2"></i> View Profile
+                                        </a>
+                                        <a href="{{ url_for('auth.change_password') }}" class="action-button secondary">
+                                            <i class="fas fa-key me-2"></i> Change Password
+                                        </a>
+                                        {% if profile and profile.account_type == 'free' %}
+                                            <a href="#" class="action-button primary">
+                                                <i class="fas fa-arrow-circle-up me-2"></i> Upgrade to Premium
+                                            </a>
+                                            <p class="text-muted small text-center mt-2">Premium features will be activated after beta</p>
+                                        {% else %}
+                                            <a href="#" class="action-button secondary">
+                                                <i class="fas fa-cog me-2"></i> Manage Subscription
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="section-header mt-4">
+                                    <i class="fas fa-tools"></i>
+                                    <h3>Popular Tools</h3>
+                                </div>
+
+                                <div class="section-card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6 mb-3">
+                                                <a href="{{ url_for('compress.compress_pdf') }}" class="action-button secondary">
+                                                    <i class="fas fa-compress-arrows-alt me-2"></i> Compress
+                                                </a>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <a href="{{ url_for('edit.edit_pdf') }}" class="action-button secondary">
+                                                    <i class="fas fa-edit me-2"></i> Edit
+                                                </a>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <a href="{{ url_for('security.protect') }}" class="action-button secondary">
+                                                    <i class="fas fa-shield-alt me-2"></i> Protect
+                                                </a>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <a href="{{ url_for('organize.merge') }}" class="action-button secondary">
+                                                    <i class="fas fa-object-group me-2"></i> Merge
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Profile Tab -->
+                    <div class="dashboard-tab-content" id="profile-tab">
+                        <div class="section-header">
+                            <i class="fas fa-user-circle"></i>
+                            <h3>Profile Information</h3>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="card-body">
+                                <div class="profile-item">
+                                    <div class="profile-item-label">Email:</div>
+                                    <div class="profile-item-value">{{ user.email }}</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-item-label">Account Type:</div>
+                                    <div class="profile-item-value">
+                                        <span class="account-type-badge">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                                    </div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-item-value">
+                                        <p class="text-muted small mb-0">All features unlimited during beta</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <a href="{{ url_for('auth.profile') }}" class="action-button secondary">
+                                        <i class="fas fa-edit me-2"></i> Edit Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Tab -->
+                    <div class="dashboard-tab-content" id="usage-tab">
+                        <div class="section-header">
+                            <i class="fas fa-chart-bar"></i>
+                            <h3>Usage Statistics</h3>
+                        </div>
+
+                        <div class="section-card">
+                            <div class="card-body">
+                                <table class="limits-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Account Type</th>
+                                            <th>Maximum File Size</th>
+                                            <th>Daily Quota</th>
+                                            <th>Beta Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Free</td>
+                                            <td><s>10 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                            <td><s>50 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                            <td><i class="fas fa-check-circle status-active"></i> Active</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Premium</td>
+                                            <td><s>100 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                            <td><s>1 GB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                            <td><i class="fas fa-check-circle status-active"></i> Active</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <div class="benefit-card mt-3">
+                                    <strong>Beta Benefit:</strong> Enjoy unlimited file sizes during our beta period!
+                                </div>
+
+                                {% if profile and profile.account_type == 'free' %}
+                                    <div class="mt-3 text-center">
+                                        <a href="#" class="upgrade-button">
+                                            <i class="fas fa-arrow-circle-up me-2"></i> Upgrade to Premium
+                                        </a>
+                                        <p class="text-muted small mt-2">Premium features will be activated after beta</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <a href="{{ url_for('main.index') }}" class="back-button">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Home
+                </a>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.dashboard-tab');
+        const tabContents = document.querySelectorAll('.dashboard-tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                document.getElementById(tabId + '-tab').classList.add('active');
+            });
+        });
+    });
+</script>
 {% endblock %}
