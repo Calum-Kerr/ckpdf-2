@@ -116,26 +116,13 @@
 
 /* Storage Info */
 .storage-info {
-    margin-bottom: 1.5rem;
-}
-
-.storage-progress {
-    height: 10px;
-    border-radius: 50px;
-    margin-bottom: 0.75rem;
-    background-color: #eaeaea;
-}
-
-.storage-progress .progress-bar {
-    background-color: var(--primary-color);
-    border-radius: 50px;
+    margin-bottom: 1rem;
 }
 
 .storage-details {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #555;
+    margin-bottom: 1.5rem;
 }
 
 /* Limits Info */
@@ -147,15 +134,23 @@
     list-style: none;
     padding-left: 0;
     margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .limits-list li {
-    margin-bottom: 0.5rem;
     color: #555;
+    background-color: rgba(35, 130, 135, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
 }
 
 .limits-list i {
     color: var(--primary-color);
+    margin-right: 0.75rem;
 }
 
 /* Quick Access */
@@ -165,43 +160,45 @@
     border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.quick-access h3 {
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 600;
+/* Tools Grid */
+.tools-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
-/* Tool Box */
-.tool-link {
+.tool-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-decoration: none;
-    color: inherit;
-    display: block;
+    color: var(--primary-color);
+    transition: all 0.2s ease;
+    padding: 1rem;
+    border-radius: 8px;
+    min-width: 100px;
 }
 
-.tool-box {
-    background-color: white;
-    border-radius: 10px;
-    padding: 1.25rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.tool-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.tool-item:hover {
+    background-color: rgba(35, 130, 135, 0.1);
+    transform: translateY(-3px);
 }
 
 .tool-icon {
-    margin-bottom: 1rem;
+    background-color: var(--primary-color);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     display: flex;
+    align-items: center;
     justify-content: center;
+    margin-bottom: 0.75rem;
 }
 
-.tool-name {
-    font-weight: 600;
-    color: var(--primary-color);
+.tool-icon svg,
+.tool-icon img {
+    filter: brightness(0) invert(1);
 }
 
 /* Responsive Adjustments */
@@ -209,11 +206,11 @@
     .info-row {
         flex-direction: column;
     }
-    
+
     .info-label, .info-value {
         width: 100%;
     }
-    
+
     .info-value {
         margin-top: 0.25rem;
     }
