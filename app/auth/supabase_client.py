@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 # Supabase configuration
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+# Service role key for admin operations (should be kept secure)
+SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
 
 # Initialize Supabase client
 supabase: Client = None
@@ -79,3 +81,24 @@ def get_supabase():
         return init_supabase()
 
     return supabase
+
+def get_service_supabase():
+    """
+    Get a Supabase client with service role permissions.
+    This should only be used for server-side operations that require admin privileges.
+
+    Returns:
+        Client: The Supabase client with service role permissions.
+    """
+    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        logger.warning("Supabase service role credentials not found. Admin operations will not work.")
+        return None
+
+    try:
+        # Create a new Supabase client with the service role key
+        service_supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+        logger.info("Supabase service role client created successfully.")
+        return service_supabase
+    except Exception as e:
+        logger.error(f"Error creating Supabase service role client: {str(e)}")
+        return None

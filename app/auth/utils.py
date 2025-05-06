@@ -9,7 +9,7 @@ import datetime
 from flask import session, request, redirect, url_for, flash, g, current_app
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from functools import wraps
-from .supabase_client import get_supabase
+from .supabase_client import get_supabase, get_service_supabase
 
 # Demo mode storage (for testing without Supabase)
 demo_users = {}
@@ -168,17 +168,13 @@ def register_user(email, password):
             # This is available in the user object returned from sign_up
             creation_date = user.created_at if hasattr(user, 'created_at') else datetime.datetime.now().isoformat()
 
-            # Create user profile in the database with the creation date
-            supabase.table('user_profiles').insert({
-                'user_id': user.id,
-                'email': user.email,
-                'account_type': 'free',
-                'storage_used': 0,
-                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                'created_at': creation_date
-            }).execute()
+            # Create user profile using the dedicated function that handles service role fallback
+            profile = create_user_profile(user.id, user.email)
 
-            logger.info(f"User profile created for: {email} with creation date: {creation_date}")
+            if profile:
+                logger.info(f"User profile created for: {email} with creation date: {creation_date}")
+            else:
+                logger.warning(f"Failed to create user profile for: {email}, will try again on login")
         except Exception as profile_error:
             logger.error(f"Error creating user profile: {str(profile_error)}")
             # Continue anyway, as the user is created
@@ -925,7 +921,7 @@ def create_user_profile(user_id, email=None):
     # Get the current time as creation date
     creation_date = datetime.datetime.now().isoformat()
 
-    # Try to create the profile in Supabase
+    # First try with regular client
     supabase = get_supabase()
     if supabase:
         try:
@@ -943,12 +939,38 @@ def create_user_profile(user_id, email=None):
                 logger.info(f"User profile created for: {email}")
                 return response.data[0]
             else:
-                logger.error(f"Failed to create user profile for: {email}")
-                return None
+                logger.warning(f"Failed to create user profile with regular client for: {email}")
+                # Fall through to try with service role client
         except Exception as e:
-            logger.error(f"Error creating user profile in Supabase: {str(e)}")
+            logger.warning(f"Error creating user profile with regular client: {str(e)}")
+            # Fall through to try with service role client
 
-    # If Supabase fails or is not available, create a demo profile
+    # If regular client fails, try with service role client
+    service_supabase = get_service_supabase()
+    if service_supabase:
+        try:
+            logger.info(f"Attempting to create user profile with service role client for: {email}")
+            # Create user profile in the database using service role client
+            response = service_supabase.table('user_profiles').insert({
+                'user_id': user_id,
+                'email': email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': creation_date
+            }).execute()
+
+            if response.data and len(response.data) > 0:
+                logger.info(f"User profile created with service role client for: {email}")
+                return response.data[0]
+            else:
+                logger.error(f"Failed to create user profile with service role client for: {email}")
+                # Fall through to demo profile
+        except Exception as e:
+            logger.error(f"Error creating user profile with service role client: {str(e)}")
+            # Fall through to demo profile
+
+    # If both Supabase clients fail or are not available, create a demo profile
     demo_profiles[user_id] = {
         'user_id': user_id,
         'email': email,

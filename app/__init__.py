@@ -51,6 +51,7 @@ def create_app(test_config=None):
         # Supabase configuration
         SUPABASE_URL=os.environ.get('SUPABASE_URL', ''),
         SUPABASE_KEY=os.environ.get('SUPABASE_KEY', ''),
+        SUPABASE_SERVICE_KEY=os.environ.get('SUPABASE_SERVICE_KEY', ''),
         # Google OAuth configuration
         GOOGLE_CLIENT_ID=os.environ.get('GOOGLE_CLIENT_ID', ''),
         GOOGLE_CLIENT_SECRET=os.environ.get('GOOGLE_CLIENT_SECRET', ''),

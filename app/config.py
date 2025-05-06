@@ -40,6 +40,7 @@ class Config:
     # Supabase settings
     SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
     SUPABASE_KEY = os.environ.get('SUPABASE_KEY', '')
+    SUPABASE_SERVICE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
 
     # Google OAuth settings
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
