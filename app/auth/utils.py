@@ -982,17 +982,33 @@ def create_user_profile(user_id, email=None):
                 logger.info(f"Checking if profile already exists for user_id: {user_id}")
                 check_response = service_supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
 
+                logger.info(f"Check response: {check_response}")
+                logger.info(f"Check response data: {check_response.data if hasattr(check_response, 'data') else 'No data attribute'}")
+
                 if check_response.data and len(check_response.data) > 0:
                     logger.info(f"Profile already exists for user_id: {user_id}")
                     return check_response.data[0]
 
                 logger.info(f"No existing profile found, creating new profile for user_id: {user_id}")
+                logger.info(f"Profile data to be inserted: {profile_data}")
+
                 # Create user profile in the database using service role client
                 response = service_supabase.table('user_profiles').insert(profile_data).execute()
+                logger.info(f"Insert response: {response}")
+                logger.info(f"Insert response data: {response.data if hasattr(response, 'data') else 'No data attribute'}")
             except Exception as check_error:
                 logger.error(f"Error checking for existing profile: {str(check_error)}")
+                logger.error(f"Error type: {type(check_error).__name__}")
+                logger.error(f"Error details: {dir(check_error)}")
+
                 # Try to create the profile anyway
-                response = service_supabase.table('user_profiles').insert(profile_data).execute()
+                try:
+                    response = service_supabase.table('user_profiles').insert(profile_data).execute()
+                    logger.info(f"Fallback insert response: {response}")
+                except Exception as insert_error:
+                    logger.error(f"Error in fallback insert: {str(insert_error)}")
+                    logger.error(f"Error type: {type(insert_error).__name__}")
+                    raise
 
             if response.data and len(response.data) > 0:
                 logger.info(f"User profile created with service role client for: {email}")

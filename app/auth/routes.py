@@ -580,13 +580,21 @@ def oauth_callback():
 
                             # Check if profile exists
                             try:
+                                logger.info(f"Checking if profile exists for user_id: {user_id}")
                                 profile_response = supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+
+                                logger.info(f"Profile check response: {profile_response}")
+                                logger.info(f"Profile check data: {profile_response.data if hasattr(profile_response, 'data') else 'No data attribute'}")
+
                                 if not profile_response.data or len(profile_response.data) == 0:
                                     logger.info(f"No profile found for user {email}, creating one")
 
                                     # Create profile using service role client
                                     from .utils import create_user_profile
+                                    logger.info(f"Calling create_user_profile with user_id: {user_id}, email: {email}")
                                     profile = create_user_profile(user_id, email)
+
+                                    logger.info(f"Profile creation result: {profile}")
 
                                     if profile:
                                         logger.info(f"Successfully created profile for OAuth user: {email}")
@@ -596,6 +604,8 @@ def oauth_callback():
                                     logger.info(f"Profile already exists for user: {email}")
                             except Exception as profile_error:
                                 logger.error(f"Error checking/creating profile: {str(profile_error)}")
+                                logger.error(f"Error type: {type(profile_error).__name__}")
+                                logger.error(f"Error details: {dir(profile_error)}")
                     except Exception as user_error:
                         logger.error(f"Error getting user data from Supabase: {str(user_error)}")
 
@@ -870,13 +880,21 @@ def process_token():
                 # Check if the user has a profile, create one if not
                 try:
                     # First check if profile exists
+                    logger.info(f"Checking if profile exists for user_id: {user_data.id}")
                     profile_response = supabase.table('user_profiles').select('*').eq('user_id', user_data.id).execute()
+
+                    logger.info(f"Profile check response: {profile_response}")
+                    logger.info(f"Profile check data: {profile_response.data if hasattr(profile_response, 'data') else 'No data attribute'}")
+
                     if not profile_response.data or len(profile_response.data) == 0:
                         logger.info(f"No profile found for user {user_data.email}, creating one")
 
                         # Create profile using service role client
                         from .utils import create_user_profile
+                        logger.info(f"Calling create_user_profile with user_id: {user_data.id}, email: {user_data.email}")
                         profile = create_user_profile(user_data.id, user_data.email)
+
+                        logger.info(f"Profile creation result: {profile}")
 
                         if profile:
                             logger.info(f"Successfully created profile for OAuth user: {user_data.email}")
