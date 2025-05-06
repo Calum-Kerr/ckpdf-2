@@ -1,0 +1,220 @@
+/**
+ * RevisePDF Minimal Account Dashboard Styles
+ */
+
+/* Account Header */
+.account-header {
+    padding: 1.5rem 0;
+    color: white;
+}
+
+/* Beta Badge */
+.beta-badge {
+    background-color: #ffc107;
+    color: #212529;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Beta Notice */
+.beta-notice {
+    background-color: #e6f3f3;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(35, 130, 135, 0.1);
+}
+
+.beta-notice p {
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.beta-notice i {
+    color: var(--primary-color);
+}
+
+/* Account Content */
+.account-content {
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 60px - 60px - 60px);
+}
+
+/* Account Panel */
+.account-panel {
+    margin-bottom: 1.5rem;
+}
+
+.panel-title {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(35, 130, 135, 0.2);
+}
+
+/* Profile Info */
+.profile-info {
+    margin-bottom: 1.5rem;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    font-weight: 600;
+    width: 40%;
+    color: #555;
+}
+
+.info-value {
+    width: 60%;
+}
+
+/* Account Badge */
+.account-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Storage Info */
+.storage-info {
+    margin-bottom: 1.5rem;
+}
+
+.storage-progress {
+    height: 10px;
+    border-radius: 50px;
+    margin-bottom: 0.75rem;
+    background-color: #eaeaea;
+}
+
+.storage-progress .progress-bar {
+    background-color: var(--primary-color);
+    border-radius: 50px;
+}
+
+.storage-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Limits Info */
+.limits-info {
+    margin-bottom: 1.5rem;
+}
+
+.limits-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.limits-list li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+.limits-list i {
+    color: var(--primary-color);
+}
+
+/* Quick Access */
+.quick-access {
+    margin: 2rem 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.quick-access h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Tool Box */
+.tool-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.tool-box {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tool-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tool-icon {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.tool-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .info-row {
+        flex-direction: column;
+    }
+    
+    .info-label, .info-value {
+        width: 100%;
+    }
+    
+    .info-value {
+        margin-top: 0.25rem;
+    }
+}

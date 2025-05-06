@@ -215,7 +215,7 @@ def dashboard():
                 profile = demo_profiles[user['id']]
                 logger.info(f"Created new demo profile for user {user['id']}")
 
-    return render_template('auth/account_streamlined.html', user=user, profile=profile)
+    return render_template('auth/account_minimal.html', user=user, profile=profile)
 
 @auth_bp.route('/profile')
 @login_required
