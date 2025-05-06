@@ -2,161 +2,286 @@
 
 {% block title %}Convert PDF to PDF/A - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pdf_to_pdfa.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Convert PDF to PDF/A</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Convert standard PDF documents to PDF/A format for long-term archiving.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Convert PDF to PDF/A</h2>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert standard PDF documents to PDF/A format for long-term archiving.
-                    </p>
+    <div class="convert-container">
+        {% if not result %}
+        <form method="POST" enctype="multipart/form-data" id="pdfa-form">
+            {{ form.csrf_token }}
 
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> This tool is currently using a simplified approach. Full PDF/A conversion with advanced processing capabilities will be available soon.
+            <div class="upload-section">
+                <h3 class="upload-title">Upload PDF to Convert to PDF/A</h3>
+
+                <div class="warning-alert">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Note:</strong> This tool is currently using a simplified approach. Full PDF/A conversion with advanced processing capabilities will be available soon.
+                </div>
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
+                </div>
+
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="conversion-options mt-4">
+                    <p class="options-title">Choose PDF/A Conformance Level</p>
+
+                    <div class="conformance-selector">
+                        <div class="conformance-option" data-value="pdfa-1b">
+                            <p class="conformance-name">PDF/A-1b</p>
+                            <p class="conformance-description">Basic compliance (ISO 19005-1:2005)</p>
+                        </div>
+
+                        <div class="conformance-option" data-value="pdfa-2b">
+                            <p class="conformance-name">PDF/A-2b</p>
+                            <p class="conformance-description">Extended features (ISO 19005-2:2011)</p>
+                        </div>
+
+                        <div class="conformance-option" data-value="pdfa-3b">
+                            <p class="conformance-name">PDF/A-3b</p>
+                            <p class="conformance-description">Latest standard (ISO 19005-3:2012)</p>
+                        </div>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.conformance(class="d-none") }}
+                </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                <button type="submit" class="submit-btn mt-4" id="submit-btn" disabled>Convert to PDF/A</button>
+            </div>
+        </form>
+        {% endif %}
 
-                        <div class="mb-3">
-                            {{ form.conformance.label(class="form-label") }}
-                            {{ form.conformance(class="form-select") }}
-                            <div class="form-text">
-                                Select the PDF/A conformance level.
-                            </div>
-                        </div>
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Conversion Results</h3>
 
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Input PDF</h4>
+                    <p>File Size: {{ (result.input_file_size / 1024 / 1024)|round(2) }} MB</p>
+                </div>
+
+                <div class="result-card">
+                    <h4 class="result-card-title">Output PDF/A</h4>
+                    <p>Conformance: {{ conformance_description }}</p>
+                    <p>File Size: {{ (result.output_file_size / 1024 / 1024)|round(2) }} MB</p>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Conversion Results</h3>
+            <div class="success-alert">
+                <i class="fas fa-check-circle"></i>
+                <strong>Success!</strong> Your PDF has been successfully converted to PDF/A format.
+            </div>
+
+            <a href="{{ url_for('convert_from_pdf.download_pdfa', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download PDF/A
+            </a>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('convert_from_pdf.pdf_to_pdfa') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Convert Another PDF
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="info-container">
+            <h3 class="info-title">About PDF/A</h3>
+
+            <p class="info-text">
+                PDF/A is an ISO-standardized version of the PDF format designed for long-term archiving of electronic documents:
+            </p>
+
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Ensures documents can be reproduced exactly the same way in the future</li>
+                <li><i class="fas fa-check-circle"></i> Self-contained (all fonts, color profiles, and other resources embedded)</li>
+                <li><i class="fas fa-check-circle"></i> Prohibits features that could affect long-term preservation (JavaScript, encryption, etc.)</li>
+                <li><i class="fas fa-check-circle"></i> Required by many government agencies, legal institutions, and archives</li>
+            </ul>
+
+            <h4 class="info-subtitle">Conformance Levels</h4>
+            <div class="conformance-cards">
+                <div class="conformance-card">
+                    <div class="conformance-card-header">
+                        <h5 class="conformance-card-title">PDF/A-1b</h5>
+                    </div>
+                    <div class="conformance-card-body">
+                        <p class="conformance-card-subtitle">ISO 19005-1:2005</p>
+                        <p>Basic level compliance:</p>
+                        <ul class="conformance-card-list">
+                            <li>Visual appearance preserved</li>
+                            <li>Based on PDF 1.4</li>
+                            <li>Most widely supported</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input PDF</h4>
-                            <p>File Size: {{ (result.input_file_size / 1024 / 1024)|round(2) }} MB</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Output PDF/A</h4>
-                            <p>Conformance: {{ conformance_description }}</p>
-                            <p>File Size: {{ (result.output_file_size / 1024 / 1024)|round(2) }} MB</p>
-                        </div>
-                    </div>
 
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Success!</strong> Your PDF has been successfully converted to PDF/A format.
+                <div class="conformance-card">
+                    <div class="conformance-card-header">
+                        <h5 class="conformance-card-title">PDF/A-2b</h5>
                     </div>
+                    <div class="conformance-card-body">
+                        <p class="conformance-card-subtitle">ISO 19005-2:2011</p>
+                        <p>Extended features:</p>
+                        <ul class="conformance-card-list">
+                            <li>Based on PDF 1.7</li>
+                            <li>JPEG2000 compression</li>
+                            <li>Transparency support</li>
+                            <li>PDF/A file attachments</li>
+                        </ul>
+                    </div>
+                </div>
 
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('convert_from_pdf.download_pdfa', filename=output_filename) }}" class="btn btn-success">Download PDF/A</a>
+                <div class="conformance-card">
+                    <div class="conformance-card-header">
+                        <h5 class="conformance-card-title">PDF/A-3b</h5>
+                    </div>
+                    <div class="conformance-card-body">
+                        <p class="conformance-card-subtitle">ISO 19005-3:2012</p>
+                        <p>Latest standard:</p>
+                        <ul class="conformance-card-list">
+                            <li>All PDF/A-2 features</li>
+                            <li>Allows any file attachments</li>
+                            <li>Used for hybrid documents</li>
+                            <li>Supports XML forms</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF/A</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF/A is an ISO-standardized version of the PDF format designed for long-term archiving of electronic documents:
-                    </p>
-
-                    <ul>
-                        <li>Ensures documents can be reproduced exactly the same way in the future</li>
-                        <li>Self-contained (all fonts, color profiles, and other resources embedded)</li>
-                        <li>Prohibits features that could affect long-term preservation (JavaScript, encryption, etc.)</li>
-                        <li>Required by many government agencies, legal institutions, and archives</li>
-                    </ul>
-
-                    <h4>Conformance Levels</h4>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">PDF/A-1b</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>ISO 19005-1:2005</strong></p>
-                                    <p>Basic level compliance:</p>
-                                    <ul>
-                                        <li>Visual appearance preserved</li>
-                                        <li>Based on PDF 1.4</li>
-                                        <li>Most widely supported</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">PDF/A-2b</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>ISO 19005-2:2011</strong></p>
-                                    <p>Extended features:</p>
-                                    <ul>
-                                        <li>Based on PDF 1.7</li>
-                                        <li>JPEG2000 compression</li>
-                                        <li>Transparency support</li>
-                                        <li>PDF/A file attachments</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">PDF/A-3b</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p><strong>ISO 19005-3:2012</strong></p>
-                                    <p>Latest standard:</p>
-                                    <ul>
-                                        <li>All PDF/A-2 features</li>
-                                        <li>Allows any file attachments</li>
-                                        <li>Used for hybrid documents</li>
-                                        <li>Supports XML forms</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Converting to PDF/A may increase file size due to font embedding and other requirements. Some features like JavaScript, audio/video content, and external references will be removed during conversion.
-                    </div>
-                </div>
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Converting to PDF/A may increase file size due to font embedding and other requirements. Some features like JavaScript, audio/video content, and external references will be removed during conversion.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const conformanceOptions = document.querySelectorAll('.conformance-option');
+        const conformanceSelect = document.getElementById('conformance');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Set default selected conformance
+        if (conformanceSelect) conformanceSelect.value = 'pdfa-1b';
+        conformanceOptions[0].classList.add('selected');
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+                submitBtn.disabled = true;
+            });
+        }
+
+        // Handle conformance selection
+        conformanceOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                conformanceOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                conformanceSelect.value = this.dataset.value;
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}
