@@ -2,144 +2,159 @@
 
 {% block title %}Extract Pages - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/extract.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Extract Pages</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Extract specific pages from a PDF document to create a new PDF.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Extract Pages</h2>
+    <div class="extract-container">
+        {% if not result %}
+        <form method="POST" enctype="multipart/form-data" id="extract-form">
+            {{ form.csrf_token }}
+
+            <div class="upload-section">
+                <h3 class="upload-title">Upload PDF to Extract Pages</h3>
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Extract specific pages from a PDF document to create a new PDF.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                <div class="page-selection mt-4">
+                    <p class="page-selection-title">Specify Pages to Extract</p>
 
-                        <div class="mb-3">
-                            {{ form.pages.label(class="form-label") }}
-                            {{ form.pages(class="form-control") }}
-                            <div class="form-text">
-                                Enter page numbers and ranges separated by commas. Example: 1,3,5-7,10-12
+                    <div class="page-input-container">
+                        {{ form.pages(class="page-input", placeholder="Example: 1,3,5-7,10-12") }}
+                        <p class="page-input-help">
+                            Enter page numbers and ranges separated by commas. Example: 1,3,5-7,10-12
+                        </p>
+                        {% if form.pages.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.pages.errors %}
+                                    {{ error }}
+                                {% endfor %}
                             </div>
-                            {% if form.pages.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.pages.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                        {% endif %}
+                    </div>
+                </div>
 
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                <button type="submit" class="submit-btn mt-4" id="submit-btn" disabled>Extract Pages</button>
+            </div>
+        </form>
+        {% endif %}
+
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Extraction Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Input File</h4>
+                    <p>Total Pages: {{ result.input_page_count }}</p>
+                </div>
+
+                <div class="result-card">
+                    <h4 class="result-card-title">Output File</h4>
+                    <p>Extracted Pages: {{ result.output_page_count }}</p>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Extraction Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input File</h4>
-                            <p>Total Pages: {{ result.input_page_count }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Output File</h4>
-                            <p>Extracted Pages: {{ result.output_page_count }}</p>
-                        </div>
-                    </div>
-
-                    <h5 class="mt-3">Pages Extracted:</h5>
-                    <p>{{ formatted_pages }}</p>
-
-                    <div class="d-grid">
-                        <a href="{{ url_for('organize.download_extracted', filename=output_filename) }}" class="btn btn-success">Download Extracted PDF</a>
-                    </div>
-                </div>
+            <h5 class="mt-3">Pages Extracted:</h5>
+            <div class="pages-list">
+                {{ formatted_pages }}
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About Page Extraction</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Page extraction allows you to select specific pages from a PDF document and create a new PDF containing only those pages.
-                        This is useful for:
-                    </p>
+            <a href="{{ url_for('organize.download_extracted', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download Extracted PDF
+            </a>
+        </div>
 
-                    <ul>
-                        <li>Extracting only the relevant pages from a large document</li>
-                        <li>Creating a condensed version of a document</li>
-                        <li>Removing unwanted pages</li>
-                        <li>Rearranging pages in a different order</li>
-                    </ul>
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('organize.extract') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Extract from Another PDF
+            </a>
+        </div>
+        {% endif %}
 
-                    <h4>How to Specify Pages</h4>
-                    <p>
-                        You can specify pages in several ways:
-                    </p>
+        <div class="info-container">
+            <h3 class="info-title">About Page Extraction</h3>
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Format</th>
-                                    <th>Example</th>
-                                    <th>Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Single page</td>
-                                    <td><code>5</code></td>
-                                    <td>Extracts page 5</td>
-                                </tr>
-                                <tr>
-                                    <td>Multiple pages</td>
-                                    <td><code>1,3,5</code></td>
-                                    <td>Extracts pages 1, 3, and 5</td>
-                                </tr>
-                                <tr>
-                                    <td>Page range</td>
-                                    <td><code>7-10</code></td>
-                                    <td>Extracts pages 7, 8, 9, and 10</td>
-                                </tr>
-                                <tr>
-                                    <td>Mixed</td>
-                                    <td><code>1,3-5,8,10-12</code></td>
-                                    <td>Extracts pages 1, 3, 4, 5, 8, 10, 11, and 12</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <p class="info-text">
+                Page extraction allows you to select specific pages from a PDF document and create a new PDF containing only those pages.
+                This is useful for:
+            </p>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Page numbers start at 1 (not 0). The order of pages in the output PDF will match the order you specify.
-                    </div>
-                </div>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Extracting only the relevant pages from a large document</li>
+                <li><i class="fas fa-check-circle"></i> Creating a condensed version of a document</li>
+                <li><i class="fas fa-check-circle"></i> Removing unwanted pages</li>
+                <li><i class="fas fa-check-circle"></i> Rearranging pages in a different order</li>
+            </ul>
+
+            <h4 class="info-subtitle">How to Specify Pages</h4>
+            <p class="info-text">
+                You can specify pages in several ways:
+            </p>
+
+            <table class="page-spec-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Example</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Single page</td>
+                        <td><code>5</code></td>
+                        <td>Extracts page 5</td>
+                    </tr>
+                    <tr>
+                        <td>Multiple pages</td>
+                        <td><code>1,3,5</code></td>
+                        <td>Extracts pages 1, 3, and 5</td>
+                    </tr>
+                    <tr>
+                        <td>Page range</td>
+                        <td><code>7-10</code></td>
+                        <td>Extracts pages 7, 8, 9, and 10</td>
+                    </tr>
+                    <tr>
+                        <td>Mixed</td>
+                        <td><code>1,3-5,8,10-12</code></td>
+                        <td>Extracts pages 1, 3, 4, 5, 8, 10, 11, and 12</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-alert">
+                <i class="fas fa-info-circle me-2"></i>
+                Page numbers start at 1 (not 0). The order of pages in the output PDF will match the order you specify.
             </div>
         </div>
     </div>
@@ -147,8 +162,81 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+                submitBtn.disabled = true;
+            });
+        }
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         // Validate page format
         const pagesInput = document.getElementById('pages');
         if (pagesInput) {
