@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - RevisePDF{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/account_new.css') }}?v={{ range(1, 10000) | random }}">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<div class="bg-primary py-4 mb-4 text-white">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h2 mb-0">My Account</h1>
+            <span class="beta-badge">BETA</span>
+        </div>
+    </div>
+</div>
+
+<!-- Beta Alert -->
+<div class="container mb-4">
+    <div class="beta-alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle me-3"></i>
+            <div>
+                <h4 class="mb-1">Beta Mode Active</h4>
+                <p class="mb-0">RevisePDF is currently in beta testing. During this period, all features are <strong>unlimited</strong> for all users. Enjoy full access to all tools and features!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div class="container dashboard-container">
+    <div class="dashboard-grid">
+        <!-- Profile Card -->
+        <div class="dashboard-card profile-card">
+            <div class="card-header">
+                <i class="fas fa-user-circle"></i>
+                <h3>Profile Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="profile-item">
+                    <div class="profile-item-label">Email:</div>
+                    <div class="profile-item-value">{{ user.email }}</div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-item-label">Account Type:</div>
+                    <div class="profile-item-value">
+                        <span class="account-type-badge">{{ profile.account_type|capitalize if profile else 'Free' }}</span>
+                    </div>
+                </div>
+                <div class="profile-item">
+                    <div class="profile-item-value">
+                        <p class="text-muted small mb-0">All features unlimited during beta</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Usage Card -->
+        <div class="dashboard-card storage-card">
+            <div class="card-header">
+                <i class="fas fa-database"></i>
+                <h3>Storage Usage</h3>
+            </div>
+            <div class="card-body">
+                <div class="benefit-card">
+                    <strong>Beta Benefit:</strong> Unlimited storage during beta testing!
+                </div>
+
+                {% if profile %}
+                    {% set usage_percent = (profile.storage_used / profile.storage_limit * 100)|round if profile.storage_limit > 0 else 0 %}
+                    <div class="storage-progress progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ usage_percent }}%;" aria-valuenow="{{ usage_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="storage-info">
+                        <span class="storage-used">{{ (profile.storage_used / 1024 / 1024)|round(1) }} MB used</span>
+                        <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally {{ (profile.storage_limit / 1024 / 1024)|round(0) }} MB)</span></span>
+                    </div>
+                {% else %}
+                    <div class="storage-progress progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="storage-info">
+                        <span class="storage-used">0.0 MB used</span>
+                        <span class="storage-limit">of <span class="unlimited-badge">UNLIMITED</span> <span class="text-muted small">(normally 50 MB)</span></span>
+                    </div>
+                    <p class="text-muted small mt-2">Your storage usage will be displayed here once you start using the tools.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Account Actions Card -->
+        <div class="dashboard-card actions-card">
+            <div class="card-header">
+                <i class="fas fa-cog"></i>
+                <h3>Account Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="action-buttons">
+                    <a href="{{ url_for('auth.change_password') }}" class="action-button secondary">
+                        <i class="fas fa-key me-2"></i> Change Password
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="action-button danger">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Size Limits Card -->
+        <div class="dashboard-card limits-card">
+            <div class="card-header">
+                <i class="fas fa-file-alt"></i>
+                <h3>File Size Limits</h3>
+            </div>
+            <div class="card-body">
+                <div class="limits-table-wrapper">
+                    <table class="limits-table">
+                        <thead>
+                            <tr>
+                                <th>Account Type</th>
+                                <th>Maximum File Size</th>
+                                <th>Storage Limit</th>
+                                <th>Beta Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Free</td>
+                                <td><s>10 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                <td><s>50 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                <td><i class="fas fa-check-circle status-active"></i> Active</td>
+                            </tr>
+                            <tr>
+                                <td>Premium</td>
+                                <td><s>100 MB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                <td><s>1 GB</s> <span class="unlimited-badge">Unlimited</span></td>
+                                <td><i class="fas fa-check-circle status-active"></i> Active</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="current-limit-info">
+                    <p>
+                        <strong>Your current limit:</strong>
+                        <span class="current-limit-badge">UNLIMITED DURING BETA</span>
+                    </p>
+                </div>
+
+                <div class="benefit-card">
+                    <strong>Beta Benefit:</strong> Enjoy unlimited file sizes during our beta period!
+                </div>
+
+                {% if profile and profile.account_type == 'free' %}
+                    <a href="#" class="upgrade-button">
+                        <i class="fas fa-arrow-circle-up me-2"></i> Upgrade to Premium
+                    </a>
+                    <p class="text-muted small mt-2">Premium features will be activated after beta</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access to Tools -->
+    <div class="quick-access-section">
+        <h3 class="section-title">Quick Access to Tools</h3>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <svg width="36" height="36" viewBox="0 0 168 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="78" height="78" rx="10" fill="#238287"/>
+                            <rect x="90" width="78" height="78" rx="10" fill="#238287"/>
+                            <rect x="90" y="90" width="78" height="78" rx="10" fill="#238287"/>
+                            <rect y="90" width="78" height="78" rx="10" fill="#238287"/>
+                            <path d="M53 55.5C54.3807 55.5 55.5 54.3807 55.5 53L55.5 30.5C55.5 29.1193 54.3807 28 53 28C51.6193 28 50.5 29.1193 50.5 30.5V50.5H30.5C29.1193 50.5 28 51.6193 28 53C28 54.3807 29.1193 55.5 30.5 55.5L53 55.5ZM22.2322 25.7678L51.2322 54.7678L54.7678 51.2322L25.7678 22.2322L22.2322 25.7678Z" fill="white"/>
+                            <path d="M55.5 114C55.5 112.619 54.3807 111.5 53 111.5L30.5 111.5C29.1193 111.5 28 112.619 28 114C28 115.381 29.1193 116.5 30.5 116.5H50.5V136.5C50.5 137.881 51.6193 139 53 139C54.3807 139 55.5 137.881 55.5 136.5L55.5 114ZM25.7678 144.768L54.7678 115.768L51.2322 112.232L22.2322 141.232L25.7678 144.768Z" fill="white"/>
+                            <path d="M111.5 53C111.5 54.3807 112.619 55.5 114 55.5L136.5 55.5C137.881 55.5 139 54.3807 139 53C139 51.6193 137.881 50.5 136.5 50.5H116.5V30.5C116.5 29.1193 115.381 28 114 28C112.619 28 111.5 29.1193 111.5 30.5L111.5 53ZM141.232 22.2322L112.232 51.2322L115.768 54.7678L144.768 25.7678L141.232 22.2322Z" fill="white"/>
+                            <path d="M114 110.5C112.619 110.5 111.5 111.619 111.5 113L111.5 135.5C111.5 136.881 112.619 138 114 138C115.381 138 116.5 136.881 116.5 135.5V115.5H136.5C137.881 115.5 139 114.381 139 113C139 111.619 137.881 110.5 136.5 110.5L114 110.5ZM144.768 140.232L115.768 111.232L112.232 114.768L141.232 143.768L144.768 140.232Z" fill="white"/>
+                        </svg>
+                    </div>
+                    <div class="tool-content">
+                        <h5>Optimise</h5>
+                        <p>Compress, repair, and OCR your PDFs</p>
+                    </div>
+                    <a href="{{ url_for('optimize.index') }}" class="stretched-link"></a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='svg-files-for-icons/edit.svg') }}" alt="Edit" width="36" height="36">
+                    </div>
+                    <div class="tool-content">
+                        <h5>Edit</h5>
+                        <p>Add page numbers, watermarks, edit content</p>
+                    </div>
+                    <a href="{{ url_for('edit.index') }}" class="stretched-link"></a>
+                </div>
+            </div>
+
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <img src="{{ url_for('static', filename='svg-files-for-icons/merge.svg') }}" alt="Organise" width="36" height="36">
+                    </div>
+                    <div class="tool-content">
+                        <h5>Organise</h5>
+                        <p>Merge, split, extract, and rotate pages</p>
+                    </div>
+                    <a href="{{ url_for('organize.index') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Home Button -->
+    <div class="text-center mt-4 mb-4">
+        <a href="{{ url_for('main.index') }}" class="back-button">
+            <i class="fas fa-arrow-left me-2"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

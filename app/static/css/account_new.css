@@ -1,0 +1,332 @@
+/**
+ * RevisePDF New Account Dashboard Styles
+ */
+
+/* Beta Badge */
+.beta-badge {
+    background-color: #ffc107;
+    color: #212529;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Beta Mode Alert */
+.beta-alert {
+    background-color: #e6f3f3;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.beta-alert h4 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    margin-bottom: 2rem;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eaeaea;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card .card-header {
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    background-color: white;
+}
+
+.dashboard-card .card-header i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+}
+
+.dashboard-card .card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Profile Card */
+.profile-item {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.profile-item:last-child {
+    margin-bottom: 0;
+}
+
+.profile-item-label {
+    font-weight: 600;
+    width: 40%;
+    color: #555;
+}
+
+.profile-item-value {
+    width: 60%;
+}
+
+/* Account Type Badge */
+.account-type-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Storage Usage */
+.storage-progress {
+    height: 12px;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    background-color: #eaeaea;
+}
+
+.storage-progress .progress-bar {
+    background-color: var(--primary-color);
+    border-radius: 50px;
+}
+
+.storage-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.storage-used {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.storage-limit {
+    font-weight: 600;
+}
+
+/* Unlimited Badge */
+.unlimited-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.action-button {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.action-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.action-button.primary:hover {
+    background-color: var(--primary-dark);
+    text-decoration: none;
+}
+
+.action-button.secondary {
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.action-button.secondary:hover {
+    background-color: var(--primary-light);
+    color: white;
+    text-decoration: none;
+}
+
+.action-button.danger {
+    background-color: white;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+}
+
+.action-button.danger:hover {
+    background-color: #dc3545;
+    color: white;
+    text-decoration: none;
+}
+
+/* File Size Limits Table */
+.limits-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+.limits-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.limits-table th {
+    background-color: #f5f5f5;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #444;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.limits-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eaeaea;
+    vertical-align: middle;
+}
+
+.limits-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Current Limit Badge */
+.current-limit-badge {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-left: 0.5rem;
+}
+
+.current-limit-info {
+    margin: 1.5rem 0;
+}
+
+/* Beta Benefits */
+.benefit-card {
+    background-color: #e6f3f3;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.benefit-card strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Active Status */
+.status-active {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+/* Upgrade Button */
+.upgrade-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: none;
+    margin-top: 1rem;
+}
+
+.upgrade-button:hover {
+    background-color: var(--primary-dark);
+    text-decoration: none;
+    color: white;
+}
+
+/* Quick Access Section */
+.quick-access-section {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.quick-access-section .section-title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Back Button */
+.back-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: var(--primary-light);
+    color: white;
+    text-decoration: none;
+}
