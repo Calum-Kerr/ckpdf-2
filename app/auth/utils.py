@@ -974,10 +974,25 @@ def create_user_profile(user_id, email=None):
                 # Use the Google ID as a namespace for UUID generation
                 deterministic_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://google.com/profiles/{google_id}"))
                 profile_data['user_id'] = deterministic_uuid
+                user_id = deterministic_uuid
                 logger.info(f"Converted Google ID to UUID: {deterministic_uuid}")
 
-            # Create user profile in the database using service role client
-            response = service_supabase.table('user_profiles').insert(profile_data).execute()
+            # First check if the profile already exists
+            try:
+                logger.info(f"Checking if profile already exists for user_id: {user_id}")
+                check_response = service_supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+
+                if check_response.data and len(check_response.data) > 0:
+                    logger.info(f"Profile already exists for user_id: {user_id}")
+                    return check_response.data[0]
+
+                logger.info(f"No existing profile found, creating new profile for user_id: {user_id}")
+                # Create user profile in the database using service role client
+                response = service_supabase.table('user_profiles').insert(profile_data).execute()
+            except Exception as check_error:
+                logger.error(f"Error checking for existing profile: {str(check_error)}")
+                # Try to create the profile anyway
+                response = service_supabase.table('user_profiles').insert(profile_data).execute()
 
             if response.data and len(response.data) > 0:
                 logger.info(f"User profile created with service role client for: {email}")
