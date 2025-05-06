@@ -1,0 +1,508 @@
+/* Protect PDF Tool Styles */
+
+/* Header section */
+.bg-primary {
+    background-color: #238287 !important;
+}
+
+/* Main layout */
+.security-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Upload section */
+.upload-section {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.upload-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Upload area */
+.upload-area {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 3rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.upload-area:hover {
+    border-color: #238287;
+}
+
+.upload-area.drag-over {
+    background-color: rgba(35, 130, 135, 0.1);
+    border-color: #238287;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #238287;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.upload-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* File preview */
+.file-preview {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.file-icon {
+    font-size: 2rem;
+    color: #238287;
+    margin-right: 1rem;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    word-break: break-all;
+}
+
+.file-size {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.file-remove {
+    color: #dc3545;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.25rem;
+}
+
+/* Settings cards */
+.settings-card {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.settings-card-header {
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.settings-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0;
+    color: #333;
+}
+
+.settings-card-body {
+    padding: 1.5rem;
+}
+
+/* Password inputs */
+.password-field {
+    margin-bottom: 1.5rem;
+}
+
+.password-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.password-field input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.password-field input:focus {
+    border-color: #238287;
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(35, 130, 135, 0.25);
+}
+
+.password-field .form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.password-field .invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+/* Checkbox styles */
+.permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .permissions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.permission-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.permission-check input[type="checkbox"] {
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.permission-check input[type="checkbox"]:checked {
+    background-color: #238287;
+    border-color: #238287;
+}
+
+.permission-check input[type="checkbox"]:checked::after {
+    content: '\2713';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.875rem;
+}
+
+.permission-check label {
+    font-weight: 500;
+    color: #333;
+}
+
+/* Submit button */
+.submit-btn {
+    background-color: #238287;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.submit-btn:hover {
+    background-color: #1a6569;
+}
+
+.submit-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Results section */
+.results-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.results-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.result-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.result-card-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Status list */
+.status-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 50rem;
+}
+
+.status-badge-success {
+    background-color: #28a745;
+}
+
+.status-badge-danger {
+    background-color: #dc3545;
+}
+
+.status-badge-secondary {
+    background-color: #6c757d;
+}
+
+/* Download button */
+.download-btn {
+    background-color: #238287;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.download-btn:hover {
+    background-color: #1a6569;
+    color: white;
+    text-decoration: none;
+}
+
+/* Info section */
+.info-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.info-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.info-subtitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+    color: #333;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    color: #6c757d;
+}
+
+.feature-list li i {
+    color: #28a745;
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Password types */
+.password-types {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .password-types {
+        grid-template-columns: 1fr;
+    }
+}
+
+.password-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.password-card-header {
+    background-color: #e9ecef;
+    padding: 1rem;
+}
+
+.password-card-title {
+    font-weight: 600;
+    margin-bottom: 0;
+    color: #333;
+}
+
+.password-card-body {
+    padding: 1.5rem;
+}
+
+.password-card-text {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.password-card-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.password-card-list li {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+}
+
+.password-card-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Alert styling */
+.info-alert {
+    background-color: #cff4fc;
+    border-left: 4px solid #0dcaf0;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    color: #055160;
+}
+
+.info-alert i {
+    margin-right: 0.5rem;
+}
+
+.warning-alert {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    color: #664d03;
+}
+
+.warning-alert i {
+    margin-right: 0.5rem;
+}
