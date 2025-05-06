@@ -2,231 +2,396 @@
 
 {% block title %}Add Page Numbers - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/page_numbers.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Add Page Numbers</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Add customizable page numbers to your PDF document with various styles and positions.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Add Page Numbers</h2>
+    {% if not result %}
+    <form method="POST" enctype="multipart/form-data" id="page-numbers-form">
+        {{ form.csrf_token }}
+
+        <div class="tool-container">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Add customizable page numbers to your PDF document.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
+            <!-- Right side: Numbering options -->
+            <div class="options-panel">
+                <h3 class="options-title">Page Numbering Options</h3>
+
+                <div class="form-group">
+                    <p class="form-group-title">Position</p>
+                    <div class="position-options">
+                        <div class="position-option" data-value="bottom-center">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <p class="position-name">Bottom Center</p>
+                        </div>
+                        <div class="position-option" data-value="bottom-right">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <p class="position-name">Bottom Right</p>
+                        </div>
+                        <div class="position-option" data-value="bottom-left">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-left"></i>
+                            </div>
+                            <p class="position-name">Bottom Left</p>
+                        </div>
+                        <div class="position-option" data-value="top-center">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <p class="position-name">Top Center</p>
+                        </div>
+                        <div class="position-option" data-value="top-right">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up-right"></i>
+                            </div>
+                            <p class="position-name">Top Right</p>
+                        </div>
+                        <div class="position-option" data-value="top-left">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up-left"></i>
+                            </div>
+                            <p class="position-name">Top Left</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.position(class="d-none") }}
+                </div>
+
+                <div class="form-group">
+                    <p class="form-group-title">Font</p>
+                    <div class="font-options">
+                        <div class="font-option" data-value="helv">
+                            <p class="font-name">Helvetica</p>
+                            <p class="font-sample">123</p>
+                        </div>
+                        <div class="font-option" data-value="tiro">
+                            <p class="font-name">Times Roman</p>
+                            <p class="font-sample">123</p>
+                        </div>
+                        <div class="font-option" data-value="cour">
+                            <p class="font-name">Courier</p>
+                            <p class="font-sample">123</p>
+                        </div>
+                        <div class="font-option" data-value="times">
+                            <p class="font-name">Times New Roman</p>
+                            <p class="font-sample">123</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.font(class="d-none") }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-field">
+                            <label for="start_number">Start Number</label>
+                            {{ form.start_number(class="form-control") }}
+                            <div class="form-text">First page number to use.</div>
+                            {% if form.start_number.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
+                                    {% for error in form.start_number.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.position.label(class="form-label") }}
-                                {{ form.position(class="form-select") }}
-                                <div class="form-text">
-                                    Where to place the page numbers on each page.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.start_number.label(class="form-label") }}
-                                {{ form.start_number(class="form-control") }}
-                                <div class="form-text">
-                                    First page number to use.
-                                </div>
-                                {% if form.start_number.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.start_number.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.font.label(class="form-label") }}
-                                {{ form.font(class="form-select") }}
-                                <div class="form-text">
-                                    Font to use for page numbers.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.font_size.label(class="form-label") }}
-                                {{ form.font_size(class="form-control") }}
-                                <div class="form-text">
-                                    Size of the page numbers (6-72 points).
-                                </div>
-                                {% if form.font_size.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.font_size.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                {{ form.prefix.label(class="form-label") }}
-                                {{ form.prefix(class="form-control") }}
-                                <div class="form-text">
-                                    Text to add before the number (e.g., "Page ").
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                {{ form.suffix.label(class="form-label") }}
-                                {{ form.suffix(class="form-control") }}
-                                <div class="form-text">
-                                    Text to add after the number (e.g., " of 10").
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                {{ form.margin.label(class="form-label") }}
-                                {{ form.margin(class="form-control") }}
-                                <div class="form-text">
-                                    Distance from the edge (in points).
-                                </div>
-                                {% if form.margin.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.margin.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.pages.label(class="form-label") }}
-                            {{ form.pages(class="form-control") }}
-                            <div class="form-text">
-                                Pages to number (e.g., 1,3,5-7 or "all").
-                            </div>
-                            {% if form.pages.errors %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-field">
+                            <label for="font_size">Font Size</label>
+                            {{ form.font_size(class="form-control") }}
+                            <div class="form-text">Size of the page numbers (6-72 points).</div>
+                            {% if form.font_size.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form.pages.errors %}
+                                    {% for error in form.font_size.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                    </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-field">
+                            <label for="prefix">Prefix</label>
+                            {{ form.prefix(class="form-control") }}
+                            <div class="form-text">Text before the number (e.g., "Page ").</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-field">
+                            <label for="suffix">Suffix</label>
+                            {{ form.suffix(class="form-control") }}
+                            <div class="form-text">Text after the number (e.g., " of 10").</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-field">
+                            <label for="margin">Margin</label>
+                            {{ form.margin(class="form-control") }}
+                            <div class="form-text">Distance from the edge (in points).</div>
+                            {% if form.margin.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.margin.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label for="pages">Pages to Number</label>
+                    {{ form.pages(class="form-control") }}
+                    <div class="form-text">Pages to number (e.g., 1,3,5-7 or "all").</div>
+                    {% if form.pages.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.pages.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">Add Page Numbers</button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+
+    {% if result %}
+    <div class="results-container">
+        <h3 class="results-title">Page Numbering Results</h3>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h4 class="result-card-title">Input PDF</h4>
+                <p>Total Pages: {{ result.input_page_count }}</p>
+                <p>Pages Numbered: {{ result.numbered_pages|length }}</p>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Page Numbering Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input PDF</h4>
-                            <p>Total Pages: {{ result.input_page_count }}</p>
-                            <p>Pages Numbered: {{ result.numbered_pages|length }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Numbering Style</h4>
-                            <p>Position: {{ position_name }}</p>
-                            <p>Font: {{ font_name }}</p>
-                            <p>Starting Number: {{ result.start_number }}</p>
-                        </div>
-                    </div>
-
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('edit.download_numbered', filename=output_filename) }}" class="btn btn-success">Download Numbered PDF</a>
-                    </div>
-                </div>
+            <div class="result-card">
+                <h4 class="result-card-title">Numbering Style</h4>
+                <p>Position: {{ position_name }}</p>
+                <p>Font: {{ font_name }}</p>
+                <p>Starting Number: {{ result.start_number }}</p>
             </div>
-            {% endif %}
+        </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About Page Numbering</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Adding page numbers to your PDF documents helps with:
-                    </p>
+        <a href="{{ url_for('edit.download_numbered', filename=output_filename) }}" class="download-btn">
+            <i class="fas fa-download me-2"></i> Download Numbered PDF
+        </a>
+    </div>
 
-                    <ul>
-                        <li>Organizing multi-page documents</li>
-                        <li>Making it easier to reference specific pages</li>
-                        <li>Creating professional-looking documents</li>
-                        <li>Helping readers navigate through the document</li>
-                    </ul>
+    <div class="text-center mt-4 mb-4">
+        <a href="{{ url_for('edit.page_numbers') }}" class="btn btn-outline-primary">
+            <i class="fas fa-redo me-2"></i> Number Another PDF
+        </a>
+    </div>
+    {% endif %}
 
-                    <h4>Customization Options</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Position</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Choose from six different positions:</p>
-                                    <ul>
-                                        <li>Top Left, Top Center, Top Right</li>
-                                        <li>Bottom Left, Bottom Center, Bottom Right</li>
-                                    </ul>
-                                    <p class="mb-0">
-                                        <strong>Tip:</strong> Bottom center is the most common position for page numbers.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Format</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Customize the appearance with:</p>
-                                    <ul>
-                                        <li>Different fonts and sizes</li>
-                                        <li>Custom prefix and suffix text</li>
-                                        <li>Custom starting number</li>
-                                    </ul>
-                                    <p class="mb-0">
-                                        <strong>Example:</strong> "Page 1 of 10", "- 1 -", etc.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="info-container">
+        <h3 class="info-title">About Page Numbering</h3>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Page numbers are added as text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
-                    </div>
-                </div>
+        <p class="info-text">
+            Adding page numbers to your PDF documents helps with:
+        </p>
+
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Organizing multi-page documents</li>
+            <li><i class="fas fa-check-circle"></i> Making it easier to reference specific pages</li>
+            <li><i class="fas fa-check-circle"></i> Creating professional-looking documents</li>
+            <li><i class="fas fa-check-circle"></i> Helping readers navigate through the document</li>
+        </ul>
+
+        <h4 class="info-subtitle">Customization Options</h4>
+        <div class="feature-cards">
+            <div class="feature-card">
+                <h5 class="feature-card-title">Position</h5>
+                <ul class="feature-card-list">
+                    <li>Top Left, Top Center, Top Right</li>
+                    <li>Bottom Left, Bottom Center, Bottom Right</li>
+                    <li><strong>Tip:</strong> Bottom center is the most common position for page numbers.</li>
+                </ul>
             </div>
+
+            <div class="feature-card">
+                <h5 class="feature-card-title">Format</h5>
+                <ul class="feature-card-list">
+                    <li>Different fonts and sizes</li>
+                    <li>Custom prefix and suffix text</li>
+                    <li>Custom starting number</li>
+                    <li><strong>Example:</strong> "Page 1 of 10", "- 1 -", etc.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Note:</strong> Page numbers are added as text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const positionOptions = document.querySelectorAll('.position-option');
+        const positionSelect = document.getElementById('position');
+        const fontOptions = document.querySelectorAll('.font-option');
+        const fontSelect = document.getElementById('font');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Set default selected options
+        positionOptions[0].classList.add('selected');
+        fontOptions[0].classList.add('selected');
+
+        // Update hidden select fields with default values
+        if (positionSelect) positionSelect.value = 'bottom-center';
+        if (fontSelect) fontSelect.value = 'helv';
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+            });
+        }
+
+        // Handle position selection
+        positionOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                positionOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                positionSelect.value = this.dataset.value;
+            });
+        });
+
+        // Handle font selection
+        fontOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                fontOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                fontSelect.value = this.dataset.value;
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         // Validate page format
         const pagesInput = document.getElementById('pages');
         if (pagesInput) {

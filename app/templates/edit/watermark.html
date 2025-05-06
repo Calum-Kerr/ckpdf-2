@@ -2,231 +2,420 @@
 
 {% block title %}Add Watermark - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/watermark.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Add Watermark</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Add a customizable text watermark to your PDF document for branding or security purposes.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Add Watermark</h2>
+    {% if not result %}
+    <form method="POST" enctype="multipart/form-data" id="watermark-form">
+        {{ form.csrf_token }}
+
+        <div class="tool-container">
+            <!-- Left side: Upload area -->
+            <div class="upload-section">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Add a text watermark to your PDF document.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
+                <div class="watermark-text-input mt-4">
+                    <label for="text">Watermark Text</label>
+                    {{ form.text(class="form-control", placeholder="e.g., CONFIDENTIAL, DRAFT, etc.") }}
+                    <div class="form-text">
+                        Text to use as watermark (e.g., "CONFIDENTIAL", "DRAFT", etc.).
+                    </div>
+                    {% if form.text.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.text.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right side: Watermark options -->
+            <div class="options-panel">
+                <h3 class="options-title">Watermark Options</h3>
+
+                <div class="form-group">
+                    <p class="form-group-title">Position</p>
+                    <div class="position-options">
+                        <div class="position-option" data-value="center">
+                            <div class="position-icon">
+                                <i class="fas fa-dot-circle"></i>
+                            </div>
+                            <p class="position-name">Center</p>
+                        </div>
+                        <div class="position-option" data-value="top">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <p class="position-name">Top</p>
+                        </div>
+                        <div class="position-option" data-value="bottom">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <p class="position-name">Bottom</p>
+                        </div>
+                        <div class="position-option" data-value="left">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-left"></i>
+                            </div>
+                            <p class="position-name">Left</p>
+                        </div>
+                        <div class="position-option" data-value="right">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <p class="position-name">Right</p>
+                        </div>
+                        <div class="position-option" data-value="top-left">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up-left"></i>
+                            </div>
+                            <p class="position-name">Top Left</p>
+                        </div>
+                        <div class="position-option" data-value="top-right">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-up-right"></i>
+                            </div>
+                            <p class="position-name">Top Right</p>
+                        </div>
+                        <div class="position-option" data-value="bottom-left">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-down-left"></i>
+                            </div>
+                            <p class="position-name">Bottom Left</p>
+                        </div>
+                        <div class="position-option" data-value="bottom-right">
+                            <div class="position-icon">
+                                <i class="fas fa-arrow-down-right"></i>
+                            </div>
+                            <p class="position-name">Bottom Right</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.position(class="d-none") }}
+                </div>
+
+                <div class="form-group">
+                    <p class="form-group-title">Font</p>
+                    <div class="font-options">
+                        <div class="font-option" data-value="helv">
+                            <p class="font-name">Helvetica</p>
+                            <p class="font-sample">DRAFT</p>
+                        </div>
+                        <div class="font-option" data-value="tiro">
+                            <p class="font-name">Times Roman</p>
+                            <p class="font-sample">DRAFT</p>
+                        </div>
+                        <div class="font-option" data-value="cour">
+                            <p class="font-name">Courier</p>
+                            <p class="font-sample">DRAFT</p>
+                        </div>
+                        <div class="font-option" data-value="times">
+                            <p class="font-name">Times New Roman</p>
+                            <p class="font-sample">DRAFT</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.font(class="d-none") }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-field">
+                            <label for="font_size">Font Size</label>
+                            {{ form.font_size(class="form-control") }}
+                            <div class="form-text">Size of the watermark text (6-144 points).</div>
+                            {% if form.font_size.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
+                                    {% for error in form.font_size.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
-
-                        <div class="mb-3">
-                            {{ form.text.label(class="form-label") }}
-                            {{ form.text(class="form-control") }}
-                            <div class="form-text">
-                                Text to use as watermark (e.g., "CONFIDENTIAL", "DRAFT", etc.).
-                            </div>
-                            {% if form.text.errors %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-field">
+                            <label for="rotation">Rotation (degrees)</label>
+                            {{ form.rotation(class="form-control") }}
+                            <div class="form-text">Rotation angle in degrees (0-360).</div>
+                            {% if form.rotation.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form.text.errors %}
+                                    {% for error in form.rotation.errors %}
                                         {{ error }}
                                     {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.position.label(class="form-label") }}
-                                {{ form.position(class="form-select") }}
-                                <div class="form-text">
-                                    Where to place the watermark on each page.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.rotation.label(class="form-label") }}
-                                {{ form.rotation(class="form-control") }}
-                                <div class="form-text">
-                                    Rotation angle in degrees (0-360).
-                                </div>
-                                {% if form.rotation.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.rotation.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.font.label(class="form-label") }}
-                                {{ form.font(class="form-select") }}
-                                <div class="form-text">
-                                    Font to use for the watermark.
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.font_size.label(class="form-label") }}
-                                {{ form.font_size(class="form-control") }}
-                                <div class="form-text">
-                                    Size of the watermark text (6-144 points).
-                                </div>
-                                {% if form.font_size.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.font_size.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.opacity.label(class="form-label") }}
-                                <div class="input-group">
-                                    {{ form.opacity(class="form-control") }}
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <div class="form-text">
-                                    Transparency level (10-100%).
-                                </div>
-                                {% if form.opacity.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.opacity.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.pages.label(class="form-label") }}
-                                {{ form.pages(class="form-control") }}
-                                <div class="form-text">
-                                    Pages to watermark (e.g., 1,3,5-7 or "all").
-                                </div>
-                                {% if form.pages.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {% for error in form.pages.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                    </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="slider-control">
+                            <label for="opacity">Opacity</label>
+                            <div class="slider-container">
+                                {{ form.opacity(class="form-control") }}
+                                <span class="slider-value">%</span>
+                            </div>
+                            <div class="form-text">Transparency level (10-100%).</div>
+                            {% if form.opacity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.opacity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-field">
+                            <label for="pages">Pages to Watermark</label>
+                            {{ form.pages(class="form-control") }}
+                            <div class="form-text">Pages to watermark (e.g., 1,3,5-7 or "all").</div>
+                            {% if form.pages.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pages.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">Add Watermark</button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+
+    {% if result %}
+    <div class="results-container">
+        <h3 class="results-title">Watermark Results</h3>
+
+        <div class="results-grid">
+            <div class="result-card">
+                <h4 class="result-card-title">Input PDF</h4>
+                <p>Total Pages: {{ result.input_page_count }}</p>
+                <p>Pages Watermarked: {{ result.watermarked_pages|length }}</p>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Watermark Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input PDF</h4>
-                            <p>Total Pages: {{ result.input_page_count }}</p>
-                            <p>Pages Watermarked: {{ result.watermarked_pages|length }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Watermark Style</h4>
-                            <p>Text: "{{ result.watermark_text }}"</p>
-                            <p>Position: {{ position_name }}</p>
-                            <p>Opacity: {{ (result.opacity * 100)|int }}%</p>
-                        </div>
-                    </div>
-
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('edit.download_watermarked', filename=output_filename) }}" class="btn btn-success">Download Watermarked PDF</a>
-                    </div>
-                </div>
+            <div class="result-card">
+                <h4 class="result-card-title">Watermark Style</h4>
+                <p>Text: "{{ result.watermark_text }}"</p>
+                <p>Position: {{ position_name }}</p>
+                <p>Opacity: {{ (result.opacity * 100)|int }}%</p>
             </div>
-            {% endif %}
+        </div>
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About Watermarking</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Adding watermarks to your PDF documents helps with:
-                    </p>
+        <a href="{{ url_for('edit.download_watermarked', filename=output_filename) }}" class="download-btn">
+            <i class="fas fa-download me-2"></i> Download Watermarked PDF
+        </a>
+    </div>
 
-                    <ul>
-                        <li>Indicating document status (e.g., "DRAFT", "CONFIDENTIAL")</li>
-                        <li>Protecting intellectual property</li>
-                        <li>Branding documents with company names or logos</li>
-                        <li>Preventing unauthorized copying or distribution</li>
-                    </ul>
+    <div class="text-center mt-4 mb-4">
+        <a href="{{ url_for('edit.watermark') }}" class="btn btn-outline-primary">
+            <i class="fas fa-redo me-2"></i> Watermark Another PDF
+        </a>
+    </div>
+    {% endif %}
 
-                    <h4>Watermark Types</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Status Watermarks</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Indicate the document's status:</p>
-                                    <ul>
-                                        <li>DRAFT</li>
-                                        <li>CONFIDENTIAL</li>
-                                        <li>FOR REVIEW</li>
-                                        <li>DO NOT COPY</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Branding Watermarks</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Add ownership information:</p>
-                                    <ul>
-                                        <li>Company name</li>
-                                        <li>Copyright notices</li>
-                                        <li>Website URLs</li>
-                                        <li>Contact information</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="info-container">
+        <h3 class="info-title">About Watermarking</h3>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Watermarks are added as semi-transparent text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
-                    </div>
-                </div>
+        <p class="info-text">
+            Adding watermarks to your PDF documents helps with:
+        </p>
+
+        <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Indicating document status (e.g., "DRAFT", "CONFIDENTIAL")</li>
+            <li><i class="fas fa-check-circle"></i> Protecting intellectual property</li>
+            <li><i class="fas fa-check-circle"></i> Branding documents with company names or logos</li>
+            <li><i class="fas fa-check-circle"></i> Preventing unauthorized copying or distribution</li>
+        </ul>
+
+        <h4 class="info-subtitle">Watermark Types</h4>
+        <div class="feature-cards">
+            <div class="feature-card">
+                <h5 class="feature-card-title">Status Watermarks</h5>
+                <ul class="feature-card-list">
+                    <li>DRAFT</li>
+                    <li>CONFIDENTIAL</li>
+                    <li>FOR REVIEW</li>
+                    <li>DO NOT COPY</li>
+                </ul>
             </div>
+
+            <div class="feature-card">
+                <h5 class="feature-card-title">Branding Watermarks</h5>
+                <ul class="feature-card-list">
+                    <li>Company name</li>
+                    <li>Copyright notices</li>
+                    <li>Website URLs</li>
+                    <li>Contact information</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Note:</strong> Watermarks are added as semi-transparent text on the PDF pages. They will appear on all printed copies and when viewing the PDF electronically.
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+        const positionOptions = document.querySelectorAll('.position-option');
+        const positionSelect = document.getElementById('position');
+        const fontOptions = document.querySelectorAll('.font-option');
+        const fontSelect = document.getElementById('font');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Set default selected options
+        positionOptions[0].classList.add('selected');
+        fontOptions[0].classList.add('selected');
+
+        // Update hidden select fields with default values
+        if (positionSelect) positionSelect.value = 'center';
+        if (fontSelect) fontSelect.value = 'helv';
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+            });
+        }
+
+        // Handle position selection
+        positionOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                positionOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                positionSelect.value = this.dataset.value;
+            });
+        });
+
+        // Handle font selection
+        fontOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                fontOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                fontSelect.value = this.dataset.value;
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         // Validate page format
         const pagesInput = document.getElementById('pages');
         if (pagesInput) {
