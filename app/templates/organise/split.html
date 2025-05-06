@@ -2,198 +2,235 @@
 
 {% block title %}Split PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/split.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Split PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Divide a PDF document into multiple smaller PDFs using different splitting methods.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Split PDF</h2>
+    <div class="split-container">
+        {% if not result %}
+        <form method="POST" enctype="multipart/form-data" id="split-form">
+            {{ form.csrf_token }}
+
+            <div class="upload-section">
+                <h3 class="upload-title">Upload PDF to Split</h3>
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Divide a PDF document into multiple smaller PDFs using different splitting methods.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
-
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.split_method.label(class="form-label") }}
-                            {{ form.split_method(class="form-select") }}
-                            <div class="form-text">
-                                Choose how you want to split the PDF.
-                            </div>
-                        </div>
-
-                        <div class="mb-3" id="page_ranges_field">
-                            {{ form.page_ranges.label(class="form-label") }}
-                            {{ form.page_ranges(class="form-control") }}
-                            <div class="form-text">
-                                Enter page ranges separated by commas. Example: 1-3,4-6,7-10
-                            </div>
-                            {% if form.page_ranges.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.page_ranges.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3" id="max_size_field">
-                            {{ form.max_size.label(class="form-label") }}
-                            {{ form.max_size(class="form-control") }}
-                            <div class="form-text">
-                                Maximum size in MB for each split PDF.
-                            </div>
-                            {% if form.max_size.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.max_size.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
-                        </div>
-                    </form>
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-            </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Split Results</h3>
-                </div>
-                <div class="card-body">
-                    <h4>Input File</h4>
-                    <p>Total Pages: {{ result.input_page_count }}</p>
+                <div class="split-options mt-4">
+                    <p class="option-title">Choose Splitting Method</p>
 
-                    <h4 class="mt-3">Output Files</h4>
-                    <p>Number of files created: {{ result.output_count }}</p>
+                    <div class="method-selector">
+                        <div class="method-option selected" data-value="pages">
+                            <div class="method-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <p class="method-name">Individual Pages</p>
+                            <p class="method-description">Create one PDF per page</p>
+                        </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Filename</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for file_path in result.output_files %}
-                                    <tr>
-                                        <td>{{ loop.index }}</td>
-                                        <td>{{ file_path|basename }}</td>
-                                        <td>
-                                            <a href="{{ url_for('organize.download_split', filename=file_path|basename) }}" class="btn btn-sm btn-success">
-                                                <i class="fas fa-download me-1"></i> Download
-                                            </a>
-                                        </td>
-                                    </tr>
+                        <div class="method-option" data-value="range">
+                            <div class="method-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <p class="method-name">Page Ranges</p>
+                            <p class="method-description">Split by custom page ranges</p>
+                        </div>
+
+                        <div class="method-option" data-value="size">
+                            <div class="method-icon">
+                                <i class="fas fa-weight"></i>
+                            </div>
+                            <p class="method-name">File Size</p>
+                            <p class="method-description">Split by maximum file size</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden select field that will be updated by JavaScript -->
+                    {{ form.split_method(class="d-none") }}
+
+                    <div class="input-field" id="page_ranges_field" style="display: none;">
+                        <label for="page_ranges">Page Ranges</label>
+                        {{ form.page_ranges(class="form-control", placeholder="Example: 1-3,4-6,7-10") }}
+                        <div class="form-text">
+                            Enter page ranges separated by commas. Example: 1-3,4-6,7-10
+                        </div>
+                        {% if form.page_ranges.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.page_ranges.errors %}
+                                    {{ error }}
                                 {% endfor %}
-                            </tbody>
-                        </table>
+                            </div>
+                        {% endif %}
                     </div>
 
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('organize.download_all_split', job_id=job_id) }}" class="btn btn-success">Download All as ZIP</a>
+                    <div class="input-field" id="max_size_field" style="display: none;">
+                        <label for="max_size">Maximum Size (MB)</label>
+                        {{ form.max_size(class="form-control", placeholder="Example: 5") }}
+                        <div class="form-text">
+                            Maximum size in MB for each split PDF.
+                        </div>
+                        {% if form.max_size.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.max_size.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn mt-4" id="submit-btn" disabled>Split PDF</button>
+            </div>
+        </form>
+        {% endif %}
+
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Split Results</h3>
+
+            <div class="result-section">
+                <h4 class="result-section-title">Input File</h4>
+                <p class="result-info">Total Pages: {{ result.input_page_count }}</p>
+            </div>
+
+            <div class="result-section">
+                <h4 class="result-section-title">Output Files ({{ result.output_count }})</h4>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Filename</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file_path in result.output_files %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ file_path|basename }}</td>
+                                <td>
+                                    <a href="{{ url_for('organize.download_split', filename=file_path|basename) }}" class="download-btn">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <a href="{{ url_for('organize.download_all_split', job_id=job_id) }}" class="download-all-btn">
+                    <i class="fas fa-download me-2"></i> Download All as ZIP
+                </a>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('organize.split') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Split Another PDF
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="info-container">
+            <h3 class="info-title">About PDF Splitting</h3>
+
+            <p class="info-text">
+                PDF splitting allows you to divide a large PDF document into smaller, more manageable files.
+                This is useful for:
+            </p>
+
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Extracting specific sections from a large document</li>
+                <li><i class="fas fa-check-circle"></i> Creating separate files for each chapter or section</li>
+                <li><i class="fas fa-check-circle"></i> Breaking down large files for easier sharing via email</li>
+                <li><i class="fas fa-check-circle"></i> Organizing content by topic or category</li>
+            </ul>
+
+            <h4 class="info-subtitle">Splitting Methods</h4>
+            <p class="info-text">Our tool offers three different ways to split your PDF:</p>
+
+            <div class="method-cards">
+                <div class="method-card">
+                    <div class="method-card-header">
+                        <h5 class="method-card-title">Split into Individual Pages</h5>
+                    </div>
+                    <div class="method-card-body">
+                        <p class="method-card-text">
+                            Creates a separate PDF file for each page in the original document.
+                            This is useful when you need to work with individual pages separately.
+                        </p>
+                        <p class="method-card-example">
+                            <strong>Example:</strong> A 10-page document will be split into 10 separate PDF files.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-card-header">
+                        <h5 class="method-card-title">Split by Page Range</h5>
+                    </div>
+                    <div class="method-card-body">
+                        <p class="method-card-text">
+                            Divides the document according to specified page ranges.
+                            This is useful when you know exactly which sections you want to extract.
+                        </p>
+                        <p class="method-card-example">
+                            <strong>Example:</strong> Specifying "1-3,4-6,7-10" will create three PDF files:
+                            one with pages 1-3, one with pages 4-6, and one with pages 7-10.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-card-header">
+                        <h5 class="method-card-title">Split by File Size</h5>
+                    </div>
+                    <div class="method-card-body">
+                        <p class="method-card-text">
+                            Splits the document into parts that don't exceed a specified file size.
+                            This is useful when you need to stay within email attachment size limits.
+                        </p>
+                        <p class="method-card-example">
+                            <strong>Example:</strong> Setting a maximum size of 5MB will create multiple files,
+                            each no larger than 5MB.
+                        </p>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Splitting</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF splitting allows you to divide a large PDF document into smaller, more manageable files.
-                        This is useful for:
-                    </p>
-
-                    <ul>
-                        <li>Extracting specific sections from a large document</li>
-                        <li>Creating separate files for each chapter or section</li>
-                        <li>Breaking down large files for easier sharing via email</li>
-                        <li>Organizing content by topic or category</li>
-                    </ul>
-
-                    <h4>Splitting Methods</h4>
-                    <p>
-                        Our tool offers three different ways to split your PDF:
-                    </p>
-
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">Split into Individual Pages</h5>
-                        </div>
-                        <div class="card-body">
-                            <p>
-                                Creates a separate PDF file for each page in the original document.
-                                This is useful when you need to work with individual pages separately.
-                            </p>
-                            <p class="mb-0">
-                                <strong>Example:</strong> A 10-page document will be split into 10 separate PDF files.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">Split by Page Range</h5>
-                        </div>
-                        <div class="card-body">
-                            <p>
-                                Divides the document according to specified page ranges.
-                                This is useful when you know exactly which sections you want to extract.
-                            </p>
-                            <p class="mb-0">
-                                <strong>Example:</strong> Specifying "1-3,4-6,7-10" will create three PDF files:
-                                one with pages 1-3, one with pages 4-6, and one with pages 7-10.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">Split by File Size</h5>
-                        </div>
-                        <div class="card-body">
-                            <p>
-                                Splits the document into parts that don't exceed a specified file size.
-                                This is useful when you need to stay within email attachment size limits.
-                            </p>
-                            <p class="mb-0">
-                                <strong>Example:</strong> Setting a maximum size of 5MB will create multiple files,
-                                each no larger than 5MB.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        All split files will be available for download individually or as a ZIP archive.
-                        Files are automatically deleted after 24 hours, so be sure to download them promptly.
-                    </div>
-                </div>
+            <div class="info-alert">
+                <i class="fas fa-info-circle me-2"></i>
+                All split files will be available for download individually or as a ZIP archive.
+                Files are automatically deleted after 24 hours, so be sure to download them promptly.
             </div>
         </div>
     </div>
@@ -201,33 +238,116 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
         const splitMethodSelect = document.getElementById('split_method');
         const pageRangesField = document.getElementById('page_ranges_field');
         const maxSizeField = document.getElementById('max_size_field');
+        const methodOptions = document.querySelectorAll('.method-option');
 
-        // Function to update visible fields based on split method
-        function updateFields() {
-            const method = splitMethodSelect.value;
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
 
-            if (method === 'range') {
-                pageRangesField.style.display = 'block';
-                maxSizeField.style.display = 'none';
-            } else if (method === 'size') {
-                pageRangesField.style.display = 'none';
-                maxSizeField.style.display = 'block';
-            } else {
-                pageRangesField.style.display = 'none';
-                maxSizeField.style.display = 'none';
+        // Set default selected method
+        if (splitMethodSelect) splitMethodSelect.value = 'pages';
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
             }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+                submitBtn.disabled = true;
+            });
         }
 
-        // Initial update
-        updateFields();
+        // Handle method selection
+        methodOptions.forEach(function(option) {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                methodOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
 
-        // Update on change
-        splitMethodSelect.addEventListener('change', updateFields);
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update hidden select field
+                const method = this.dataset.value;
+                splitMethodSelect.value = method;
+
+                // Update visible fields based on split method
+                if (method === 'range') {
+                    pageRangesField.style.display = 'block';
+                    maxSizeField.style.display = 'none';
+                } else if (method === 'size') {
+                    pageRangesField.style.display = 'none';
+                    maxSizeField.style.display = 'block';
+                } else {
+                    pageRangesField.style.display = 'none';
+                    maxSizeField.style.display = 'none';
+                }
+            });
+        });
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
 
         // Validate page ranges format
         const pageRangesInput = document.getElementById('page_ranges');
@@ -235,6 +355,21 @@
             pageRangesInput.addEventListener('input', function() {
                 // Allow only numbers, commas, hyphens, and spaces
                 this.value = this.value.replace(/[^0-9,\-\s]/g, '');
+            });
+        }
+
+        // Validate max size input
+        const maxSizeInput = document.getElementById('max_size');
+        if (maxSizeInput) {
+            maxSizeInput.addEventListener('input', function() {
+                // Allow only numbers and decimal point
+                this.value = this.value.replace(/[^0-9.]/g, '');
+
+                // Ensure only one decimal point
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
             });
         }
     });

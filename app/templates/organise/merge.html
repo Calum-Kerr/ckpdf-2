@@ -2,133 +2,143 @@
 
 {% block title %}Merge PDFs - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/merge.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Merge PDFs</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Combine multiple PDF files into a single document with optional table of contents.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Merge PDFs</h2>
-                </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Combine multiple PDF files into a single document.
-                    </p>
+    <div class="merge-container">
+        <form method="POST" enctype="multipart/form-data" id="merge-form">
+            {{ form.csrf_token }}
 
-                    <form method="POST" enctype="multipart/form-data" id="merge-form">
-                        {{ form.csrf_token }}
+            <div class="file-upload-area">
+                <h3 class="file-upload-title">Select PDF Files to Merge</h3>
 
-                        <div class="mb-3">
-                            <label class="form-label">Select PDF Files</label>
-                            <div id="file-container">
-                                <div class="input-group mb-2">
-                                    <input type="file" name="files[]" class="form-control" accept=".pdf" required>
-                                    <button type="button" class="btn btn-outline-danger remove-file" disabled>
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                                <div class="input-group mb-2">
-                                    <input type="file" name="files[]" class="form-control" accept=".pdf">
-                                    <button type="button" class="btn btn-outline-danger remove-file">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="button" id="add-file" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-plus me-1"></i> Add Another File
+                <div class="file-list" id="file-container">
+                    <div class="file-item">
+                        <div class="file-input-container">
+                            <input type="file" name="files[]" class="file-input" accept=".pdf" required>
+                            <span class="file-name"></span>
+                            <span class="file-size"></span>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" class="remove-file-btn remove-file" disabled>
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
+                    </div>
 
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="create-toc" name="create_toc" checked>
-                            <label class="form-check-label" for="create-toc">Create table of contents</label>
-                            <div class="form-text">
-                                Creates a table of contents with entries for each merged file.
-                            </div>
+                    <div class="file-item">
+                        <div class="file-input-container">
+                            <input type="file" name="files[]" class="file-input" accept=".pdf">
+                            <span class="file-name"></span>
+                            <span class="file-size"></span>
                         </div>
+                        <div class="file-actions">
+                            <button type="button" class="remove-file-btn remove-file">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Merge PDFs</button>
+                <button type="button" id="add-file" class="add-file-btn">
+                    <i class="fas fa-plus"></i> Add Another File
+                </button>
+
+                <div class="options-section mt-4">
+                    <div class="option-item">
+                        <input type="checkbox" class="option-checkbox" id="create-toc" name="create_toc" checked>
+                        <div class="option-details">
+                            <label class="option-label" for="create-toc">Create table of contents</label>
+                            <p class="option-description">Creates a table of contents with entries for each merged file.</p>
                         </div>
-                    </form>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn mt-4">Merge PDFs</button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Merge Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Input Files ({{ result.input_count }})</h4>
+                    <div class="file-list-container">
+                        {% for path, size in result.file_sizes.items() %}
+                        <div class="file-list-item">
+                            <span class="file-list-name">{{ path|basename }}</span>
+                            <span class="file-list-size">{{ (size / 1024 / 1024)|round(2) }} MB</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4 class="result-card-title">Output File</h4>
+                    <div class="file-list-item">
+                        <span class="file-list-name">Total Pages</span>
+                        <span class="file-list-size">{{ result.total_pages }}</span>
+                    </div>
+                    <div class="file-list-item">
+                        <span class="file-list-name">File Size</span>
+                        <span class="file-list-size">{{ (result.output_size / 1024 / 1024)|round(2) }} MB</span>
+                    </div>
                 </div>
             </div>
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Merge Results</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input Files</h4>
-                            <p>Number of files: {{ result.input_count }}</p>
-                            <ul class="list-group mb-3">
-                                {% for path, size in result.file_sizes.items() %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        {{ path|basename }}
-                                        <span class="badge bg-primary rounded-pill">{{ (size / 1024 / 1024)|round(2) }} MB</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Output File</h4>
-                            <ul class="list-group mb-3">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Total Pages
-                                    <span class="badge bg-primary rounded-pill">{{ result.total_pages }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    File Size
-                                    <span class="badge bg-primary rounded-pill">{{ (result.output_size / 1024 / 1024)|round(2) }} MB</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+            <a href="{{ url_for('organize.download_merged', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download Merged PDF
+            </a>
+        </div>
 
-                    <div class="d-grid">
-                        <a href="{{ url_for('organize.download_merged', filename=output_filename) }}" class="btn btn-success">Download Merged PDF</a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('organize.merge') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i> Merge More PDFs
+            </a>
+        </div>
+        {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Merging</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF merging allows you to combine multiple PDF files into a single document.
-                        This is useful for:
-                    </p>
+        <div class="info-container">
+            <h3 class="info-title">About PDF Merging</h3>
 
-                    <ul>
-                        <li>Combining chapters of a book or sections of a report</li>
-                        <li>Creating a single document from multiple scanned pages</li>
-                        <li>Assembling a portfolio of work</li>
-                        <li>Consolidating related documents for easier sharing</li>
-                    </ul>
+            <p class="info-text">
+                PDF merging allows you to combine multiple PDF files into a single document.
+                This is useful for:
+            </p>
 
-                    <h4>How It Works</h4>
-                    <p>
-                        Our merge tool:
-                    </p>
-                    <ol>
-                        <li>Takes multiple PDF files as input</li>
-                        <li>Combines them in the order they are uploaded</li>
-                        <li>Optionally creates a table of contents with entries for each file</li>
-                        <li>Produces a single PDF file containing all pages from the input files</li>
-                    </ol>
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Combining chapters of a book or sections of a report</li>
+                <li><i class="fas fa-check-circle"></i> Creating a single document from multiple scanned pages</li>
+                <li><i class="fas fa-check-circle"></i> Assembling a portfolio of work</li>
+                <li><i class="fas fa-check-circle"></i> Consolidating related documents for easier sharing</li>
+            </ul>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        The order of files matters! Files will be merged in the order they appear in the form.
-                        You can add up to 20 files at once.
-                    </div>
-                </div>
+            <h4 class="info-subtitle">How It Works</h4>
+            <p class="info-text">Our merge tool:</p>
+
+            <ol class="steps-list">
+                <li>Takes multiple PDF files as input</li>
+                <li>Combines them in the order they are uploaded</li>
+                <li>Optionally creates a table of contents with entries for each file</li>
+                <li>Produces a single PDF file containing all pages from the input files</li>
+            </ol>
+
+            <div class="info-alert">
+                <i class="fas fa-info-circle me-2"></i>
+                The order of files matters! Files will be merged in the order they appear in the form.
+                You can add up to 20 files at once.
             </div>
         </div>
     </div>
@@ -136,37 +146,57 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
         const fileContainer = document.getElementById('file-container');
         const addFileButton = document.getElementById('add-file');
+        const fileInputs = document.querySelectorAll('.file-input');
+
+        // Initialize file inputs
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                updateFileInfo(this);
+            });
+        });
 
         // Add file input
         addFileButton.addEventListener('click', function() {
             // Check if we already have 20 file inputs
-            const fileInputs = fileContainer.querySelectorAll('input[type="file"]');
-            if (fileInputs.length >= 20) {
+            const currentInputs = fileContainer.querySelectorAll('.file-input');
+            if (currentInputs.length >= 20) {
                 alert('You can only add up to 20 files at once.');
                 return;
             }
 
-            // Create new file input
-            const inputGroup = document.createElement('div');
-            inputGroup.className = 'input-group mb-2';
-            inputGroup.innerHTML = `
-                <input type="file" name="files[]" class="form-control" accept=".pdf">
-                <button type="button" class="btn btn-outline-danger remove-file">
-                    <i class="fas fa-times"></i>
-                </button>
+            // Create new file item
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <div class="file-input-container">
+                    <input type="file" name="files[]" class="file-input" accept=".pdf">
+                    <span class="file-name"></span>
+                    <span class="file-size"></span>
+                </div>
+                <div class="file-actions">
+                    <button type="button" class="remove-file-btn remove-file">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             `;
 
             // Add to container
-            fileContainer.appendChild(inputGroup);
+            fileContainer.appendChild(fileItem);
+
+            // Add event listener to file input
+            const newInput = fileItem.querySelector('.file-input');
+            newInput.addEventListener('change', function() {
+                updateFileInfo(this);
+            });
 
             // Add event listener to remove button
-            const removeButton = inputGroup.querySelector('.remove-file');
+            const removeButton = fileItem.querySelector('.remove-file');
             removeButton.addEventListener('click', function() {
-                inputGroup.remove();
+                fileItem.remove();
                 updateRemoveButtons();
             });
 
@@ -177,17 +207,44 @@
         const removeButtons = document.querySelectorAll('.remove-file');
         removeButtons.forEach(button => {
             button.addEventListener('click', function() {
-                this.closest('.input-group').remove();
+                this.closest('.file-item').remove();
                 updateRemoveButtons();
             });
         });
 
+        // Update file info when a file is selected
+        function updateFileInfo(input) {
+            const fileItem = input.closest('.file-item');
+            const fileName = fileItem.querySelector('.file-name');
+            const fileSize = fileItem.querySelector('.file-size');
+
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+            } else {
+                fileName.textContent = '';
+                fileSize.textContent = '';
+            }
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         // Update remove buttons (disable if only one file input remains)
         function updateRemoveButtons() {
-            const fileInputs = fileContainer.querySelectorAll('input[type="file"]');
+            const fileItems = fileContainer.querySelectorAll('.file-item');
             const removeButtons = fileContainer.querySelectorAll('.remove-file');
 
-            if (fileInputs.length <= 1) {
+            if (fileItems.length <= 1) {
                 removeButtons[0].disabled = true;
             } else {
                 removeButtons.forEach(button => {
@@ -202,7 +259,7 @@
             let valid = false;
 
             // Check if at least one file is selected
-            const fileInputs = fileContainer.querySelectorAll('input[type="file"]');
+            const fileInputs = fileContainer.querySelectorAll('.file-input');
             fileInputs.forEach(input => {
                 if (input.files.length > 0) {
                     valid = true;
