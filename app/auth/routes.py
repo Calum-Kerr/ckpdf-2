@@ -257,7 +257,7 @@ def profile():
 @csrf_exempt
 def google_login():
     """
-    Initiate direct Google OAuth login.
+    Initiate Google OAuth login using Supabase's built-in OAuth.
 
     Returns:
         Redirect to Google OAuth login page.
@@ -268,17 +268,31 @@ def google_login():
         return redirect(url_for('auth.dashboard'))
 
     try:
-        # Import the Google OAuth module
-        from .google_oauth import get_google_auth_url
+        # Get the Supabase client
+        supabase = get_supabase()
+        if not supabase:
+            logger.error("Supabase client not initialized")
+            flash("Authentication service unavailable", "danger")
+            return redirect(url_for('auth.login'))
 
-        # Get the Google OAuth URL
-        auth_url = get_google_auth_url()
+        # Get the site URL from environment or config
+        site_url = os.environ.get('SITE_URL', 'https://www.revisepdf.com')
+
+        # Construct the redirect URL
+        redirect_url = f"{site_url}/auth/oauth-callback"
+        logger.info(f"Using redirect URL: {redirect_url}")
+
+        # Get the Google OAuth URL from Supabase
+        auth_url = supabase.auth.get_url_for_provider(
+            'google',
+            redirect_to=redirect_url
+        )
 
         # Log the Google OAuth URL
-        logger.info(f"Got Google OAuth URL: {auth_url[:100]}... (truncated)")
+        logger.info(f"Got Supabase Google OAuth URL: {auth_url[:100]}... (truncated)")
 
         # Redirect to the Google OAuth URL
-        logger.info("Redirecting to Google OAuth URL")
+        logger.info("Redirecting to Supabase Google OAuth URL")
         return redirect(auth_url)
     except Exception as e:
         logger.error(f"Error initiating Google OAuth: {str(e)}")
@@ -551,6 +565,40 @@ def oauth_callback():
             # Check if we're already authenticated
             if 'user' in session:
                 logger.info(f"User already authenticated: {session['user'].get('email')}")
+
+                # Check if this is a Supabase OAuth user and create a profile if needed
+                if 'access_token' in session['user']:
+                    try:
+                        # Get user data from Supabase
+                        user_response = supabase.auth.get_user(session['user']['access_token'])
+                        if user_response and hasattr(user_response, 'user'):
+                            user_data = user_response.user
+                            user_id = user_data.id
+                            email = user_data.email
+
+                            logger.info(f"Checking if profile exists for Supabase user: {email} (ID: {user_id})")
+
+                            # Check if profile exists
+                            try:
+                                profile_response = supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+                                if not profile_response.data or len(profile_response.data) == 0:
+                                    logger.info(f"No profile found for user {email}, creating one")
+
+                                    # Create profile using service role client
+                                    from .utils import create_user_profile
+                                    profile = create_user_profile(user_id, email)
+
+                                    if profile:
+                                        logger.info(f"Successfully created profile for OAuth user: {email}")
+                                    else:
+                                        logger.warning(f"Failed to create profile for OAuth user: {email}")
+                                else:
+                                    logger.info(f"Profile already exists for user: {email}")
+                            except Exception as profile_error:
+                                logger.error(f"Error checking/creating profile: {str(profile_error)}")
+                    except Exception as user_error:
+                        logger.error(f"Error getting user data from Supabase: {str(user_error)}")
+
                 return redirect(url_for('auth.dashboard'))
 
             # If not authenticated yet, render the callback page which will check auth status
@@ -820,7 +868,24 @@ def process_token():
                 session['user'] = session_data
 
                 # Check if the user has a profile, create one if not
-                get_user_profile(user_data.id)
+                try:
+                    # First check if profile exists
+                    profile_response = supabase.table('user_profiles').select('*').eq('user_id', user_data.id).execute()
+                    if not profile_response.data or len(profile_response.data) == 0:
+                        logger.info(f"No profile found for user {user_data.email}, creating one")
+
+                        # Create profile using service role client
+                        from .utils import create_user_profile
+                        profile = create_user_profile(user_data.id, user_data.email)
+
+                        if profile:
+                            logger.info(f"Successfully created profile for OAuth user: {user_data.email}")
+                        else:
+                            logger.warning(f"Failed to create profile for OAuth user: {user_data.email}")
+                    else:
+                        logger.info(f"Profile already exists for user: {user_data.email}")
+                except Exception as profile_error:
+                    logger.error(f"Error checking/creating profile: {str(profile_error)}")
 
                 logger.info(f"Successfully authenticated user: {user_data.email}")
                 return jsonify({
@@ -900,7 +965,7 @@ def create_profile():
 
     # Create profile
     from .utils import create_user_profile
-    profile = create_user_profile(user['id'])
+    profile = create_user_profile(user['id'], user.get('email', 'unknown@example.com'))
 
     if profile:
         flash('Created a new profile for you.', 'success')
