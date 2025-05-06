@@ -476,82 +476,9 @@ def download_watermarked(filename):
 
 @edit_bp.route('/text-editor', methods=['GET', 'POST'])
 def text_editor():
-    """Render the text editor page and handle form submission."""
+    """Render the text editor page with Coming Soon message."""
     form = ContentEditForm()
-    pdf_uploaded = False
-    preview_image = None
-    filename = None
-    output_filename = None
-    current_page = 1
-    total_pages = 1
-    pdf_width = 595  # Default A4 width in points
-    pdf_height = 842  # Default A4 height in points
-    text_blocks = []
-
-    # Check if we're viewing an already uploaded PDF
-    if request.args.get('filename'):
-        filename = request.args.get('filename')
-        pdf_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-        if os.path.exists(pdf_path):
-            pdf_uploaded = True
-
-            # Get the page number from the query string
-            page_str = request.args.get('page', '1')
-            try:
-                current_page = int(page_str)
-                if current_page < 1:
-                    current_page = 1
-            except ValueError:
-                current_page = 1
-
-            try:
-                # Get PDF dimensions
-                pdf_width, pdf_height = get_text_editor_pdf_dimensions(pdf_path, current_page)
-
-                # Get PDF preview
-                preview_image = get_text_editor_pdf_preview(pdf_path, current_page)
-
-                # Get total pages
-                import fitz
-                doc = fitz.open(pdf_path)
-                total_pages = doc.page_count
-                doc.close()
-
-                # Extract text blocks
-                text_blocks = extract_text_blocks(pdf_path, current_page)
-
-                # Set output filename
-                if not request.args.get('output'):
-                    output_filename = get_unique_filename('edited_' + filename)
-                else:
-                    output_filename = request.args.get('output')
-            except Exception as e:
-                flash(f'Error processing PDF: {str(e)}', 'danger')
-                pdf_uploaded = False
-
-    # Handle form submission
-    if form.validate_on_submit():
-        try:
-            # Save the uploaded file
-            input_file = form.file.data
-            filename = get_unique_filename(secure_filename(input_file.filename))
-            input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-            # Save the file
-            input_file.save(input_path)
-
-            # Redirect to the same page with the filename in the query string
-            return redirect(url_for('edit.text_editor', filename=filename))
-
-        except Exception as e:
-            flash(f'Error uploading PDF: {str(e)}', 'danger')
-
-    return render_template('edit/text_editor.html', form=form, pdf_uploaded=pdf_uploaded,
-                           preview_image=preview_image, filename=filename,
-                           output_filename=output_filename, current_page=current_page,
-                           total_pages=total_pages, pdf_width=pdf_width,
-                           pdf_height=pdf_height, text_blocks=text_blocks)
+    return render_template('edit/text_editor.html', form=form)
 
 @edit_bp.route('/update-text-blocks', methods=['POST'])
 def update_text_blocks():
@@ -859,71 +786,9 @@ def remove_content():
 
 @edit_bp.route('/wysiwyg-editor', methods=['GET', 'POST'])
 def wysiwyg_editor():
-    """Render the WYSIWYG editor page and handle form submission."""
+    """Render the WYSIWYG editor page with Coming Soon message."""
     form = ContentEditForm()
-    pdf_uploaded = False
-    filename = None
-    output_filename = None
-    current_page = 1
-    total_pages = 1
-    pdf_url = None
-
-    # Check if we're viewing an already uploaded PDF
-    if request.args.get('filename'):
-        filename = request.args.get('filename')
-        pdf_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-        if os.path.exists(pdf_path):
-            pdf_uploaded = True
-
-            # Get the page number from the query string
-            page_str = request.args.get('page', '1')
-            try:
-                current_page = int(page_str)
-                if current_page < 1:
-                    current_page = 1
-            except ValueError:
-                current_page = 1
-
-            try:
-                # Get total pages
-                import fitz
-                doc = fitz.open(pdf_path)
-                total_pages = doc.page_count
-                doc.close()
-
-                # Create a URL for the PDF
-                pdf_url = url_for('edit.serve_pdf', filename=filename)
-
-                # Set output filename
-                if not request.args.get('output'):
-                    output_filename = get_unique_filename('edited_' + filename)
-                else:
-                    output_filename = request.args.get('output')
-            except Exception as e:
-                flash(f'Error processing PDF: {str(e)}', 'danger')
-                pdf_uploaded = False
-
-    # Handle form submission
-    if form.validate_on_submit():
-        try:
-            # Save the uploaded file
-            input_file = form.file.data
-            filename = get_unique_filename(secure_filename(input_file.filename))
-            input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-
-            # Save the file
-            input_file.save(input_path)
-
-            # Redirect to the same page with the filename in the query string
-            return redirect(url_for('edit.wysiwyg_editor', filename=filename))
-
-        except Exception as e:
-            flash(f'Error uploading PDF: {str(e)}', 'danger')
-
-    return render_template('edit/wysiwyg_editor.html', form=form, pdf_uploaded=pdf_uploaded,
-                           filename=filename, output_filename=output_filename,
-                           current_page=current_page, total_pages=total_pages, pdf_url=pdf_url)
+    return render_template('edit/wysiwyg_editor.html', form=form)
 
 @edit_bp.route('/serve-pdf/<filename>')
 def serve_pdf(filename):
@@ -1174,16 +1039,9 @@ def add_signature():
         # Get input and output paths
         input_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
 
-        # Check if there's already an output file
-        output_filename = request.args.get('output')
-        if not output_filename:
-            output_filename = get_unique_filename('signed_' + filename)
-
+        # Generate a new output filename
+        output_filename = get_unique_filename('signed_' + filename)
         output_path = os.path.join(current_app.config['UPLOAD_FOLDER'], output_filename)
-
-        # If the output file already exists, use it as the input
-        if os.path.exists(output_path):
-            input_path = output_path
 
         # Add signature to the PDF
         result = add_signature_from_data_url(input_path, output_path, signature_data,
@@ -1201,7 +1059,11 @@ def add_signature():
 @edit_bp.route('/download-signed/<filename>')
 def download_signed(filename):
     """Download a signed PDF file."""
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    try:
+        return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except Exception as e:
+        flash(f'Error downloading file: {str(e)}', 'danger')
+        return redirect(url_for('edit.signature'))
 
 # Organize routes
 @organize_bp.route('/')

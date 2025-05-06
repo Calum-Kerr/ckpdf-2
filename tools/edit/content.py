@@ -265,8 +265,10 @@ def remove_content_from_pdf(input_path, output_path, page_number, x1, y1, x2, y2
         # Create a rectangle for the area to remove
         rect = fitz.Rect(x1, y1, x2, y2)
 
-        # Add a white rectangle to cover the area
-        page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1))
+        # Add a white rectangle to cover the area with full opacity
+        # Draw multiple times to ensure complete coverage
+        for _ in range(3):  # Draw three times for better coverage
+            page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1), opacity=1.0)
 
         # Save the document
         doc.save(output_path)
@@ -710,7 +712,16 @@ def replace_text_preserving_attributes(input_path, output_path, page_number, ori
         rect = fitz.Rect(x1, y1, x2, y2)
 
         # First, remove the original text by covering it with a white rectangle
-        page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1))
+        # Add padding to ensure complete coverage
+        padding = 2
+        expanded_rect = fitz.Rect(
+            rect.x0 - padding,
+            rect.y0 - padding,
+            rect.x1 + padding,
+            rect.y1 + padding
+        )
+        # Use opacity=1.0 to ensure complete coverage
+        page.draw_rect(expanded_rect, color=(1, 1, 1), fill=(1, 1, 1), opacity=1.0)
 
         # If text_attributes is provided, use them; otherwise, use defaults
         if text_attributes:

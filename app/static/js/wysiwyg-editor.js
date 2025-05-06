@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showErrorMessage(message) {
         const alertDiv = document.createElement('div');
         alertDiv.className = 'alert alert-danger';
-        alertDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${message}`;
+        // Get nonce for the error icon
+        const errorNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+        alertDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2" ${errorNonce ? 'nonce="' + errorNonce + '"' : ''}></i>${message}`;
 
         const container = document.querySelector('.card-body');
         if (container) {
@@ -168,8 +170,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (container) {
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert alert-info';
+                // Get nonce for the info icon
+                const infoNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
                 alertDiv.innerHTML = `
-                    <i class="fas fa-info-circle me-2"></i>
+                    <i class="fas fa-info-circle me-2" ${infoNonce ? 'nonce="' + infoNonce + '"' : ''}></i>
                     Please upload a PDF file to start editing.
                 `;
                 container.prepend(alertDiv);
@@ -202,17 +206,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Clear previous text layer
                 textLayer.innerHTML = '';
-                textLayer.style.width = viewport.width + 'px';
-                textLayer.style.height = viewport.height + 'px';
+
+                // Update text layer dimensions
+                textLayer.setAttribute('style', `width: ${viewport.width}px; height: ${viewport.height}px;`);
+
+                // Ensure nonce is set
+                const layerNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                if (layerNonce && !textLayer.hasAttribute('nonce')) {
+                    textLayer.setAttribute('nonce', layerNonce);
+                }
 
                 // Get text content
                 page.getTextContent().then(function(textContent) {
                     // Create text layer
                     const textLayerDiv = textLayer;
-                    textLayerDiv.style.left = canvas.offsetLeft + 'px';
-                    textLayerDiv.style.top = canvas.offsetTop + 'px';
-                    textLayerDiv.style.height = canvas.height + 'px';
-                    textLayerDiv.style.width = canvas.width + 'px';
+
+                    // Update text layer position and dimensions
+                    let layerStyle = textLayerDiv.getAttribute('style') || '';
+                    textLayerDiv.setAttribute('style', `${layerStyle}; left: ${canvas.offsetLeft}px; top: ${canvas.offsetTop}px; height: ${canvas.height}px; width: ${canvas.width}px;`);
+
+                    // Ensure nonce is set
+                    const layerNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                    if (layerNonce && !textLayerDiv.hasAttribute('nonce')) {
+                        textLayerDiv.setAttribute('nonce', layerNonce);
+                    }
 
                     // Create text elements
                     textContent.items.forEach(function(item, index) {
@@ -240,15 +257,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Set text content
                         textElement.textContent = item.str;
 
-                        // Set position and style
-                        textElement.style.left = tx[4] + 'px';
-                        textElement.style.top = (tx[5] - fontAscent) + 'px';
-                        textElement.style.fontSize = fontHeight + 'px';
-                        textElement.style.fontFamily = style ? style.fontFamily : 'sans-serif';
-                        textElement.style.position = 'absolute';
-                        textElement.style.cursor = 'text';
-                        textElement.style.userSelect = 'text';
-                        textElement.style.pointerEvents = 'auto';
+                        // Set position and style using setAttribute to support nonce
+                        const styleString = `left: ${tx[4]}px; top: ${tx[5] - fontAscent}px; font-size: ${fontHeight}px; font-family: ${style ? style.fontFamily : 'sans-serif'}; position: absolute; cursor: text; user-select: text; pointer-events: auto;`;
+                        textElement.setAttribute('style', styleString);
+
+                        // Get nonce from any existing script with nonce
+                        const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                        if (nonce) {
+                            textElement.setAttribute('nonce', nonce);
+                        }
 
                         // Add click event for editing
                         textElement.addEventListener('click', function(e) {
@@ -305,14 +322,32 @@ document.addEventListener('DOMContentLoaded', function() {
         function selectTextElement(element) {
             // Clear previous selection
             if (selectedText) {
-                selectedText.style.backgroundColor = '';
-                selectedText.style.border = '';
+                // Update style to remove background and border
+                let currentStyle = selectedText.getAttribute('style') || '';
+                currentStyle = currentStyle
+                    .replace(/background-color:[^;]+;?/g, '')
+                    .replace(/border:[^;]+;?/g, '');
+                selectedText.setAttribute('style', currentStyle);
+
+                // Ensure nonce is set
+                const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                if (nonce && !selectedText.hasAttribute('nonce')) {
+                    selectedText.setAttribute('nonce', nonce);
+                }
             }
 
             // Set new selection
             selectedText = element;
-            selectedText.style.backgroundColor = 'rgba(35, 130, 135, 0.2)';
-            selectedText.style.border = '1px solid #238287';
+
+            // Update style with background and border
+            let currentStyle = selectedText.getAttribute('style') || '';
+            selectedText.setAttribute('style', `${currentStyle}; background-color: rgba(35, 130, 135, 0.2); border: 1px solid #238287;`);
+
+            // Ensure nonce is set
+            const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+            if (nonce && !selectedText.hasAttribute('nonce')) {
+                selectedText.setAttribute('nonce', nonce);
+            }
 
             // Open editor modal if it exists
             if (textEditorModal) {
@@ -359,10 +394,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Make editable
             element.contentEditable = true;
-            element.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-            element.style.border = '1px dashed #238287';
-            element.style.padding = '2px';
-            element.style.outline = 'none';
+
+            // Update style for editing
+            let currentStyle = element.getAttribute('style') || '';
+            element.setAttribute('style', `${currentStyle}; background-color: rgba(255, 255, 255, 0.9); border: 1px dashed #238287; padding: 2px; outline: none;`);
+
+            // Ensure nonce is set
+            const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+            if (nonce && !element.hasAttribute('nonce')) {
+                element.setAttribute('nonce', nonce);
+            }
 
             // Focus and select all text
             element.focus();
@@ -401,9 +442,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Make non-editable
             element.contentEditable = false;
-            element.style.backgroundColor = '';
-            element.style.border = '';
-            element.style.padding = '';
+
+            // Update style to remove editing styles
+            let currentStyle = element.getAttribute('style') || '';
+            currentStyle = currentStyle
+                .replace(/background-color:[^;]+;?/g, '')
+                .replace(/border:[^;]+;?/g, '')
+                .replace(/padding:[^;]+;?/g, '')
+                .replace(/outline:[^;]+;?/g, '');
+            element.setAttribute('style', currentStyle);
+
+            // Ensure nonce is set
+            const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+            if (nonce && !element.hasAttribute('nonce')) {
+                element.setAttribute('nonce', nonce);
+            }
 
             if (save) {
                 // Save changes
@@ -414,9 +467,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 element.setAttribute('data-new-text', newText);
 
                 // Visual feedback
-                element.style.backgroundColor = 'rgba(35, 130, 135, 0.1)';
+                let feedbackStyle = element.getAttribute('style') || '';
+                element.setAttribute('style', `${feedbackStyle}; background-color: rgba(35, 130, 135, 0.1);`);
+
+                // Ensure nonce is set
+                const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                if (nonce && !element.hasAttribute('nonce')) {
+                    element.setAttribute('nonce', nonce);
+                }
+
                 setTimeout(() => {
-                    element.style.backgroundColor = '';
+                    let currentStyle = element.getAttribute('style') || '';
+                    currentStyle = currentStyle.replace(/background-color:[^;]+;?/g, '');
+                    element.setAttribute('style', currentStyle);
                 }, 500);
             } else {
                 // Restore original content
@@ -441,7 +504,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Update the element
                 currentEditingElement.textContent = newText;
-                currentEditingElement.style.fontSize = newFontSize + 'px';
+
+                // Update style with new font size
+                let currentStyle = currentEditingElement.getAttribute('style') || '';
+                currentStyle = currentStyle.replace(/font-size:[^;]+;?/g, '');
+                currentEditingElement.setAttribute('style', `${currentStyle}; font-size: ${newFontSize}px;`);
+
+                // Ensure nonce is set
+                const nonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                if (nonce && !currentEditingElement.hasAttribute('nonce')) {
+                    currentEditingElement.setAttribute('nonce', nonce);
+                }
 
                 // Store the changes for saving
                 currentEditingElement.setAttribute('data-modified', 'true');
@@ -449,9 +522,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentEditingElement.setAttribute('data-new-font-size', newFontSize);
 
                 // Visual feedback
-                currentEditingElement.style.backgroundColor = 'rgba(35, 130, 135, 0.1)';
+                currentStyle = currentEditingElement.getAttribute('style') || '';
+                currentEditingElement.setAttribute('style', `${currentStyle}; background-color: rgba(35, 130, 135, 0.1);`);
+
                 setTimeout(() => {
-                    currentEditingElement.style.backgroundColor = '';
+                    let updatedStyle = currentEditingElement.getAttribute('style') || '';
+                    updatedStyle = updatedStyle.replace(/background-color:[^;]+;?/g, '');
+                    currentEditingElement.setAttribute('style', updatedStyle);
                 }, 500);
 
                 // Close the modal
@@ -476,10 +553,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Show message in a more user-friendly way
                         const alertDiv = document.createElement('div');
                         alertDiv.className = 'alert alert-info alert-dismissible fade show';
+                        // Get nonce for the info icon
+                        const infoNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
                         alertDiv.innerHTML = `
-                            <i class="fas fa-info-circle me-2"></i>
+                            <i class="fas fa-info-circle me-2" ${infoNonce ? 'nonce="' + infoNonce + '"' : ''}></i>
                             No changes to save. Edit text by clicking on it.
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" ${infoNonce ? 'nonce="' + infoNonce + '"' : ''}></button>
                         `;
 
                         const container = document.querySelector('.card-body');
@@ -497,14 +576,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Show loading indicator
                     this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+                    // Get nonce from any existing script with nonce
+                    const btnNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                    const spinnerHTML = `<i class="fas fa-spinner fa-spin me-2" ${btnNonce ? 'nonce="' + btnNonce + '"' : ''}></i> Saving...`;
+                    this.innerHTML = spinnerHTML;
 
                     // Show progress message
                     const progressAlert = document.createElement('div');
                     progressAlert.className = 'alert alert-info';
                     progressAlert.id = 'save-progress-alert';
+                    // Get nonce for the spinner
+                    const alertNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
                     progressAlert.innerHTML = `
-                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        <i class="fas fa-spinner fa-spin me-2" ${alertNonce ? 'nonce="' + alertNonce + '"' : ''}></i>
                         Saving ${modifiedElements.length} text modifications...
                     `;
 
@@ -607,10 +691,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show success message
                     const successAlert = document.createElement('div');
                     successAlert.className = 'alert alert-success alert-dismissible fade show';
+                    // Get nonce for the success icon
+                    const successNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
                     successAlert.innerHTML = `
-                        <i class="fas fa-check-circle me-2"></i>
+                        <i class="fas fa-check-circle me-2" ${successNonce ? 'nonce="' + successNonce + '"' : ''}></i>
                         Changes saved successfully! Applied ${result.modifications_applied} text modifications.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" ${successNonce ? 'nonce="' + successNonce + '"' : ''}></button>
                     `;
 
                     if (container) {
@@ -652,10 +738,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Show error message
                     const errorAlert = document.createElement('div');
                     errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+                    // Get nonce for the error icon
+                    const errorNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
                     errorAlert.innerHTML = `
-                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <i class="fas fa-exclamation-circle me-2" ${errorNonce ? 'nonce="' + errorNonce + '"' : ''}></i>
                         Error saving changes: ${error.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" ${errorNonce ? 'nonce="' + errorNonce + '"' : ''}></button>
                     `;
 
                     const container = document.querySelector('.card-body');
@@ -667,7 +755,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Reset button
                     this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-save me-2"></i> Save Changes';
+                    // Get nonce for the save icon
+                    const resetNonce = document.querySelector('script[nonce]')?.getAttribute('nonce');
+                    this.innerHTML = `<i class="fas fa-save me-2" ${resetNonce ? 'nonce="' + resetNonce + '"' : ''}></i> Save Changes`;
                 }
             });
         }

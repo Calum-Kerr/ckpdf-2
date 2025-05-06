@@ -108,15 +108,17 @@ def modify_pdf_text(input_path, output_path, modifications):
                                             logger.info(f"Replacing text on page {page_number}: '{original_text}' -> '{new_text}'")
 
                                             # First, remove the original text by covering it with a white rectangle
-                                            # Add a small padding to ensure we cover the entire text
-                                            padding = 2
+                                            # Add a larger padding to ensure we cover the entire text
+                                            padding = 5  # Increased padding for better coverage
                                             expanded_rect = fitz.Rect(
                                                 rect.x0 - padding,
                                                 rect.y0 - padding,
                                                 rect.x1 + padding,
                                                 rect.y1 + padding
                                             )
-                                            page.draw_rect(expanded_rect, color=(1, 1, 1), fill=(1, 1, 1))
+                                            # Draw the white rectangle multiple times with opacity 1 to ensure complete coverage
+                                            for _ in range(3):  # Draw three times for better coverage
+                                                page.draw_rect(expanded_rect, color=(1, 1, 1), fill=(1, 1, 1), opacity=1.0)
 
                                             # Then add the new text
                                             text_writer = fitz.TextWriter(page.rect)

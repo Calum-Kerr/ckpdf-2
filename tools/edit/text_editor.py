@@ -336,7 +336,18 @@ def replace_text_in_pdf(input_path, output_path, text_blocks):
                     logger.info(f"Replacing block on page {page_number}: {new_text[:30]}... at {bbox}")
 
                     # First, remove the original text by covering it with a white rectangle
-                    page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1))
+                    # Add padding to ensure complete coverage
+                    padding = 5  # Increased padding for better coverage
+                    expanded_rect = fitz.Rect(
+                        rect.x0 - padding,
+                        rect.y0 - padding,
+                        rect.x1 + padding,
+                        rect.y1 + padding
+                    )
+                    # Use opacity=1.0 to ensure complete coverage
+                    # Draw multiple times to ensure complete coverage
+                    for _ in range(3):  # Draw three times for better coverage
+                        page.draw_rect(expanded_rect, color=(1, 1, 1), fill=(1, 1, 1), opacity=1.0)
 
                     # Then add the new text
                     text_writer = fitz.TextWriter(page.rect)

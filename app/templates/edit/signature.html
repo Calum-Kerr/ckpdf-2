@@ -3,267 +3,309 @@
 {% block title %}Add Signature to PDF - RevisePDF{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Add Signature to PDF</h2>
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Add Signature to PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Add your signature to PDF documents by drawing, uploading an image, or typing.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    {% if not pdf_uploaded %}
+    <div class="tool-container">
+        <div class="upload-section">
+            <form id="upload-form" method="POST" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Add your signature to PDF documents by drawing, uploading an image, or typing.
-                    </p>
 
-                    <form id="upload-form" method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
+                <button type="submit" class="submit-btn mt-4" id="submit-btn">Upload PDF</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if pdf_uploaded %}
+    <div class="editor-panel">
+        <h3 class="editor-title">Signature Editor</h3>
+
+        <div class="info-alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>How to add a signature:</strong> Create your signature using one of the methods below, then click on the PDF to position it.
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="pdf-preview-container">
+                    <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid w-100" alt="PDF Preview">
+                    <div id="signature-overlay"></div>
+                </div>
+
+                <div class="navigation-controls">
+                    <div class="page-navigation">
+                        <button id="prev-page" class="nav-btn" {% if current_page <= 1 %}disabled{% endif %}>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
+                        <button id="next-page" class="nav-btn" {% if current_page >= total_pages %}disabled{% endif %}>
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="signature-options">
+                    <h4>Signature Options</h4>
+
+                    <ul class="nav nav-tabs" id="signatureTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="draw-tab" data-bs-toggle="tab" data-bs-target="#draw-panel" type="button" role="tab" aria-controls="draw-panel" aria-selected="true">Draw</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-panel" type="button" role="tab" aria-controls="upload-panel" aria-selected="false">Upload</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#type-panel" type="button" role="tab" aria-controls="type-panel" aria-selected="false">Type</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content p-3 border border-top-0 rounded-bottom" id="signatureTabContent">
+                        <!-- Draw Tab -->
+                        <div class="tab-pane fade show active" id="draw-panel" role="tabpanel" aria-labelledby="draw-tab">
+                            <div class="mb-3">
+                                <label class="form-label">Draw Your Signature</label>
+                                <div class="signature-pad-container border rounded">
+                                    <canvas id="signature-pad" class="signature-pad"></canvas>
                                 </div>
-                            {% endif %}
+                                <div class="d-flex justify-content-between mt-2">
+                                    <button id="clear-signature" class="btn btn-sm btn-outline-secondary">Clear</button>
+                                    <div>
+                                        <button id="undo-signature" class="btn btn-sm btn-outline-secondary me-1">Undo</button>
+                                        <button id="save-signature" class="btn btn-sm btn-primary">Use Signature</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Upload PDF</button>
+                        <!-- Upload Tab -->
+                        <div class="tab-pane fade" id="upload-panel" role="tabpanel" aria-labelledby="upload-tab">
+                            <div class="mb-3">
+                                <label for="signature-file" class="form-label">Upload Signature Image</label>
+                                <input type="file" id="signature-file" class="form-control" accept="image/*">
+                                <div class="form-text">
+                                    Upload a PNG or JPG image of your signature.
+                                </div>
+                            </div>
+                            <div id="signature-preview-container" class="mb-3 d-none">
+                                <label class="form-label">Preview</label>
+                                <div class="border rounded p-2 text-center">
+                                    <img id="signature-preview" class="img-fluid" style="max-height: 100px;" alt="Signature Preview">
+                                </div>
+                                <div class="d-grid mt-2">
+                                    <button id="use-uploaded-signature" class="btn btn-primary">Use Signature</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Type Tab -->
+                        <div class="tab-pane fade" id="type-panel" role="tabpanel" aria-labelledby="type-tab">
+                            <div class="mb-3">
+                                <label for="typed-signature" class="form-label">Type Your Signature</label>
+                                <input type="text" id="typed-signature" class="form-control" placeholder="Your Name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="signature-font" class="form-label">Font Style</label>
+                                <select id="signature-font" class="form-select">
+                                    <option value="'Dancing Script', cursive">Handwritten</option>
+                                    <option value="'Satisfy', cursive">Signature</option>
+                                    <option value="'Pacifico', cursive">Flowing</option>
+                                    <option value="'Caveat', cursive">Casual</option>
+                                    <option value="'Homemade Apple', cursive">Elegant</option>
+                                </select>
+                            </div>
+                            <div id="typed-signature-preview" class="mb-3 border rounded p-2 text-center" style="min-height: 60px;">
+                                <span id="typed-signature-text" style="font-family: 'Dancing Script', cursive; font-size: 28px;"></span>
+                            </div>
+                            <div class="d-grid">
+                                <button id="use-typed-signature" class="btn btn-primary" disabled>Use Signature</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <form id="add-signature-form" method="POST" action="{{ url_for('edit.add_signature') }}" class="mt-3">
+                        {{ form.csrf_token }}
+                        <input type="hidden" name="page_number" value="{{ current_page }}">
+                        <input type="hidden" name="filename" value="{{ filename }}">
+                        <input type="hidden" id="signature-data" name="signature_data" value="">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="signature-x" class="form-label">X Position</label>
+                                <input type="number" id="signature-x" name="x" class="form-control" value="100" min="0" max="{{ pdf_width }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signature-y" class="form-label">Y Position</label>
+                                <input type="number" id="signature-y" name="y" class="form-control" value="100" min="0" max="{{ pdf_height }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="signature-width" class="form-label">Width</label>
+                                <input type="number" id="signature-width" name="width" class="form-control" value="200" min="10" max="{{ pdf_width }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signature-height" class="form-label">Height</label>
+                                <input type="number" id="signature-height" name="height" class="form-control" value="100" min="10" max="{{ pdf_height }}">
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button type="submit" id="add-signature-button" class="action-btn save-btn" disabled>
+                                <i class="fas fa-signature"></i> Add Signature to PDF
+                            </button>
+                            <a href="{{ url_for('edit.download_signed', filename=output_filename) }}" class="action-btn download-btn {% if not output_filename %}d-none{% endif %}" id="download-btn">
+                                <i class="fas fa-download"></i> Download Signed PDF
+                            </a>
+                            <a href="{{ url_for('edit.signature') }}" class="action-btn reset-btn">
+                                <i class="fas fa-redo"></i> Start Over
+                            </a>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+    {% endif %}
 
-            {% if pdf_uploaded %}
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Signature Editor</h3>
+    <div class="info-section">
+        <h3 class="section-title text-center mb-5">About PDF Signatures</h3>
+
+        <div class="info-text text-center mb-4">
+            <p>Adding signatures to PDF documents allows you to:</p>
+        </div>
+
+        <div class="features-grid mb-5">
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-file-signature"></i>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="pdf-preview-container border mb-3">
-                                <img id="pdf-preview" src="data:image/png;base64,{{ preview_image }}" class="img-fluid" alt="PDF Preview">
-                                <div id="signature-overlay"></div>
-                            </div>
+                <div class="feature-content">
+                    <h5>Sign Electronically</h5>
+                    <p>Sign documents without printing and scanning</p>
+                </div>
+            </div>
 
-                            <div class="d-flex justify-content-between mb-3">
-                                <div>
-                                    <button id="prev-page" class="btn btn-outline-secondary" {% if current_page <= 1 %}disabled{% endif %}>
-                                        <i class="fas fa-chevron-left"></i> Previous
-                                    </button>
-                                    <button id="next-page" class="btn btn-outline-secondary" {% if current_page >= total_pages %}disabled{% endif %}>
-                                        Next <i class="fas fa-chevron-right"></i>
-                                    </button>
-                                </div>
-                                <div>
-                                    <span class="page-info">Page {{ current_page }} of {{ total_pages }}</span>
-                                </div>
-                            </div>
-                        </div>
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Quick Approval</h5>
+                    <p>Quickly approve forms, contracts, and agreements</p>
+                </div>
+            </div>
 
-                        <div class="col-md-4">
-                            <div class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">Signature Options</h5>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="nav nav-tabs" id="signatureTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="draw-tab" data-bs-toggle="tab" data-bs-target="#draw-panel" type="button" role="tab" aria-controls="draw-panel" aria-selected="true">Draw</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-panel" type="button" role="tab" aria-controls="upload-panel" aria-selected="false">Upload</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="type-tab" data-bs-toggle="tab" data-bs-target="#type-panel" type="button" role="tab" aria-controls="type-panel" aria-selected="false">Type</button>
-                                        </li>
-                                    </ul>
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-pen-fancy"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Personalisation</h5>
+                    <p>Add your handwritten signature to documents</p>
+                </div>
+            </div>
 
-                                    <div class="tab-content p-3 border border-top-0 rounded-bottom" id="signatureTabContent">
-                                        <!-- Draw Tab -->
-                                        <div class="tab-pane fade show active" id="draw-panel" role="tabpanel" aria-labelledby="draw-tab">
-                                            <div class="mb-3">
-                                                <label class="form-label">Draw Your Signature</label>
-                                                <div class="signature-pad-container border rounded">
-                                                    <canvas id="signature-pad" class="signature-pad"></canvas>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-2">
-                                                    <button id="clear-signature" class="btn btn-sm btn-outline-secondary">Clear</button>
-                                                    <div>
-                                                        <button id="undo-signature" class="btn btn-sm btn-outline-secondary me-1">Undo</button>
-                                                        <button id="save-signature" class="btn btn-sm btn-primary">Use Signature</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+            <div class="feature-item">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="feature-content">
+                    <h5>Professional Look</h5>
+                    <p>Create a professional appearance for business documents</p>
+                </div>
+            </div>
+        </div>
 
-                                        <!-- Upload Tab -->
-                                        <div class="tab-pane fade" id="upload-panel" role="tabpanel" aria-labelledby="upload-tab">
-                                            <div class="mb-3">
-                                                <label for="signature-file" class="form-label">Upload Signature Image</label>
-                                                <input type="file" id="signature-file" class="form-control" accept="image/*">
-                                                <div class="form-text">
-                                                    Upload a PNG or JPG image of your signature.
-                                                </div>
-                                            </div>
-                                            <div id="signature-preview-container" class="mb-3 d-none">
-                                                <label class="form-label">Preview</label>
-                                                <div class="border rounded p-2 text-center">
-                                                    <img id="signature-preview" class="img-fluid" style="max-height: 100px;" alt="Signature Preview">
-                                                </div>
-                                                <div class="d-grid mt-2">
-                                                    <button id="use-uploaded-signature" class="btn btn-primary">Use Signature</button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Type Tab -->
-                                        <div class="tab-pane fade" id="type-panel" role="tabpanel" aria-labelledby="type-tab">
-                                            <div class="mb-3">
-                                                <label for="typed-signature" class="form-label">Type Your Signature</label>
-                                                <input type="text" id="typed-signature" class="form-control" placeholder="Your Name">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="signature-font" class="form-label">Font Style</label>
-                                                <select id="signature-font" class="form-select">
-                                                    <option value="'Dancing Script', cursive">Handwritten</option>
-                                                    <option value="'Satisfy', cursive">Signature</option>
-                                                    <option value="'Pacifico', cursive">Flowing</option>
-                                                    <option value="'Caveat', cursive">Casual</option>
-                                                    <option value="'Homemade Apple', cursive">Elegant</option>
-                                                </select>
-                                            </div>
-                                            <div id="typed-signature-preview" class="mb-3 border rounded p-2 text-center" style="min-height: 60px;">
-                                                <span id="typed-signature-text" style="font-family: 'Dancing Script', cursive; font-size: 28px;"></span>
-                                            </div>
-                                            <div class="d-grid">
-                                                <button id="use-typed-signature" class="btn btn-primary" disabled>Use Signature</button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <hr>
-
-                                    <form id="add-signature-form" method="POST" action="{{ url_for('edit.add_signature') }}" class="mt-3">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="page_number" value="{{ current_page }}">
-                                        <input type="hidden" name="filename" value="{{ filename }}">
-                                        <input type="hidden" id="signature-data" name="signature_data" value="">
-
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="signature-x" class="form-label">X Position</label>
-                                                <input type="number" id="signature-x" name="x" class="form-control" value="100" min="0" max="{{ pdf_width }}">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="signature-y" class="form-label">Y Position</label>
-                                                <input type="number" id="signature-y" name="y" class="form-control" value="100" min="0" max="{{ pdf_height }}">
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="signature-width" class="form-label">Width</label>
-                                                <input type="number" id="signature-width" name="width" class="form-control" value="200" min="10" max="{{ pdf_width }}">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="signature-height" class="form-label">Height</label>
-                                                <input type="number" id="signature-height" name="height" class="form-control" value="100" min="10" max="{{ pdf_height }}">
-                                            </div>
-                                        </div>
-
-                                        <div class="d-grid">
-                                            <button type="submit" id="add-signature-button" class="btn btn-success" disabled>Add Signature to PDF</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="d-grid">
-                                <a href="{{ url_for('edit.download_signed', filename=output_filename) }}" class="btn btn-success mb-3 {% if not output_filename %}d-none{% endif %}">Download Signed PDF</a>
-                                <a href="{{ url_for('edit.signature') }}" class="btn btn-outline-secondary">Start Over</a>
-                            </div>
-                        </div>
+        <h4 class="text-center mb-4">Signature Methods</h4>
+        <div class="tool-grid">
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div class="tool-content">
+                        <h5>Draw</h5>
+                        <p>Use your mouse or touchscreen to draw your signature</p>
+                        <ul class="feature-list small">
+                            <li><i class="fas fa-check-circle"></i> Most natural-looking option</li>
+                            <li><i class="fas fa-check-circle"></i> Great for touchscreens and tablets</li>
+                            <li><i class="fas fa-check-circle"></i> Matches your handwritten signature</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Signatures</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        Adding signatures to PDF documents allows you to:
-                    </p>
-
-                    <ul>
-                        <li>Sign documents electronically without printing and scanning</li>
-                        <li>Quickly approve forms, contracts, and agreements</li>
-                        <li>Personalize documents with your handwritten signature</li>
-                        <li>Create a professional appearance for business documents</li>
-                    </ul>
-
-                    <h4>Signature Methods</h4>
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Draw</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Use your mouse or touchscreen to draw your signature:</p>
-                                    <ul>
-                                        <li>Most natural-looking option</li>
-                                        <li>Great for touchscreens and tablets</li>
-                                        <li>Can closely match your handwritten signature</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Upload</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Upload an image of your signature:</p>
-                                    <ul>
-                                        <li>Use a previously created signature</li>
-                                        <li>Scan your physical signature</li>
-                                        <li>Highest quality option</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">Type</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Type your name in a signature-like font:</p>
-                                    <ul>
-                                        <li>Quick and easy option</li>
-                                        <li>Choose from various handwriting fonts</li>
-                                        <li>Good for casual documents</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <i class="fas fa-upload"></i>
                     </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> This tool adds a visual signature to your PDF. For legally binding electronic signatures with cryptographic verification, you may need to use specialized e-signature services.
+                    <div class="tool-content">
+                        <h5>Upload</h5>
+                        <p>Upload an image of your signature</p>
+                        <ul class="feature-list small">
+                            <li><i class="fas fa-check-circle"></i> Use a previously created signature</li>
+                            <li><i class="fas fa-check-circle"></i> Scan your physical signature</li>
+                            <li><i class="fas fa-check-circle"></i> Highest quality option</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+
+            <div class="tool-card">
+                <div class="tool-card-inner">
+                    <div class="tool-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <div class="tool-content">
+                        <h5>Type</h5>
+                        <p>Type your name in a signature-like font</p>
+                        <ul class="feature-list small">
+                            <li><i class="fas fa-check-circle"></i> Quick and easy option</li>
+                            <li><i class="fas fa-check-circle"></i> Choose from various handwriting fonts</li>
+                            <li><i class="fas fa-check-circle"></i> Good for casual documents</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Note:</strong> This tool adds a visual signature to your PDF. For legally binding electronic signatures with cryptographic verification, you may need to use specialized e-signature services.
         </div>
     </div>
 </div>
@@ -271,7 +313,203 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Satisfy&family=Pacifico&family=Caveat&family=Homemade+Apple&display=swap" rel="stylesheet">
-<style>
+<style nonce="{{ csp_nonce() }}">
+    /* Tool Container Styles */
+    .tool-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .upload-section {
+        text-align: center;
+    }
+
+    .upload-area {
+        border: 2px dashed #238287;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .upload-area:hover {
+        background-color: #e9ecef;
+    }
+
+    .upload-area.drag-over {
+        background-color: #e3f2fd;
+        border-color: #238287;
+    }
+
+    .upload-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: #238287;
+        margin-bottom: 15px;
+    }
+
+    .upload-text {
+        font-size: 18px;
+        color: #495057;
+    }
+
+    .file-preview {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        margin-top: 20px;
+        background-color: #f8f9fa;
+    }
+
+    .file-icon {
+        font-size: 24px;
+        color: #238287;
+        margin-right: 15px;
+    }
+
+    .file-info {
+        flex-grow: 1;
+    }
+
+    .file-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .file-size {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .file-remove {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .submit-btn {
+        background-color: #238287;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        display: inline-block;
+        margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+        background-color: #1a6569;
+    }
+
+    /* Editor Panel Styles */
+    .editor-panel {
+        margin-bottom: 40px;
+    }
+
+    .editor-title {
+        color: #238287;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .info-alert {
+        background-color: #e3f2fd;
+        border-left: 4px solid #238287;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .pdf-preview-container {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        background-color: #f8f9fa;
+        z-index: 1;
+    }
+
+    #signature-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    .signature-preview {
+        position: absolute;
+        border: 1px dashed #238287;
+        background-color: rgba(35, 130, 135, 0.1);
+        pointer-events: none;
+        z-index: 20;
+    }
+
+    .navigation-controls {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .page-navigation {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nav-btn {
+        background-color: #238287;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .nav-btn:hover {
+        background-color: #1a6569;
+    }
+
+    .nav-btn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .page-info {
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .signature-options {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
     .signature-pad-container {
         width: 100%;
         height: 200px;
@@ -287,33 +525,267 @@
         left: 0;
     }
 
-    .pdf-preview-container {
-        position: relative;
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        gap: 8px;
+    }
+
+    .save-btn {
+        background-color: #238287;
+        color: white;
+        border: none;
+    }
+
+    .save-btn:hover {
+        background-color: #1a6569;
+    }
+
+    .download-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+    }
+
+    .download-btn:hover {
+        background-color: #218838;
+    }
+
+    .reset-btn {
+        background-color: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+
+    .reset-btn:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Info Section Styles */
+    .info-section {
+        margin-top: 60px;
+    }
+
+    .section-title {
+        color: #238287;
+        margin-bottom: 30px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .feature-item {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #238287;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .feature-content h5 {
+        margin-bottom: 10px;
+        color: #343a40;
+    }
+
+    .feature-content p {
+        color: #6c757d;
+    }
+
+    .tool-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .tool-card {
+        border-radius: 10px;
         overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    #signature-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
+    .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .tool-card-inner {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
         height: 100%;
-        pointer-events: none;
+        display: flex;
+        flex-direction: column;
     }
 
-    .signature-preview {
-        position: absolute;
-        border: 1px dashed #238287;
-        background-color: rgba(35, 130, 135, 0.1);
-        pointer-events: none;
+    .tool-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #238287;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .tool-content {
+        flex-grow: 1;
+    }
+
+    .tool-content h5 {
+        color: #343a40;
+        margin-bottom: 10px;
+    }
+
+    .tool-content p {
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .feature-list li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .feature-list li i {
+        color: #238287;
+        margin-right: 8px;
+        margin-top: 4px;
+    }
+
+    .feature-list.small {
+        font-size: 14px;
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
+        // Check if output_filename exists and show download button
+        {% if output_filename %}
+        const downloadBtn = document.getElementById('download-btn');
+        if (downloadBtn) {
+            downloadBtn.classList.remove('d-none');
+        }
+        {% endif %}
+        // File upload handling
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Check if elements exist (they won't if we're in editor mode)
+        if (uploadArea) {
+            // Initially disable the submit button until a file is selected
+            if (submitBtn) submitBtn.disabled = true;
+
+            // Handle file selection
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    showFilePreview(this.files[0]);
+                }
+            });
+
+            // Handle drag and drop
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    showFilePreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Handle file remove
+            if (fileRemove) {
+                fileRemove.addEventListener('click', function() {
+                    fileInput.value = '';
+                    filePreview.classList.add('d-none');
+                    uploadArea.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                });
+            }
+
+            // Show file preview
+            function showFilePreview(file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file.');
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                filePreview.classList.remove('d-none');
+                uploadArea.classList.add('d-none');
+                submitBtn.disabled = false;
+            }
+
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        }
+
         // Initialize signature pad
         const canvas = document.getElementById('signature-pad');
         let signaturePad = null;
@@ -481,6 +953,7 @@
             marker.style.borderRadius = '50%';
             marker.style.transform = 'translate(-50%, -50%)';
             marker.style.pointerEvents = 'none';
+            marker.style.zIndex = '30';
 
             // Clear existing markers
             overlay.innerHTML = '';
@@ -518,6 +991,7 @@
                 height = parseFloat(signatureHeight.value) * scaleY;
             } else {
                 // Use default size
+                const pdfPreview = document.getElementById('pdf-preview');
                 width = 200 * (pdfPreview.width / {{ pdf_width }});
                 height = 100 * (pdfPreview.height / {{ pdf_height }});
 
@@ -539,6 +1013,7 @@
             preview.style.top = y + 'px';
             preview.style.width = width + 'px';
             preview.style.height = height + 'px';
+            preview.style.zIndex = '20';
 
             // Add the signature image
             const img = document.createElement('img');
@@ -576,5 +1051,4 @@
         }
     });
 </script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 {% endblock %}
