@@ -2,163 +2,255 @@
 
 {% block title %}Flatten PDF - RevisePDF{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/flatten.css') }}" nonce="{{ csp_nonce() }}">
+{% endblock %}
+
 {% block content %}
+<div class="bg-primary py-5 mb-5 text-white text-center">
+    <div class="container">
+        <h1 class="h2 mb-3">Flatten PDF</h1>
+        <p class="mb-3 mx-auto" style="max-width: 600px; line-height: 1.5;" nonce="{{ csp_nonce() }}">Convert form fields and annotations to static content in your PDF document.</p>
+    </div>
+</div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Flatten PDF</h2>
+    <div class="security-container">
+        {% if not result %}
+        <form method="POST" enctype="multipart/form-data" id="flatten-form">
+            {{ form.csrf_token }}
+
+            <div class="upload-section">
+                <h3 class="upload-title">Upload PDF to Flatten</h3>
+
+                <div class="upload-area" id="upload-area">
+                    <input type="file" name="file" id="file-input" class="upload-input" accept=".pdf">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <p class="upload-text">Drag and drop your PDF here or click to browse</p>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                        Convert form fields and annotations to static content in your PDF document.
-                    </p>
 
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.csrf_token }}
+                <div class="file-preview d-none" id="file-preview">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <p class="file-name" id="file-name"></p>
+                        <p class="file-size" id="file-size"></p>
+                    </div>
+                    <button type="button" class="file-remove" id="file-remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
 
-                        <div class="mb-3">
-                            {{ form.file.label(class="form-label") }}
-                            {{ form.file(class="form-control") }}
-                            {% if form.file.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.file.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">Flattening Options</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-check mb-2">
-                                    {{ form.flatten_form_fields(class="form-check-input") }}
-                                    {{ form.flatten_form_fields.label(class="form-check-label") }}
-                                    <div class="form-text">
-                                        Convert interactive form fields to static text and graphics.
-                                    </div>
-                                </div>
-                                <div class="form-check mb-2">
-                                    {{ form.flatten_annotations(class="form-check-input") }}
-                                    {{ form.flatten_annotations.label(class="form-check-label") }}
-                                    <div class="form-text">
-                                        Convert comments, highlights, and other annotations to static content.
-                                    </div>
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <h4 class="settings-card-title">Flattening Options</h4>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="checkbox-field">
+                            {{ form.flatten_form_fields(class="checkbox-input") }}
+                            <div>
+                                {{ form.flatten_form_fields.label(class="checkbox-label") }}
+                                <div class="form-text">
+                                    Convert interactive form fields to static text and graphics.
                                 </div>
                             </div>
                         </div>
-
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary") }}
+                        <div class="checkbox-field">
+                            {{ form.flatten_annotations(class="checkbox-input") }}
+                            <div>
+                                {{ form.flatten_annotations.label(class="checkbox-label") }}
+                                <div class="form-text">
+                                    Convert comments, highlights, and other annotations to static content.
+                                </div>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn" disabled>Flatten PDF</button>
             </div>
+        </form>
+        {% endif %}
 
-            {% if result %}
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Flattening Results</h3>
+        {% if result %}
+        <div class="results-container">
+            <h3 class="results-title">Flattening Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4 class="result-card-title">Input PDF</h4>
+                    <p>Total Pages: {{ result.input_page_count }}</p>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Input PDF</h4>
-                            <p>Total Pages: {{ result.input_page_count }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Elements Flattened</h4>
-                            <ul class="list-group mb-3">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Form Fields
-                                    <span class="badge bg-primary rounded-pill">{{ result.form_fields_count }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Annotations
-                                    <span class="badge bg-primary rounded-pill">{{ result.annotations_count }}</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
 
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Success!</strong> The PDF has been successfully flattened. All interactive elements have been converted to static content.
-                    </div>
-
-                    <div class="d-grid mt-3">
-                        <a href="{{ url_for('security.download_flattened', filename=output_filename) }}" class="btn btn-success">Download Flattened PDF</a>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="card mt-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">About PDF Flattening</h3>
-                </div>
-                <div class="card-body">
-                    <p>
-                        PDF flattening converts interactive elements to static content, which helps:
-                    </p>
-
-                    <ul>
-                        <li>Ensure the document appears the same for all viewers</li>
-                        <li>Prevent further editing of form fields</li>
-                        <li>Make annotations permanent part of the document</li>
-                        <li>Reduce file size by removing interactive elements</li>
-                        <li>Improve compatibility with older PDF viewers</li>
+                <div class="result-card">
+                    <h4 class="result-card-title">Elements Flattened</h4>
+                    <ul class="status-list">
+                        <li class="status-item">
+                            <span class="status-name">Form Fields</span>
+                            <span class="status-badge status-badge-primary">{{ result.form_fields_count }}</span>
+                        </li>
+                        <li class="status-item">
+                            <span class="status-name">Annotations</span>
+                            <span class="status-badge status-badge-primary">{{ result.annotations_count }}</span>
+                        </li>
                     </ul>
+                </div>
+            </div>
 
-                    <h4>What Gets Flattened</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">Form Fields</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Interactive elements such as:</p>
-                                    <ul>
-                                        <li>Text input fields</li>
-                                        <li>Checkboxes and radio buttons</li>
-                                        <li>Dropdown menus</li>
-                                        <li>Buttons</li>
-                                        <li>Digital signature fields</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">Annotations</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p>Comments and markup such as:</p>
-                                    <ul>
-                                        <li>Text notes and comments</li>
-                                        <li>Highlights and underlines</li>
-                                        <li>Stamps and watermarks</li>
-                                        <li>Drawing markups</li>
-                                        <li>File attachments</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+            <div class="success-alert">
+                <i class="fas fa-check-circle"></i>
+                <strong>Success!</strong> The PDF has been successfully flattened. All interactive elements have been converted to static content.
+            </div>
+
+            <a href="{{ url_for('security.download_flattened', filename=output_filename) }}" class="download-btn">
+                <i class="fas fa-download me-2"></i> Download Flattened PDF
+            </a>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="{{ url_for('security.flatten') }}" class="btn btn-outline-primary">
+                <i class="fas fa-layer-group me-2"></i> Flatten Another PDF
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="info-container">
+            <h3 class="info-title">About PDF Flattening</h3>
+
+            <p class="info-text">
+                PDF flattening converts interactive elements to static content, which helps:
+            </p>
+
+            <ul class="feature-list">
+                <li><i class="fas fa-check-circle"></i> Ensure the document appears the same for all viewers</li>
+                <li><i class="fas fa-check-circle"></i> Prevent further editing of form fields</li>
+                <li><i class="fas fa-check-circle"></i> Make annotations permanent part of the document</li>
+                <li><i class="fas fa-check-circle"></i> Reduce file size by removing interactive elements</li>
+                <li><i class="fas fa-check-circle"></i> Improve compatibility with older PDF viewers</li>
+            </ul>
+
+            <h4 class="info-subtitle">What Gets Flattened</h4>
+            <div class="flattening-types">
+                <div class="flattening-card">
+                    <div class="flattening-card-header">
+                        <h5 class="flattening-card-title">Form Fields</h5>
                     </div>
-
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Once a PDF is flattened, the interactive elements cannot be restored. Make sure to keep a copy of the original PDF if you need to edit the form fields or annotations later.
+                    <div class="flattening-card-body">
+                        <p class="flattening-card-text">Interactive elements such as:</p>
+                        <ul class="flattening-card-list">
+                            <li>Text input fields</li>
+                            <li>Checkboxes and radio buttons</li>
+                            <li>Dropdown menus</li>
+                            <li>Buttons</li>
+                            <li>Digital signature fields</li>
+                        </ul>
                     </div>
                 </div>
+
+                <div class="flattening-card">
+                    <div class="flattening-card-header">
+                        <h5 class="flattening-card-title">Annotations</h5>
+                    </div>
+                    <div class="flattening-card-body">
+                        <p class="flattening-card-text">Comments and markup such as:</p>
+                        <ul class="flattening-card-list">
+                            <li>Text notes and comments</li>
+                            <li>Highlights and underlines</li>
+                            <li>Stamps and watermarks</li>
+                            <li>Drawing markups</li>
+                            <li>File attachments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note:</strong> Once a PDF is flattened, the interactive elements cannot be restored. Make sure to keep a copy of the original PDF if you need to edit the form fields or annotations later.
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce() }}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // Check if elements exist (they won't if we're on the results page)
+        if (!uploadArea) return;
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                showFilePreview(this.files[0]);
+            }
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                showFilePreview(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Handle file remove
+        if (fileRemove) {
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('d-none');
+                uploadArea.classList.remove('d-none');
+                submitBtn.disabled = true;
+            });
+        }
+
+        // Show file preview
+        function showFilePreview(file) {
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file.');
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+            uploadArea.classList.add('d-none');
+            submitBtn.disabled = false;
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %}
