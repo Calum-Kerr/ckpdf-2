@@ -950,24 +950,46 @@ def create_user_profile(user_id, email=None):
     if service_supabase:
         try:
             logger.info(f"Attempting to create user profile with service role client for: {email}")
-            # Create user profile in the database using service role client
-            response = service_supabase.table('user_profiles').insert({
+            logger.info(f"User ID format: {user_id} (type: {type(user_id).__name__})")
+
+            # Create the data payload
+            profile_data = {
                 'user_id': user_id,
                 'email': email,
                 'account_type': 'free',
                 'storage_used': 0,
                 'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
                 'created_at': creation_date
-            }).execute()
+            }
+
+            logger.info(f"Profile data: {profile_data}")
+
+            # Check if user_id is a valid UUID
+            if user_id.startswith('google-'):
+                logger.warning(f"Google user ID detected: {user_id}. Converting to UUID format.")
+                # For Google users, we need to create a UUID from their ID
+                import uuid
+                # Create a deterministic UUID based on the Google ID
+                google_id = user_id.split('-', 1)[1]  # Extract the ID part after 'google-'
+                # Use the Google ID as a namespace for UUID generation
+                deterministic_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://google.com/profiles/{google_id}"))
+                profile_data['user_id'] = deterministic_uuid
+                logger.info(f"Converted Google ID to UUID: {deterministic_uuid}")
+
+            # Create user profile in the database using service role client
+            response = service_supabase.table('user_profiles').insert(profile_data).execute()
 
             if response.data and len(response.data) > 0:
                 logger.info(f"User profile created with service role client for: {email}")
                 return response.data[0]
             else:
                 logger.error(f"Failed to create user profile with service role client for: {email}")
+                logger.error(f"Response: {response}")
                 # Fall through to demo profile
         except Exception as e:
             logger.error(f"Error creating user profile with service role client: {str(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             # Fall through to demo profile
 
     # If both Supabase clients fail or are not available, create a demo profile

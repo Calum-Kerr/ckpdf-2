@@ -136,11 +136,22 @@ def create_user_session(user_info, token_info):
         dict: The user session data.
     """
     # Create a unique user ID based on the Google sub (subject) ID
-    user_id = f"google-{user_info.get('sub')}"
+    google_user_id = f"google-{user_info.get('sub')}"
 
-    # Create the user session
+    # For database operations, we need a UUID
+    import uuid
+    # Create a deterministic UUID based on the Google ID
+    google_id = user_info.get('sub')
+    # Use the Google ID as a namespace for UUID generation
+    deterministic_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://google.com/profiles/{google_id}"))
+
+    logger.info(f"Google user ID: {google_user_id}")
+    logger.info(f"Converted to UUID: {deterministic_uuid}")
+
+    # For session, we'll keep the google- prefix for identification
     user_session = {
-        'id': user_id,
+        'id': google_user_id,  # Keep the google- prefix for session
+        'uuid': deterministic_uuid,  # Store the UUID for database operations
         'email': user_info.get('email'),
         'name': user_info.get('name'),
         'picture': user_info.get('picture'),
@@ -154,10 +165,10 @@ def create_user_session(user_info, token_info):
     }
 
     # Check if user profile exists, if not create one
-    profile = get_user_profile(user_id)
+    profile = get_user_profile(deterministic_uuid)
     if not profile:
         logger.info(f"Creating profile for Google user: {user_info.get('email')}")
-        profile = create_user_profile(user_id)
+        profile = create_user_profile(deterministic_uuid, user_info.get('email'))
         if profile:
             logger.info(f"Successfully created profile for Google user: {user_info.get('email')}")
         else:

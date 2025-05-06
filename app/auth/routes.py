@@ -177,20 +177,44 @@ def dashboard():
         return redirect(url_for('auth.login'))
 
     # Handle test user or Google user
-    if user.get('is_test_user', False) or user.get('is_google_user', False):
-        # For test users or Google users, use dummy profile data
+    if user.get('is_test_user', False):
+        # For test users, use dummy profile data
         profile = {
             'user_id': user['id'],
             'email': user['email'],
             'account_type': 'free',
             'storage_used': 0,
-            'storage_limit': 100 * 1024 * 1024,  # 100MB for test/Google users
+            'storage_limit': 100 * 1024 * 1024,  # 100MB for test users
             'created_at': datetime.datetime.now().isoformat()
         }
-        if user.get('is_test_user', False):
-            logger.info(f"Using test profile for test user")
+        logger.info(f"Using test profile for test user")
+    elif user.get('is_google_user', False):
+        # For Google users, try to get profile from Supabase using the UUID
+        if 'uuid' in user:
+            logger.info(f"Getting profile for Google user with UUID: {user['uuid']}")
+            profile = get_user_profile(user['uuid'])
+            if not profile:
+                # If profile not found, create a dummy profile
+                profile = {
+                    'user_id': user['uuid'],
+                    'email': user['email'],
+                    'account_type': 'free',
+                    'storage_used': 0,
+                    'storage_limit': 100 * 1024 * 1024,  # 100MB for Google users
+                    'created_at': datetime.datetime.now().isoformat()
+                }
+                logger.info(f"Using dummy profile for Google user (UUID not found)")
         else:
-            logger.info(f"Using test profile for Google user")
+            # Older sessions might not have UUID
+            logger.warning(f"Google user session without UUID, using dummy profile")
+            profile = {
+                'user_id': user['id'],
+                'email': user['email'],
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 100 * 1024 * 1024,  # 100MB for Google users
+                'created_at': datetime.datetime.now().isoformat()
+            }
     else:
         # Try to get profile from Supabase
         profile = get_user_profile(user['id']) if user else None
@@ -416,7 +440,17 @@ def google_one_tap():
             return redirect(url_for('auth.login'))
 
         # Create a unique user ID based on the Google sub (subject) ID
-        user_id = f"google-{user_info['sub']}"
+        google_user_id = f"google-{user_info['sub']}"
+
+        # For database operations, we need a UUID
+        import uuid
+        # Create a deterministic UUID based on the Google ID
+        google_id = user_info['sub']
+        # Use the Google ID as a namespace for UUID generation
+        deterministic_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"https://google.com/profiles/{google_id}"))
+
+        logger.info(f"Google user ID: {google_user_id}")
+        logger.info(f"Converted to UUID: {deterministic_uuid}")
 
         # Check if user exists in Supabase
         supabase = get_supabase()
@@ -424,15 +458,17 @@ def google_one_tap():
 
         if supabase:
             try:
-                # Try to find the user in Supabase
-                response = supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+                # Try to find the user in Supabase using the UUID
+                response = supabase.table('user_profiles').select('*').eq('user_id', deterministic_uuid).execute()
                 user_exists = response.data and len(response.data) > 0
+                logger.info(f"User exists check result: {user_exists}")
             except Exception as e:
                 logger.error(f"Error checking if user exists in Supabase: {str(e)}")
 
         # Create user session
         user_session = {
-            'id': user_id,
+            'id': google_user_id,  # Keep the google- prefix for session
+            'uuid': deterministic_uuid,  # Store the UUID for database operations
             'email': user_info['email'],
             'name': user_info['name'],
             'picture': user_info['picture'],
@@ -446,7 +482,7 @@ def google_one_tap():
 
         # If user doesn't exist, create a profile
         if not user_exists:
-            profile = create_user_profile(user_id, user_info['email'])
+            profile = create_user_profile(deterministic_uuid, user_info['email'])
             if profile:
                 logger.info(f"Created profile for Google One Tap user: {user_info['email']}")
             else:
