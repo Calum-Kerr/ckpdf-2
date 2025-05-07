@@ -977,13 +977,38 @@ def create_user_profile(user_id, email=None):
                 user_id = deterministic_uuid
                 logger.info(f"Converted Google ID to UUID: {deterministic_uuid}")
 
-            # First check if the profile already exists
+            # First check if the user exists in auth.users
             try:
+                logger.info(f"Checking if user exists in auth.users for user_id: {user_id}")
+                # We can't directly query auth.users, so we'll use the auth.get_user API
+                # Instead, we'll check if the user exists in the public.users view
+                user_check_response = service_supabase.from_('users').select('*').eq('id', user_id).execute()
+
+                logger.info(f"User check response: {user_check_response}")
+                logger.info(f"User check data: {user_check_response.data if hasattr(user_check_response, 'data') else 'No data attribute'}")
+
+                user_exists = user_check_response.data and len(user_check_response.data) > 0
+
+                if not user_exists:
+                    logger.warning(f"User with ID {user_id} does not exist in the users table. Profile creation will fail due to foreign key constraint.")
+                    logger.info(f"Creating a demo profile instead since we can't create a user in auth.users directly")
+                    # Return a demo profile instead
+                    demo_profile = {
+                        'user_id': user_id,
+                        'email': email,
+                        'account_type': 'free',
+                        'storage_used': 0,
+                        'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                        'created_at': creation_date
+                    }
+                    return demo_profile
+
+                # Now check if the profile already exists
                 logger.info(f"Checking if profile already exists for user_id: {user_id}")
                 check_response = service_supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
 
-                logger.info(f"Check response: {check_response}")
-                logger.info(f"Check response data: {check_response.data if hasattr(check_response, 'data') else 'No data attribute'}")
+                logger.info(f"Profile check response: {check_response}")
+                logger.info(f"Profile check data: {check_response.data if hasattr(check_response, 'data') else 'No data attribute'}")
 
                 if check_response.data and len(check_response.data) > 0:
                     logger.info(f"Profile already exists for user_id: {user_id}")
@@ -997,34 +1022,62 @@ def create_user_profile(user_id, email=None):
                 logger.info(f"Insert response: {response}")
                 logger.info(f"Insert response data: {response.data if hasattr(response, 'data') else 'No data attribute'}")
             except Exception as check_error:
-                logger.error(f"Error checking for existing profile: {str(check_error)}")
+                logger.error(f"Error checking for user/profile: {str(check_error)}")
                 logger.error(f"Error type: {type(check_error).__name__}")
                 logger.error(f"Error details: {dir(check_error)}")
 
-                # Try to create the profile anyway
-                try:
-                    response = service_supabase.table('user_profiles').insert(profile_data).execute()
-                    logger.info(f"Fallback insert response: {response}")
-                except Exception as insert_error:
-                    logger.error(f"Error in fallback insert: {str(insert_error)}")
-                    logger.error(f"Error type: {type(insert_error).__name__}")
-                    raise
+                # Return a demo profile instead
+                logger.info(f"Creating a demo profile due to error")
+                demo_profile = {
+                    'user_id': user_id,
+                    'email': email,
+                    'account_type': 'free',
+                    'storage_used': 0,
+                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                    'created_at': creation_date
+                }
+                return demo_profile
 
-            if response.data and len(response.data) > 0:
+            if response and hasattr(response, 'data') and response.data and len(response.data) > 0:
                 logger.info(f"User profile created with service role client for: {email}")
                 return response.data[0]
             else:
                 logger.error(f"Failed to create user profile with service role client for: {email}")
-                logger.error(f"Response: {response}")
-                # Fall through to demo profile
+                if response:
+                    logger.error(f"Response: {response}")
+                # Create a demo profile instead
+                logger.info(f"Creating a demo profile due to failed response")
+                demo_profile = {
+                    'user_id': user_id,
+                    'email': email,
+                    'account_type': 'free',
+                    'storage_used': 0,
+                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                    'created_at': creation_date
+                }
+                return demo_profile
         except Exception as e:
             logger.error(f"Error creating user profile with service role client: {str(e)}")
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
-            # Fall through to demo profile
 
-    # If both Supabase clients fail or are not available, create a demo profile
-    demo_profiles[user_id] = {
+            # Create a demo profile instead
+            logger.info(f"Creating a demo profile due to exception")
+            demo_profile = {
+                'user_id': user_id,
+                'email': email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': creation_date
+            }
+            # Store in the demo_profiles dictionary for future reference
+            demo_profiles[user_id] = demo_profile
+            return demo_profile
+
+    # If Supabase client is not available, create a demo profile
+    logger.info(f"Supabase client not available, creating a demo profile")
+    demo_profile = {
         'user_id': user_id,
         'email': email,
         'account_type': 'free',
@@ -1032,5 +1085,7 @@ def create_user_profile(user_id, email=None):
         'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
         'created_at': creation_date
     }
+    # Store in the demo_profiles dictionary for future reference
+    demo_profiles[user_id] = demo_profile
     logger.info(f"Created demo profile for user: {email}")
-    return demo_profiles[user_id]
+    return demo_profile
