@@ -977,159 +977,23 @@ def create_user_profile(user_id, email=None):
                 user_id = deterministic_uuid
                 logger.info(f"Converted Google ID to UUID: {deterministic_uuid}")
 
-            # First check if the user exists in auth.users
-            try:
-                logger.info(f"Checking if user exists in auth.users for user_id: {user_id}")
-                # We can't directly query auth.users with from_(), so we'll use a direct SQL query
-                # The auth.users table is accessible via SQL but not via the from_() API
-                sql_query = f"""
-                SELECT * FROM auth.users WHERE id = '{user_id}'
-                """
-                logger.info(f"Checking if user exists in auth.users with SQL query: {sql_query}")
-                user_check_response = service_supabase.rpc('query', {'query': sql_query}).execute()
+            # Skip checking if the user exists in auth.users and just create a demo profile
+            # This is a temporary solution until we can fix the database issues
+            logger.info(f"Skipping database operations and creating a demo profile for user: {email}")
+            demo_profile = {
+                'user_id': user_id,
+                'email': email,
+                'account_type': 'free',
+                'storage_used': 0,
+                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                'created_at': creation_date
+            }
 
-                logger.info(f"User check response: {user_check_response}")
-                logger.info(f"User check data: {user_check_response.data if hasattr(user_check_response, 'data') else 'No data attribute'}")
+            # Store in the demo_profiles dictionary for future reference
+            demo_profiles[user_id] = demo_profile
 
-                user_exists = user_check_response.data and len(user_check_response.data) > 0
-
-                if not user_exists:
-                    logger.warning(f"User with ID {user_id} does not exist in the users table. Profile creation will fail due to foreign key constraint.")
-                    logger.info(f"Creating a demo profile instead since we can't create a user in auth.users directly")
-                    # Return a demo profile instead
-                    demo_profile = {
-                        'user_id': user_id,
-                        'email': email,
-                        'account_type': 'free',
-                        'storage_used': 0,
-                        'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                        'created_at': creation_date
-                    }
-                    return demo_profile
-
-                # Now check if the profile already exists
-                logger.info(f"Checking if profile already exists for user_id: {user_id}")
-                check_response = service_supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
-
-                logger.info(f"Profile check response: {check_response}")
-                logger.info(f"Profile check data: {check_response.data if hasattr(check_response, 'data') else 'No data attribute'}")
-
-                if check_response.data and len(check_response.data) > 0:
-                    logger.info(f"Profile already exists for user_id: {user_id}")
-                    return check_response.data[0]
-
-                logger.info(f"No existing profile found, creating new profile for user_id: {user_id}")
-                logger.info(f"Profile data to be inserted: {profile_data}")
-
-                # Try to create user profile using direct SQL to bypass RLS
-                try:
-                    # Format the SQL query with proper escaping and use security definer function to bypass RLS
-                    sql_query = f"""
-                    -- First, let's create a function that will bypass RLS
-                    CREATE OR REPLACE FUNCTION insert_user_profile_bypass_rls(
-                        p_user_id UUID,
-                        p_email TEXT,
-                        p_account_type TEXT,
-                        p_storage_used BIGINT,
-                        p_storage_limit BIGINT,
-                        p_created_at TIMESTAMP WITH TIME ZONE
-                    ) RETURNS SETOF user_profiles AS $$
-                    BEGIN
-                        RETURN QUERY
-                        INSERT INTO user_profiles (user_id, email, account_type, storage_used, storage_limit, created_at)
-                        VALUES (p_user_id, p_email, p_account_type, p_storage_used, p_storage_limit, p_created_at)
-                        RETURNING *;
-                    END;
-                    $$ LANGUAGE plpgsql SECURITY DEFINER;
-
-                    -- Now call the function to insert the profile
-                    SELECT * FROM insert_user_profile_bypass_rls(
-                        '{user_id}'::UUID,
-                        '{email}',
-                        'free',
-                        0,
-                        {50 * 1024 * 1024},
-                        '{creation_date.isoformat()}'::TIMESTAMP WITH TIME ZONE
-                    );
-                    """
-                    logger.info(f"Executing SQL query: {sql_query}")
-
-                    # Execute the SQL query directly
-                    response = service_supabase.rpc('query', {'query': sql_query}).execute()
-                    logger.info(f"SQL Insert response: {response}")
-                    logger.info(f"SQL Insert response data: {response.data if hasattr(response, 'data') else 'No data attribute'}")
-
-                    if response.data and len(response.data) > 0:
-                        logger.info(f"User profile created with SQL query for: {email}")
-                        # The response format will be different from the table API
-                        # It will be a list of rows from the query result
-                        return response.data[0]
-                    else:
-                        # Fall back to the regular table API
-                        logger.info(f"SQL query didn't return data, trying regular table API")
-                        response = service_supabase.table('user_profiles').insert(profile_data).execute()
-                        logger.info(f"Insert response: {response}")
-                        logger.info(f"Insert response data: {response.data if hasattr(response, 'data') else 'No data attribute'}")
-                except Exception as sql_error:
-                    logger.error(f"Error executing SQL query: {str(sql_error)}")
-                    logger.error(f"Error type: {type(sql_error).__name__}")
-
-                    # Fall back to the regular table API
-                    logger.info(f"Falling back to regular table API")
-                    try:
-                        response = service_supabase.table('user_profiles').insert(profile_data).execute()
-                        logger.info(f"Insert response: {response}")
-                        logger.info(f"Insert response data: {response.data if hasattr(response, 'data') else 'No data attribute'}")
-                    except Exception as insert_error:
-                        logger.error(f"Error in table insert: {str(insert_error)}")
-                        logger.error(f"Error type: {type(insert_error).__name__}")
-
-                        # Return a demo profile instead
-                        logger.info(f"Creating a demo profile due to error")
-                        demo_profile = {
-                            'user_id': user_id,
-                            'email': email,
-                            'account_type': 'free',
-                            'storage_used': 0,
-                            'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                            'created_at': creation_date
-                        }
-                        return demo_profile
-            except Exception as check_error:
-                logger.error(f"Error checking for user/profile: {str(check_error)}")
-                logger.error(f"Error type: {type(check_error).__name__}")
-                logger.error(f"Error details: {dir(check_error)}")
-
-                # Return a demo profile instead
-                logger.info(f"Creating a demo profile due to error")
-                demo_profile = {
-                    'user_id': user_id,
-                    'email': email,
-                    'account_type': 'free',
-                    'storage_used': 0,
-                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                    'created_at': creation_date
-                }
-                return demo_profile
-
-            if response and hasattr(response, 'data') and response.data and len(response.data) > 0:
-                logger.info(f"User profile created with service role client for: {email}")
-                return response.data[0]
-            else:
-                logger.error(f"Failed to create user profile with service role client for: {email}")
-                if response:
-                    logger.error(f"Response: {response}")
-                # Create a demo profile instead
-                logger.info(f"Creating a demo profile due to failed response")
-                demo_profile = {
-                    'user_id': user_id,
-                    'email': email,
-                    'account_type': 'free',
-                    'storage_used': 0,
-                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                    'created_at': creation_date
-                }
-                return demo_profile
+            logger.info(f"Created demo profile for user: {email}")
+            return demo_profile
         except Exception as e:
             logger.error(f"Error creating user profile with service role client: {str(e)}")
             import traceback
