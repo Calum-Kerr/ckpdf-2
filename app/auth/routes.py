@@ -282,11 +282,21 @@ def google_login():
         redirect_url = f"{site_url}/auth/oauth-callback"
         logger.info(f"Using redirect URL: {redirect_url}")
 
-        # Get the Google OAuth URL from Supabase
-        auth_url = supabase.auth.get_url_for_provider(
-            'google',
-            redirect_to=redirect_url
-        )
+        # Initiate Google OAuth using the sign_in_with_oauth method
+        response = supabase.auth.sign_in_with_oauth({
+            "provider": "google",
+            "options": {
+                "redirect_to": redirect_url
+            }
+        })
+
+        # Get the URL from the response
+        auth_url = response.url if hasattr(response, 'url') else None
+
+        if not auth_url:
+            logger.error("No URL returned from sign_in_with_oauth")
+            flash("Authentication service error", "danger")
+            return redirect(url_for('auth.login'))
 
         # Log the Google OAuth URL
         logger.info(f"Got Supabase Google OAuth URL: {auth_url[:100]}... (truncated)")
