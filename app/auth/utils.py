@@ -689,9 +689,29 @@ def create_user_profile(user_id):
         # Get user email from session
         user_email = session.get('user', {}).get('email', 'unknown@example.com')
 
-        # Create user profile
+        # Create user profile using our custom function
         now = datetime.datetime.now().isoformat()
         creation_date = now
+
+        # Try to use the insert_user_profile function we created
+        try:
+            insert_response = supabase.rpc('insert_user_profile', {
+                'p_user_id': user_id,
+                'p_email': user_email,
+                'p_account_type': 'free',
+                'p_storage_used': 0,
+                'p_storage_limit': 50 * 1024 * 1024,
+                'p_created_at': creation_date
+            }).execute()
+
+            if insert_response.data and len(insert_response.data) > 0:
+                logger.info(f"Created user profile for user {user_id} using custom function")
+                return insert_response.data[0]
+        except Exception as func_error:
+            logger.warning(f"Error using custom function to create profile: {str(func_error)}")
+            # Fall back to regular table API
+
+        # Fall back to regular table API if the function fails
         response = supabase.table('user_profiles').insert({
             'user_id': user_id,
             'email': user_email,
@@ -703,7 +723,7 @@ def create_user_profile(user_id):
         }).execute()
 
         if response.data and len(response.data) > 0:
-            logger.info(f"Created user profile for user {user_id}")
+            logger.info(f"Created user profile for user {user_id} using table API")
             return response.data[0]
 
         logger.warning(f"Failed to create user profile for user {user_id}")
@@ -977,23 +997,92 @@ def create_user_profile(user_id, email=None):
                 user_id = deterministic_uuid
                 logger.info(f"Converted Google ID to UUID: {deterministic_uuid}")
 
-            # Skip checking if the user exists in auth.users and just create a demo profile
-            # This is a temporary solution until we can fix the database issues
-            logger.info(f"Skipping database operations and creating a demo profile for user: {email}")
-            demo_profile = {
-                'user_id': user_id,
-                'email': email,
-                'account_type': 'free',
-                'storage_used': 0,
-                'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
-                'created_at': creation_date
-            }
+            # First check if the user exists in auth.users using our custom function
+            try:
+                logger.info(f"Checking if user exists in auth.users for user_id: {user_id}")
+                check_user_response = service_supabase.rpc('check_user_exists', {'p_user_id': user_id}).execute()
 
-            # Store in the demo_profiles dictionary for future reference
-            demo_profiles[user_id] = demo_profile
+                logger.info(f"User check response: {check_user_response}")
+                logger.info(f"User check data: {check_user_response.data if hasattr(check_user_response, 'data') else 'No data attribute'}")
 
-            logger.info(f"Created demo profile for user: {email}")
-            return demo_profile
+                user_exists = check_user_response.data and check_user_response.data[0]
+
+                if not user_exists:
+                    logger.warning(f"User with ID {user_id} does not exist in auth.users. Creating a demo profile instead.")
+                    # Return a demo profile instead
+                    demo_profile = {
+                        'user_id': user_id,
+                        'email': email,
+                        'account_type': 'free',
+                        'storage_used': 0,
+                        'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                        'created_at': creation_date
+                    }
+                    # Store in the demo_profiles dictionary for future reference
+                    demo_profiles[user_id] = demo_profile
+                    return demo_profile
+
+                # Now check if the profile already exists
+                logger.info(f"Checking if profile already exists for user_id: {user_id}")
+                check_response = service_supabase.table('user_profiles').select('*').eq('user_id', user_id).execute()
+
+                logger.info(f"Profile check response: {check_response}")
+                logger.info(f"Profile check data: {check_response.data if hasattr(check_response, 'data') else 'No data attribute'}")
+
+                if check_response.data and len(check_response.data) > 0:
+                    logger.info(f"Profile already exists for user_id: {user_id}")
+                    return check_response.data[0]
+
+                # No existing profile found, create a new one using our custom function
+                logger.info(f"No existing profile found, creating new profile for user_id: {user_id}")
+
+                # Use the insert_user_profile function we created
+                insert_response = service_supabase.rpc('insert_user_profile', {
+                    'p_user_id': user_id,
+                    'p_email': email,
+                    'p_account_type': 'free',
+                    'p_storage_used': 0,
+                    'p_storage_limit': 50 * 1024 * 1024,
+                    'p_created_at': creation_date.isoformat()
+                }).execute()
+
+                logger.info(f"Insert response: {insert_response}")
+                logger.info(f"Insert response data: {insert_response.data if hasattr(insert_response, 'data') else 'No data attribute'}")
+
+                if insert_response.data and len(insert_response.data) > 0:
+                    logger.info(f"User profile created for: {email}")
+                    return insert_response.data[0]
+
+                # If we get here, something went wrong with the insert
+                logger.warning(f"Failed to create user profile for: {email}")
+                # Fall back to a demo profile
+                demo_profile = {
+                    'user_id': user_id,
+                    'email': email,
+                    'account_type': 'free',
+                    'storage_used': 0,
+                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                    'created_at': creation_date
+                }
+                # Store in the demo_profiles dictionary for future reference
+                demo_profiles[user_id] = demo_profile
+                return demo_profile
+
+            except Exception as e:
+                logger.error(f"Error creating user profile: {str(e)}")
+                # Fall back to a demo profile
+                demo_profile = {
+                    'user_id': user_id,
+                    'email': email,
+                    'account_type': 'free',
+                    'storage_used': 0,
+                    'storage_limit': 50 * 1024 * 1024,  # 50MB for free users
+                    'created_at': creation_date
+                }
+                # Store in the demo_profiles dictionary for future reference
+                demo_profiles[user_id] = demo_profile
+                logger.info(f"Created demo profile for user: {email}")
+                return demo_profile
         except Exception as e:
             logger.error(f"Error creating user profile with service role client: {str(e)}")
             import traceback
