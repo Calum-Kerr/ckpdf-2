@@ -980,9 +980,13 @@ def create_user_profile(user_id, email=None):
             # First check if the user exists in auth.users
             try:
                 logger.info(f"Checking if user exists in auth.users for user_id: {user_id}")
-                # We can't directly query auth.users, so we'll use the auth.get_user API
-                # Instead, we'll check if the user exists in the public.users view
-                user_check_response = service_supabase.from_('users').select('*').eq('id', user_id).execute()
+                # We can't directly query auth.users with from_(), so we'll use a direct SQL query
+                # The auth.users table is accessible via SQL but not via the from_() API
+                sql_query = f"""
+                SELECT * FROM auth.users WHERE id = '{user_id}'
+                """
+                logger.info(f"Checking if user exists in auth.users with SQL query: {sql_query}")
+                user_check_response = service_supabase.rpc('query', {'query': sql_query}).execute()
 
                 logger.info(f"User check response: {user_check_response}")
                 logger.info(f"User check data: {user_check_response.data if hasattr(user_check_response, 'data') else 'No data attribute'}")
@@ -1019,11 +1023,34 @@ def create_user_profile(user_id, email=None):
 
                 # Try to create user profile using direct SQL to bypass RLS
                 try:
-                    # Format the SQL query with proper escaping
+                    # Format the SQL query with proper escaping and use security definer function to bypass RLS
                     sql_query = f"""
-                    INSERT INTO user_profiles (user_id, email, account_type, storage_used, storage_limit, created_at)
-                    VALUES ('{user_id}', '{email}', 'free', 0, {50 * 1024 * 1024}, '{creation_date.isoformat()}')
-                    RETURNING *;
+                    -- First, let's create a function that will bypass RLS
+                    CREATE OR REPLACE FUNCTION insert_user_profile_bypass_rls(
+                        p_user_id UUID,
+                        p_email TEXT,
+                        p_account_type TEXT,
+                        p_storage_used BIGINT,
+                        p_storage_limit BIGINT,
+                        p_created_at TIMESTAMP WITH TIME ZONE
+                    ) RETURNS SETOF user_profiles AS $$
+                    BEGIN
+                        RETURN QUERY
+                        INSERT INTO user_profiles (user_id, email, account_type, storage_used, storage_limit, created_at)
+                        VALUES (p_user_id, p_email, p_account_type, p_storage_used, p_storage_limit, p_created_at)
+                        RETURNING *;
+                    END;
+                    $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+                    -- Now call the function to insert the profile
+                    SELECT * FROM insert_user_profile_bypass_rls(
+                        '{user_id}'::UUID,
+                        '{email}',
+                        'free',
+                        0,
+                        {50 * 1024 * 1024},
+                        '{creation_date.isoformat()}'::TIMESTAMP WITH TIME ZONE
+                    );
                     """
                     logger.info(f"Executing SQL query: {sql_query}")
 
