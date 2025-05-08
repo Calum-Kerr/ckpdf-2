@@ -7,8 +7,8 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header bg-success">
-                    <h4 class="mb-0 text-white">Processing Authentication</h4>
+                <div class="card-header" style="background-color: #238287; color: white;">
+                    <h4 class="mb-0">Processing Authentication</h4>
                 </div>
                 <div class="card-body">
                     <div class="text-center">
@@ -16,7 +16,16 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <p id="status-message">Please wait while we complete your authentication...</p>
-                        <pre id="debug-info" class="mt-3 text-start" style="font-size: 0.8rem; background-color: #f8f9fa; padding: 10px; border-radius: 5px;"></pre>
+
+                        <!-- Debug info is hidden by default -->
+                        <pre id="debug-info" class="mt-3 text-start" style="font-size: 0.8rem; background-color: #f8f9fa; padding: 10px; border-radius: 5px; display: none;"></pre>
+
+                        <!-- Only show in development mode -->
+                        {% if config.get('DEBUG', False) %}
+                        <div class="mt-3">
+                            <button id="toggle-debug" class="btn btn-sm btn-secondary">Show Debug Info</button>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <div class="mt-4">
@@ -43,14 +52,56 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('OAuth callback page loaded');
 
-        // Display the current URL for debugging
+        // Get DOM elements
         const debugInfo = document.getElementById('debug-info');
         const statusMessage = document.getElementById('status-message');
         const tokenInfo = document.getElementById('token-info');
         const noTokenInfo = document.getElementById('no-token-info');
         const manualAuthBtn = document.getElementById('manual-auth-btn');
+        const toggleDebugBtn = document.getElementById('toggle-debug');
 
-        debugInfo.textContent = 'Current URL: ' + window.location.href;
+        // Set up debug toggle button if it exists
+        if (toggleDebugBtn) {
+            toggleDebugBtn.addEventListener('click', function() {
+                if (debugInfo.style.display === 'none') {
+                    debugInfo.style.display = 'block';
+                    toggleDebugBtn.textContent = 'Hide Debug Info';
+                } else {
+                    debugInfo.style.display = 'none';
+                    toggleDebugBtn.textContent = 'Show Debug Info';
+                }
+            });
+        }
+
+        // Function to safely log sensitive information
+        function safeLog(message, sensitiveData = null) {
+            console.log(message);
+
+            // Only add to debug info if it's being displayed (development mode)
+            if (debugInfo) {
+                if (sensitiveData) {
+                    // Mask sensitive data
+                    let maskedData = {};
+                    for (const key in sensitiveData) {
+                        if (key.includes('token') || key.includes('code')) {
+                            // Show only first few characters of tokens/codes
+                            maskedData[key] = typeof sensitiveData[key] === 'string' && sensitiveData[key].length > 10
+                                ? sensitiveData[key].substring(0, 10) + '...'
+                                : '[MASKED]';
+                        } else {
+                            maskedData[key] = sensitiveData[key];
+                        }
+                    }
+                    debugInfo.textContent += '\n' + message + ' ' + JSON.stringify(maskedData, null, 2);
+                } else {
+                    debugInfo.textContent += '\n' + message;
+                }
+            }
+        }
+
+        // Initialize debug info with safe URL (no hash fragment)
+        const urlWithoutHash = window.location.href.split('#')[0];
+        safeLog('Current URL (without hash):', { url: urlWithoutHash });
 
         // Function to parse hash parameters
         function parseHashParams() {
@@ -68,7 +119,7 @@
 
         // Function to authenticate with token
         function authenticateWithToken(token, refreshToken, expiresIn, providerToken) {
-            console.log('Authenticating with token...');
+            safeLog('Authenticating with token...');
             statusMessage.textContent = 'Authenticating with token...';
 
             // Create data object
@@ -97,29 +148,29 @@
                 body: JSON.stringify(data)
             })
             .then(response => {
-                debugInfo.textContent += '\nResponse status: ' + response.status;
+                safeLog('Response status:', { status: response.status });
                 if (response.redirected) {
                     // If the server redirected us, follow the redirect
-                    debugInfo.textContent += '\nRedirected to: ' + response.url;
+                    safeLog('Redirected to:', { url: response.url });
                     window.location.href = response.url;
                 } else if (response.ok) {
-                    debugInfo.textContent += '\nResponse OK, parsing JSON...';
+                    safeLog('Response OK, parsing JSON...');
                     return response.json();
                 } else {
-                    debugInfo.textContent += '\nResponse not OK: ' + response.statusText;
+                    safeLog('Response not OK:', { statusText: response.statusText });
                     return response.text().then(text => {
-                        debugInfo.textContent += '\nResponse body: ' + text;
+                        safeLog('Response body:', { text: text });
                         throw new Error('Authentication failed: ' + response.status + ' ' + response.statusText);
                     });
                 }
             })
             .then(data => {
-                debugInfo.textContent += '\nResponse data: ' + JSON.stringify(data);
+                safeLog('Response data received', { success: data.success, hasRedirect: !!data.redirect_url });
                 if (data && data.redirect_url) {
-                    debugInfo.textContent += '\nRedirecting to: ' + data.redirect_url;
+                    safeLog('Redirecting to dashboard');
                     window.location.href = data.redirect_url;
                 } else if (data && data.success) {
-                    debugInfo.textContent += '\nAuthentication successful, but no redirect URL. Redirecting to dashboard...';
+                    safeLog('Authentication successful, redirecting to dashboard');
                     window.location.href = '/auth/dashboard';
                 } else {
                     statusMessage.textContent = 'Authentication successful, but no redirect URL provided.';
@@ -127,24 +178,30 @@
             })
             .catch(error => {
                 console.error('Error during authentication:', error);
-                debugInfo.textContent += '\nError during authentication: ' + error.message;
+                safeLog('Error during authentication:', { message: error.message });
                 statusMessage.textContent = 'Error during authentication. Please try the manual authentication button below.';
             });
         }
 
         // Check if there's an access token in the URL fragment
         const hashParams = parseHashParams();
-        debugInfo.textContent += '\nHash params: ' + JSON.stringify(hashParams, null, 2);
+        safeLog('Hash params detected', {
+            hasAccessToken: !!hashParams.access_token,
+            hasRefreshToken: !!hashParams.refresh_token
+        });
 
         // Check for URL parameters that might indicate a Google OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
-        debugInfo.textContent += '\nURL params: ' + JSON.stringify(Object.fromEntries(urlParams.entries()), null, 2);
+        safeLog('URL params detected', {
+            hasCode: !!urlParams.get('code'),
+            hasError: !!urlParams.get('error')
+        });
 
         // Check for code parameter which indicates OAuth authorization code flow
         const code = urlParams.get('code');
         if (code) {
-            debugInfo.textContent += '\nAuthorization code found: ' + code.substring(0, 10) + '...';
-            statusMessage.textContent = 'Authorization code found. This should be handled server-side. Redirecting to dashboard...';
+            safeLog('Authorization code found (masked)');
+            statusMessage.textContent = 'Authorization code found. Processing authentication...';
 
             // In this case, the server should have already processed the code and set up the session
             // We can just redirect to the dashboard
@@ -155,8 +212,7 @@
         }
 
         if (hashParams.access_token) {
-            console.log('Access token found in URL fragment');
-            debugInfo.textContent += '\nAccess token found: ' + hashParams.access_token.substring(0, 10) + '...';
+            safeLog('Access token found in URL fragment');
             statusMessage.textContent = 'Access token found, processing...';
 
             // Show the token info section
@@ -175,7 +231,7 @@
             // Try automatic authentication using the form submission instead of redirect
             // This is more reliable across browsers and handles the token more securely
             try {
-                console.log('Attempting automatic authentication...');
+                safeLog('Attempting automatic authentication...');
                 authenticateWithToken(
                     hashParams.access_token,
                     hashParams.refresh_token,
@@ -184,12 +240,11 @@
                 );
             } catch (error) {
                 console.error('Error during automatic authentication:', error);
-                debugInfo.textContent += '\nError during automatic authentication: ' + error.message;
+                safeLog('Error during automatic authentication:', { message: error.message });
                 statusMessage.textContent = 'Error during automatic authentication. Please try the manual authentication button below.';
             }
         } else {
-            console.log('No access token in URL fragment');
-            debugInfo.textContent += '\nNo access token found in URL fragment';
+            safeLog('No access token in URL fragment');
 
             // Check if we're already logged in
             fetch('/auth/check-auth', {
@@ -200,7 +255,11 @@
             })
             .then(response => response.json())
             .then(data => {
-                debugInfo.textContent += '\nAuth check response: ' + JSON.stringify(data);
+                safeLog('Auth check response', {
+                    authenticated: data.authenticated,
+                    hasUser: !!data.user
+                });
+
                 if (data.authenticated) {
                     statusMessage.textContent = 'You are already logged in. Redirecting to dashboard...';
                     setTimeout(() => {
@@ -213,7 +272,7 @@
                 }
             })
             .catch(error => {
-                debugInfo.textContent += '\nError checking auth status: ' + error.message;
+                safeLog('Error checking auth status:', { message: error.message });
                 statusMessage.textContent = 'No access token found. Please try logging in again.';
                 // Show the no token info section
                 noTokenInfo.style.display = 'block';

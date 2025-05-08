@@ -535,16 +535,17 @@ def oauth_callback():
     # This is the callback from Supabase OAuth
     # Supabase will handle the OAuth flow and redirect back here
 
-    # Log request details for debugging
-    logger.info(f"OAuth callback received from: {request.referrer}")
-    logger.info(f"OAuth callback full URL: {request.url}")
-    logger.info(f"OAuth callback headers: {dict(request.headers)}")
-    logger.info(f"OAuth callback query parameters: {request.args}")
-    logger.info(f"OAuth callback form data: {request.form}")
+    # Log minimal request details for debugging
+    logger.info("OAuth callback received")
 
-    # Log environment information
-    logger.info(f"SITE_URL: {os.environ.get('SITE_URL', 'Not set in environment')}")
-    logger.info(f"DYNO: {os.environ.get('DYNO', 'Not running on Heroku')}")
+    # Only log if there's a referrer, and only log the domain
+    if request.referrer:
+        referrer_domain = '/'.join(request.referrer.split('/')[:3])  # Get just the domain part
+        logger.info(f"OAuth callback received from domain: {referrer_domain}")
+
+    # Log environment type without exposing specific URLs
+    is_production = bool(os.environ.get('DYNO'))
+    logger.info(f"Environment: {'Production' if is_production else 'Development'}")
 
     # Check for error
     error = request.args.get('error')
@@ -558,7 +559,7 @@ def oauth_callback():
     # Check for code parameter (authorization code flow)
     code = request.args.get('code')
     if code:
-        logger.info(f"Authorization code found: {code[:10]}... (truncated)")
+        logger.info("Authorization code found (masked for security)")
 
         try:
             # Get the Supabase client
@@ -787,8 +788,6 @@ def process_token():
     try:
         logger.info(f"Process token endpoint called with method: {request.method}")
         logger.info(f"Request content type: {request.content_type}")
-        logger.info(f"Form data keys: {list(request.form.keys()) if request.form else 'No form data'}")
-        logger.info(f"JSON data: {request.get_json(silent=True)}")
 
         # Get the token data from the request (either form data or JSON)
         if request.content_type and 'application/json' in request.content_type:
@@ -796,7 +795,9 @@ def process_token():
         else:
             token_data = request.form
 
-        logger.info(f"Processing token data keys: {list(token_data.keys()) if token_data else 'No token data'}")
+        # Log only the presence of keys, not their values
+        if token_data:
+            logger.info(f"Token data contains keys: {list(token_data.keys())}")
 
         if not token_data or 'access_token' not in token_data:
             logger.error("No access token provided")
@@ -834,30 +835,32 @@ def process_token():
             })
 
         try:
-            # Get the user data from the token
-            logger.info(f"Using access token: {access_token[:10]}... (truncated)")
+            # Get the user data from the token (don't log the token itself)
+            logger.info("Using access token (masked for security)")
 
             # Extract additional token information
             refresh_token = token_data.get('refresh_token')
             expires_in = token_data.get('expires_in')
             provider_token = token_data.get('provider_token')
 
+            # Log only the presence of tokens, not their values
             logger.info(f"Additional token info - refresh_token: {'Present' if refresh_token else 'Not present'}, " +
-                       f"expires_in: {expires_in if expires_in else 'Not present'}, " +
+                       f"expires_in: {'Present' if expires_in else 'Not present'}, " +
                        f"provider_token: {'Present' if provider_token else 'Not present'}")
 
             try:
                 user = supabase.auth.get_user(access_token)
-                logger.info(f"User data retrieved: {user}")
+                logger.info(f"User data retrieved successfully")
             except Exception as e:
                 logger.error(f"Error getting user data from token: {str(e)}")
                 # Try to exchange the token for a session
                 try:
                     logger.info("Attempting to exchange token for session")
-                    session_response = supabase.auth.set_session(access_token, refresh_token)
-                    logger.info(f"Session response: {session_response}")
+                    # Store the response but we don't need to log it
+                    _ = supabase.auth.set_session(access_token, refresh_token)
+                    logger.info("Session exchange successful")
                     user = supabase.auth.get_user()
-                    logger.info(f"User data retrieved after session exchange: {user}")
+                    logger.info("User data retrieved after session exchange")
                 except Exception as inner_e:
                     logger.error(f"Error exchanging token for session: {str(inner_e)}")
                     return jsonify({
@@ -868,7 +871,8 @@ def process_token():
 
             if user and hasattr(user, 'user'):
                 user_data = user.user
-                logger.info(f"User data: {user_data}")
+                # Log only essential user info, not the full object
+                logger.info(f"User authenticated: {user_data.email}")
 
                 # Store the session in Flask session
                 session_data = {
@@ -890,11 +894,12 @@ def process_token():
                 # Check if the user has a profile, create one if not
                 try:
                     # First check if profile exists
-                    logger.info(f"Checking if profile exists for user_id: {user_data.id}")
+                    logger.info(f"Checking if profile exists for user")
                     profile_response = supabase.table('user_profiles').select('*').eq('user_id', user_data.id).execute()
 
-                    logger.info(f"Profile check response: {profile_response}")
-                    logger.info(f"Profile check data: {profile_response.data if hasattr(profile_response, 'data') else 'No data attribute'}")
+                    # Log only whether profile exists, not the full response data
+                    profile_exists = hasattr(profile_response, 'data') and profile_response.data and len(profile_response.data) > 0
+                    logger.info(f"Profile exists: {profile_exists}")
 
                     if not profile_response.data or len(profile_response.data) == 0:
                         logger.info(f"No profile found for user {user_data.email}, creating one")
