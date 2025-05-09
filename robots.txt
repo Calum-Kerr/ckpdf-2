@@ -1,5 +1,7 @@
+# allow all bots to access all pages
 User-agent: *
 Allow: /
+# then added a disallow so these dont get seen on googles index
 Disallow: /auth/
 Disallow: /instance/
 Disallow: /uploads/
@@ -9,5 +11,5 @@ Disallow: /upload/
 Disallow: /security/protect/
 Disallow: /protect/
 
-# Allow all bots to access the sitemap
+# allow all bots to access the sitemap file
 Sitemap: https://www.revisepdf.com/sitemap.xml
